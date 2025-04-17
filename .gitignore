@@ -181,4 +181,3 @@ config.py
 *.txt
 *.pdf
 *.md
-*.json
