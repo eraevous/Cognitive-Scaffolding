@@ -33,6 +33,7 @@ Cognitive Scaffold answers these questions using intelligent summarization, rich
 ```
 
 ---
+## 🛶 Process Flow
 ```
 ┌────────────────────┐
 │   Raw Documents    │
