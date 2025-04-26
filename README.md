@@ -196,20 +196,49 @@ The long-term goal: build a **memory scaffold** for personal growth, creative wo
 ## 📂 Repo Layout (Post Refactor)
 
 ```
-core_lib/
-  ├── parsing/
-  ├── metadata/
-  ├── clustering/
-  ├── chatlogs/
-  ├── utils/
-cli/
-  └── main.py
-scripts/
-  └── cluster_docs.py
-tests/
-  └── test_metadata.py
-storage/
-  └── io.py
+project_root/
+│
+├── README.md
+├── config/
+│   ├── config.py
+│   ├── aws_config.py        # (split S3/Lambda setup separately)
+│
+├── core/
+│   ├── parsing/
+│   │   ├── extract_text.py
+│   │   ├── chunk_text.py
+│   │
+│   ├── metadata/
+│   │   ├── save_load.py
+│   │   ├── validation.py
+│   │   ├── merge.py
+│   │
+│   ├── clustering/
+│   │   ├── runner.py
+│   │   ├── labeling.py
+│   │   ├── plotting.py
+│   │   ├── exporter.py
+│   │
+│   ├── storage/
+│   │   ├── local_utils.py
+│   │   ├── s3_utils.py
+│
+├── workflows/
+│   ├── classification.py
+│   ├── clustering_pipeline.py
+│   ├── recovery_tools.py
+│
+├── cli/
+│   ├── cli.py               # (Typer app entrypoint)
+│
+├── scripts/                  # (For one-off or admin scripts)
+│
+├── tests/                    # (unit tests go here)
+│
+├── data/                     # (raw, parsed, metadata, etc.)
+│
+└── .env or config secrets
+
 ```
 
 ---
