@@ -199,43 +199,56 @@ The long-term goal: build a **memory scaffold** for personal growth, creative wo
 project_root/
 │
 ├── README.md
+├── requirements.txt
 ├── config/
-│   ├── config.py
-│   ├── aws_config.py        # (split S3/Lambda setup separately)
+│   ├── path_config.py
+│   ├── remote_config.py        # (split S3/Lambda setup separately)
 │
 ├── core/
+│   ├── embeddings/
+│   │   ├── loader.py
+│   │
 │   ├── parsing/
 │   │   ├── extract_text.py
 │   │   ├── chunk_text.py
 │   │
 │   ├── metadata/
-│   │   ├── save_load.py
-│   │   ├── validation.py
+│   │   ├── io.py
+│   │   ├── io_helpers.py
+│   │   ├── schema.py
 │   │   ├── merge.py
 │   │
 │   ├── clustering/
-│   │   ├── runner.py
-│   │   ├── labeling.py
-│   │   ├── plotting.py
+│   │   ├── cluster_runner.py
+│   │   ├── cluster_utils.py
+│   │   ├── cluster_helpers.py
+│   │   ├── pipeline.py
 │   │   ├── exporter.py
+│   │   ├── labeling.py
+│   │   ├── visualization.py
 │   │
 │   ├── storage/
+│   │   ├── aws_clients.py
 │   │   ├── local_utils.py
 │   │   ├── s3_utils.py
+│   │
+│   ├── utils/
+│   │   ├── lambda_summary.py
+│   │   ├── strings.py
+│   │   ├── upload_utils.py
 │
 ├── workflows/
-│   ├── classification.py
-│   ├── clustering_pipeline.py
-│   ├── recovery_tools.py
+│   ├── main_commands.py
 │
 ├── cli/
-│   ├── cli.py               # (Typer app entrypoint)
+│   ├── main.py               # (Typer app entrypoint)
+│   ├── batch_ops.py
+│   ├── clustering.py
+│   ├── classification.py
 │
 ├── scripts/                  # (For one-off or admin scripts)
 │
 ├── tests/                    # (unit tests go here)
-│
-├── data/                     # (raw, parsed, metadata, etc.)
 │
 └── .env or config secrets
 
