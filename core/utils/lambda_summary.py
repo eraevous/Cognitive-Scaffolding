@@ -1,0 +1,145 @@
+"""
+Module: core_lib.utils.lambda_summary 
+
+- @ai-path: core_lib.utils.lambda_summary 
+- @ai-source-file: combined_utils.py 
+- @ai-module: lambda_summary 
+- @ai-role: lambda_summarizer 
+- @ai-entrypoint: invoke_summary(), invoke_chatlog_summary() 
+- @ai-intent: "Trigger AWS Lambda summarization using Claude for either standard or chat-style documents."
+
+🔍 Summary:
+This module sends content to a Claude-connected Lambda for summarization. It supports both standard document input and chat logs, with logic to handle retries, prompt formatting, and JSON response unpacking. Errors during Lambda parsing are caught and reported with detail.
+
+📦 Inputs:
+- s3_filename (str): File name to locate in the parsed S3 bucket
+- override_text (str, optional): If provided, overrides file-based loading (used for direct testing)
+
+📤 Outputs:
+- str: Summarized metadata as JSON string
+- unpack_lambda_claude_result → dict or raises: Parsed Lambda payload or informative error
+
+🔗 Related Modules:
+- main_commands → uses these functions for `classify()` and `classify_large()`
+- schema → downstream validation
+- remote_config → AWS paths and Lambda name resolution
+
+🧠 For AI Agents:
+- @ai-dependencies: boto3, json, time, random
+- @ai-calls: lambda_client.invoke, json.dumps, decode, encode, read
+- @ai-uses: remote, BUCKET_NAME, LAMBDA_NAME, PARSED_PREFIX, get_s3_client
+- @ai-tags: lambda, summarization, retry, json-parsing, AWS
+
+⚙️ Meta: 
+- @ai-version: 0.1.0 
+- @ai-generated: true 
+- @ai-verified: false
+
+📝 Human Collaboration: 
+- @human-reviewed: false 
+- @human-edited: false 
+- @last-commit: Add Lambda Claude summarization logic with fallback handling 
+- @change-summary: Introduced dual-mode summarization functions + result unpacking 
+- @notes: 
+"""
+
+
+import json
+import time
+import random
+from core_lib.config.remote_config import RemoteConfig
+from core_lib.storage.aws_clients import get_s3_client, get_lambda_client
+from pathlib import Path
+
+CONFIG_PATH = Path(__file__).parent.parent / "config" / "remote_config.json"
+remote = RemoteConfig.from_file(CONFIG_PATH)
+
+lambda_client = get_lambda_client(region=remote.region)
+
+
+def invoke_summary(s3_filename: str, override_text: str = None) -> str:
+    key = f"{remote.prefixes['parsed']}{s3_filename}"
+
+    payload = {
+        "bucket": remote.bucket_name,
+        "key": key,
+    }
+
+    if override_text:
+        payload["text"] = override_text
+
+    for attempt in range(5):
+        try:
+            response = lambda_client.invoke(
+                FunctionName=remote.lambda_name,
+                InvocationType="RequestResponse",
+                Payload=json.dumps(payload).encode("utf-8"),
+                LogType="Tail"
+            )
+            return response["Payload"].read().decode("utf-8")
+        except Exception as e:
+            wait = 2 + random.random() * 2
+            print(f"[red]Retrying ({attempt+1}/5) after error: {e}[/red]")
+            time.sleep(wait)
+
+    return json.dumps({"error": "Exceeded retries", "key": key})
+
+
+def invoke_chatlog_summary(s3_filename: str) -> str:
+    s3 = get_s3_client()
+    key = f"{PARSED_PREFIX}{s3_filename}"
+
+    prompt_text = s3.get_object(Bucket=remote.bucket_name, Key=key)['Body'].read().decode('utf-8')
+
+    body = {
+        "messages": [
+            {
+                "role": "user",
+                "content": f"""
+This is a conversation between a user and ChatGPT. Summarize the overall interaction.
+
+Return JSON with:
+- summary
+- topics (list of covered topics)
+- category (should be \"chatlog\")
+- tags (list)
+- themes (list of emotional, intellectual, or philosophical topics)
+- priority (0–5, with 5 being the most important and 0 showing no imperatives or required actions in the conversation)  
+- tone (reflective / playful / analytical / etc.)
+- depth (personal / technical / philosophical)
+- stage (e.g., question, exploration, resolution)
+
+Text:
+
+{prompt_text}
+"""
+            }
+        ],
+        "max_tokens": 700,
+        "temperature": 0.4,
+        "anthropic_version": "bedrock-2023-05-31"
+    }
+
+    response = lambda_client.invoke(
+        FunctionName=LAMBDA_NAME,
+        InvocationType="RequestResponse",
+        Payload=json.dumps({"bucket": BUCKET_NAME, "key": key}).encode("utf-8"),
+        LogType="Tail"
+    )
+    return response["Payload"].read().decode("utf-8")
+
+
+def unpack_lambda_claude_result(raw_payload: str):
+    try:
+        parsed = json.loads(raw_payload)
+
+        if isinstance(parsed, dict) and "body" in parsed and isinstance(parsed["body"], str):
+            try:
+                return json.loads(parsed["body"])
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Failed to parse Lambda 'body' JSON: {e}")
+
+        return parsed
+
+    except Exception as e:
+        raise ValueError(f"Failed to parse Claude payload: {e}\nRaw:\n{raw_payload}")
