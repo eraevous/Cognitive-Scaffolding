@@ -1,52 +1,49 @@
 """
-Module: cli/batch_ops.py 
-
-- @ai-path: cli.batch_ops 
-- @ai-source-file: combined_cli.py 
-- @ai-module: batch_cli 
-- @ai-role: cli_batch_controller 
-- @ai-entrypoint: classify_all(), recover_failed(), clean_corrupt_meta(), upload_all(), clear_s3(), organize_all() 
+📦 Module: cli.batch_ops
+- @ai-path: cli.batch_ops
+- @ai-source-file: combined_cli.py
+- @ai-role: CLI Batch Controller
 - @ai-intent: "Provide CLI commands for classification recovery, file uploads, metadata validation, and S3 cleanup."
 
-🔍 Summary:
-This section defines higher-level CLI commands for batch workflows and admin tasks. It enables robust recovery from failed classification runs, validates or deletes corrupt `.meta.json` files, uploads files with parsed text, organizes metadata by cluster labels, and resets specific folders in S3.
+🔍 Module Summary:
+This module defines high-level batch workflow commands for document metadata pipelines. It supports recovery 
+of failed classifications, validation and cleaning of corrupt metadata, organizing metadata by cluster, 
+uploading document files, and clearing S3 folders via Typer CLI commands.
 
-📦 Inputs:
-- config_file (Path): Path to config file specifying directory layout
-- cluster_file (Path): Optional cluster map to use for `organize_all`
-- prefixes (str): Comma-separated list of S3 prefixes for `clear_s3`
+🗂️ Contents:
 
-📤 Outputs:
-- Updates `.meta.json` files
-- Organizes metadata into subfolders
-- Removes invalid metadata
-- Uploads raw/parsed files to S3
-- Clears targeted S3 prefixes
-
-🔗 Related Modules:
-- main_commands → used by classify commands
-- combined_utils → upload logic
-- storage.s3_utils → used by `clear_s3`
-- metadata.schema → used to validate `.meta.json`
+| Name                  | Type     | Purpose                                          |
+|:----------------------|:---------|:-------------------------------------------------|
+| organize_all          | CLI Command | Organize documents into subfolders by cluster.     |
+| classify_all          | CLI Command | Batch classify all unprocessed documents.         |
+| recover_failed        | CLI Command | Retry classification for stubbed but failed files.|
+| clean_corrupt_meta    | CLI Command | Remove invalid `.meta.json` metadata files.       |
+| upload_all            | CLI Command | Upload raw and parsed files to S3 with stubs.     |
+| clear_s3              | CLI Command | Clear specified folders in S3 bucket.             |
 
 🧠 For AI Agents:
 - @ai-dependencies: typer, json, pathlib
-- @ai-calls: classify(), upload_file(), validate_metadata(), clear_s3_folders()
-- @ai-uses: PathConfig, cluster_map, stub_dir
+- @ai-uses: classify, upload_file, validate_metadata, clear_s3_folders
 - @ai-tags: cli, batch, recovery, organization, metadata, upload, S3
 
-⚙️ Meta: 
-- @ai-version: 0.4.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.4.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add batch classify/upload/recover/reset commands to CLI 
-- @change-summary: Add fault-tolerant CLI workflow support for metadata classification 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add batch classify/upload/recover/reset commands to CLI
+- @change-summary: Add fault-tolerant CLI workflow support for metadata classification
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Manage large-scale metadata workflows with fault-tolerance, from classification to cloud upload.
+    - Change Caution: Ensure that directory paths and S3 prefixes match expectations to avoid accidental deletion.
+    - Future Hints: Add dry-run modes for organize, classify, and clear_s3 for safer batch operations.
 """
+
 
 
 import typer

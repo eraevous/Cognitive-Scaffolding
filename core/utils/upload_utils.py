@@ -1,52 +1,45 @@
 """
-Module: core_lib.utils.upload_utils 
-
-- @ai-path: core_lib.utils.upload_utils 
-- @ai-source-file: combined_utils.py 
-- @ai-module: upload_utils 
-- @ai-role: uploader 
-- @ai-entrypoint: upload_file() 
+📦 Module: core_lib.utils.upload_utils
+- @ai-path: core_lib.utils.upload_utils
+- @ai-source-file: combined_utils.py
+- @ai-role: Uploader Utilities
 - @ai-intent: "Upload local files to S3 with parsed versions and register metadata stubs for classification."
 
-🔍 Summary:
-This module provides utilities to upload raw document files and parsed `.txt` equivalents to S3. It also generates and uploads `.stub.json` files which record the upload mapping and file type. These stubs are later used for classification and recovery.
+🔍 Module Summary:
+This module consolidates file upload logic into S3 workflows. It handles uploading raw and parsed documents, 
+generates `.stub.json` metadata mappings, and uploads those stubs for downstream classification. 
+Resilient against parse errors and supports configurable local/remote paths.
 
-📦 Inputs:
-- file_name (str): Path to local file (relative to `PathConfig.raw`)
-- parsed_name (str, optional): Override name for parsed version
-- source_file (str): Full S3 key for raw input
-- parsed_file (str): Full S3 key for parsed output
-- ext (str): File extension of the raw file
-- paths (PathConfig): Directory paths used by the system
-- remote (RemoteConfig): S3 and Lambda config for the project
+🗂️ Contents:
 
-📤 Outputs:
-- upload_file → None: Uploads file, parsed output, and metadata stub
-- save_upload_stub → dict: Metadata stub dictionary
-
-🔗 Related Modules:
-- extract_text → parses uploaded file content
-- s3_utils → used for S3 uploads
-- io_helpers / merge → read stubs during later classification
+| Name               | Type     | Purpose                                          |
+|:-------------------|:---------|:-------------------------------------------------|
+| save_upload_stub    | Function | Save and upload stub metadata linking source and parsed files. |
+| upload_file         | Function | Upload a file (raw and parsed) and generate its stub. |
 
 🧠 For AI Agents:
 - @ai-dependencies: boto3, pathlib, json
-- @ai-calls: upload_file, extract_text, save_upload_stub, put_object
-- @ai-uses: PathConfig, RemoteConfig, get_s3_client, stub_filename
+- @ai-uses: extract_text, PathConfig, RemoteConfig, get_s3_client
 - @ai-tags: upload, s3, stub-metadata, document-pipeline
 
-⚙️ Meta: 
-- @ai-version: 0.4.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.4.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Move upload_file and stub generation to shared utils 
-- @change-summary: Consolidated upload flow with robust metadata stub registration 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Move upload_file and stub generation to shared utils
+- @change-summary: Consolidated upload flow with robust metadata stub registration
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Needed when submitting documents to cloud processing pipelines while preserving raw/parsed linkage.
+    - Change Caution: If stub uploads fail but document uploads succeed, system integrity may degrade silently.
+    - Future Hints: Extend stub format to include upload timestamps, original size, or content hash for better validation.
 """
+
 
 import json
 from pathlib import Path

@@ -1,49 +1,43 @@
 """
-Module: core_lib.metadata.merge 
-
-- @ai-path: core_lib.metadata.merge 
-- @ai-source-file: combined_metadata.py 
-- @ai-module: merge 
-- @ai-role: metadata_aggregator 
-- @ai-entrypoint: merge_metadata_blocks(), resolve_parsed_filename() 
+📦 Module: core_lib.metadata.merge
+- @ai-path: core_lib.metadata.merge
+- @ai-source-file: combined_metadata.py
+- @ai-role: Metadata Aggregator
 - @ai-intent: "Combine segmented metadata chunks into one unified dict and resolve filename identity from stubs."
 
-🔍 Summary: 
-Provides two key utilities for downstream classification workflows:
-- `merge_metadata_blocks` merges chunked metadata dictionaries (e.g. from `classify_large`) by averaging, unioning, and majority-voting values.
-- `resolve_parsed_filename` inspects stub files to find the `.txt` output for a given raw input document.
+🔍 Module Summary:
+This module supports post-classification workflows by merging multiple metadata dictionaries into a single 
+consolidated result and resolving parsed filenames via inspection of metadata stubs. It uses aggregation, 
+majority voting, and flattening strategies to unify partial outputs.
 
-📦 Inputs:
-- blocks (List[Dict]): Partial metadata outputs from classification
-- raw_or_parsed (str): Filename from original source
-- stub_dir (str): Location to search for `.stub.json` files
+🗂️ Contents:
 
-📤 Outputs:
-- merge_metadata_blocks → Dict: Final consolidated metadata
-- resolve_parsed_filename → str: Parsed `.txt` filename
-
-🔗 Related Modules:
-- classify_large → generates block metadata
-- io.py → saves/loads merged results
-- stub_writer → produces stub inputs for resolution
+| Name                    | Type    | Purpose                                 |
+|:------------------------|:--------|:----------------------------------------|
+| merge_metadata_blocks    | Function | Merge multiple metadata block dictionaries. |
+| resolve_parsed_filename  | Function | Resolve parsed `.txt` filenames using stub files. |
 
 🧠 For AI Agents:
 - @ai-dependencies: json, pathlib, collections
-- @ai-calls: Counter, most_common, json.load, glob, open, Path, flatten
-- @ai-uses: ValueError, FileNotFoundError, stub, summary, category
+- @ai-uses: ValueError, FileNotFoundError, Counter, Path
 - @ai-tags: metadata-merging, filename-resolution, pipeline-support
 
-⚙️ Meta: 
-- @ai-version: 0.2.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.2.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add chunk metadata merge + filename resolution logic 
-- @change-summary: Created post-classification tools to consolidate metadata and map filenames 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add chunk metadata merge + filename resolution logic
+- @change-summary: Created post-classification tools to consolidate metadata and map filenames
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Used to cleanly combine classified chunk outputs and standardize downstream metadata.
+    - Change Caution: Assumes consistent key presence across partial outputs; schema changes may impact logic.
+    - Future Hints: Add support for weight-based merging or user-overridable merge strategies.
 """
 
 

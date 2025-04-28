@@ -1,54 +1,47 @@
 """
-Module: core_lib.storage.s3_utils 
-
-- @ai-path: core_lib.storage.s3_utils 
-- @ai-source-file: combined_storage.py 
-- @ai-module: s3_utils 
-- @ai-role: s3_interface 
-- @ai-entrypoint: save_metadata_s3(), load_metadata_s3(), download_file_from_s3(), clear_s3_folders() 
+📦 Module: core_lib.storage.s3_utils
+- @ai-path: core_lib.storage.s3_utils
+- @ai-source-file: combined_storage.py
+- @ai-role: S3 Interface Utilities
 - @ai-intent: "Provide validated save/load and administrative file operations to/from S3 buckets using project config."
 
-🔍 Summary:
-This module contains utility functions for saving and retrieving document metadata and raw/parsed files to/from AWS S3. It includes safe validation against schemas, fallback S3 download logic, and administrative tools like clearing bucket folders.
+🔍 Module Summary:
+This module implements higher-level S3 utilities for saving validated metadata, downloading files, and cleaning 
+S3 folders. It leverages reusable AWS client factories and schema validation, ensuring safe cloud interactions. 
+Designed to support workflows needing reliable cloud storage and retrieval pipelines.
 
-📦 Inputs:
-- bucket (str): S3 bucket name
-- key (str): S3 object key (path to file)
-- metadata (dict): Metadata to upload (must be schema-compliant)
-- s3_filename (str): File to retrieve from S3
-- local_path (str): Where to save downloaded file
-- prefix (str): S3 folder prefix (e.g., "raw/")
-- prefixes (list[str]): List of S3 prefixes to clear
+🗂️ Contents:
 
-📤 Outputs:
-- save_metadata_s3 → None
-- load_metadata_s3 → dict: Parsed and validated metadata
-- download_file_from_s3 → str: Confirmation message
-- clear_s3_folders → None
-
-🔗 Related Modules:
-- aws_clients → used to create boto3 client sessions
-- schema → validates JSON before save/load
-- lambda_summary → sometimes reads parsed files before upload
+| Name                   | Type     | Purpose                                 |
+|:------------------------|:---------|:----------------------------------------|
+| save_metadata_s3        | Function | Validate and upload metadata to S3.     |
+| load_metadata_s3        | Function | Load and validate metadata from S3.     |
+| download_file_from_s3   | Function | Download files from S3 to local storage.|
+| clear_s3_folders        | Function | Bulk delete objects under S3 prefixes.  |
 
 🧠 For AI Agents:
 - @ai-dependencies: boto3, json
-- @ai-calls: put_object, get_object, list_objects_v2, delete_object, download_file
 - @ai-uses: validate_metadata, get_s3_client, RemoteConfig
 - @ai-tags: s3, cloud-storage, metadata, json, boto3, upload, cleanup
 
-⚙️ Meta: 
-- @ai-version: 0.3.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.3.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add validated S3 utilities for metadata and cleanup 
-- @change-summary: Implements upload, load, fallback, and folder clearing via S3 config paths 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add validated S3 utilities for metadata and cleanup
+- @change-summary: Implements upload, load, fallback, and folder clearing via S3 config paths
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Used for reliable cloud persistence and recovery of metadata and document files in S3 workflows.
+    - Change Caution: Misconfigured bucket names, prefixes, or credentials can cause silent failures.
+    - Future Hints: Add multipart upload support for larger files and resilience against S3 rate limits.
 """
+
 
 
 import json

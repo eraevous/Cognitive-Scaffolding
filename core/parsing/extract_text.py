@@ -1,43 +1,45 @@
 """
-Module: core_lib.parsing.extract_text 
-
-- @ai-path: core_lib.parsing.extract_text 
-- @ai-source-file: combined_parsing.py 
-- @ai-module: extract_text 
-- @ai-role: parser 
-- @ai-entrypoint: extract_text() 
+📦 Module: core_lib.parsing.extract_text
+- @ai-path: core_lib.parsing.extract_text
+- @ai-source-file: combined_parsing.py
+- @ai-role: Parser
 - @ai-intent: "Convert files (.txt, .md, .pdf, .docx) into raw text strings for LLM input or downstream processing."
 
-🔍 Summary: This function loads a document from disk and returns its content as a single string. It detects file type by extension and selects the appropriate parser: `.txt` is read as plain text, `.md` is converted using `markdown`, `.pdf` is extracted via PyMuPDF (`fitz`), and `.docx` files use the `python-docx` library. Unsupported formats raise a `ValueError`.
+🔍 Module Summary:
+This module provides a flexible file extraction utility that reads multiple supported document types and 
+returns their raw text content. It supports plain text files (`.txt`), Markdown files (`.md`), PDFs (`.pdf`) 
+via PyMuPDF (`fitz`), and Word documents (`.docx`) via `python-docx`. Files with unsupported extensions 
+trigger a clear error.
 
-📦 Inputs:
-- filepath (str): Path to the input file. Supported formats include `.txt`, `.md`, `.pdf`, and `.docx`.
+🗂️ Contents:
 
-📤 Outputs:
-- str: The extracted raw or cleaned text content.
-
-🔗 Related Modules:
-- chunk_text → splits this output into LLM-sized chunks
-- lambda_summary → uses output as input for Claude summarization
-- upload_utils → triggers this for uploaded files
+| Name         | Type     | Purpose                                   |
+|:-------------|:---------|:------------------------------------------|
+| extract_text | Function | Load and convert text content from various file types. |
 
 🧠 For AI Agents:
 - @ai-dependencies: os, markdown, python-docx, fitz
-- @ai-calls: splitext, open, read, markdown, Document, get_text
 - @ai-uses: Document, ValueError, markdown, fitz, os
 - @ai-tags: file-parsing, document-ingestion, preprocessing
 
-⚙️ Meta: 
-- @ai-version: 0.1.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.1.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Added multi-format file parser for extract_text @change-summary: Initial version of parser supporting txt, md, pdf, docx 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Added multi-format file parser for extract_text
+- @change-summary: Initial version of parser supporting txt, md, pdf, docx
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Used to turn uploaded or retrieved documents into plain text for downstream classification, chunking, or summarization.
+    - Change Caution: Ensure required third-party libraries (`python-docx`, `fitz`, `markdown`) are installed; otherwise functionality may fail silently.
+    - Future Hints: Add support for additional formats (e.g., `.epub`, `.html`) or remote file retrieval.
 """
+
 
 import os
 from docx import Document

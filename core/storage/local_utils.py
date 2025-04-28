@@ -1,47 +1,45 @@
 """
-Module: core_lib.storage.local_utils 
-
-- @ai-path: core_lib.storage.local_utils 
-- @ai-source-file: combined_storage.py 
-- @ai-module: local_utils 
-- @ai-role: file_io 
-- @ai-entrypoint: save_json(), load_json() 
+📦 Module: core_lib.storage.local_utils
+- @ai-path: core_lib.storage.local_utils
+- @ai-source-file: combined_storage.py
+- @ai-role: File I/O Utilities
 - @ai-intent: "Read and write local JSON files to support metadata storage and configuration."
 
-🔍 Summary:
-This module contains helper functions for saving and loading dictionaries to/from `.json` files using UTF-8 encoding. It's intended for use in local or intermediate storage pipelines, such as writing metadata, config files, or caching results.
+🔍 Module Summary:
+This module provides simple helper functions for saving and loading dictionaries to and from JSON files on disk, 
+using UTF-8 encoding. Intended for use cases like metadata caching, configuration persistence, and 
+intermediate storage in local environments.
 
-📦 Inputs:
-- path (str | Path): File path to read from or write to
-- data (dict): Dictionary to serialize and write (for `save_json`)
+🗂️ Contents:
 
-📤 Outputs:
-- save_json → None: Saves to disk
-- load_json → dict: Parsed JSON dictionary
-
-🔗 Related Modules:
-- io.py → relies on this for metadata persistence
-- schema.py → reads metadata for validation
-- upload_utils → optionally uses these when staging uploads
+| Name        | Type     | Purpose                              |
+|:------------|:---------|:-------------------------------------|
+| save_json   | Function | Save a dictionary as a JSON file.    |
+| load_json   | Function | Load a dictionary from a JSON file.  |
 
 🧠 For AI Agents:
 - @ai-dependencies: json, pathlib
-- @ai-calls: open, dump, load
-- @ai-uses: Path, Union, str, dict
+- @ai-uses: Path, open, dump, load
 - @ai-tags: json, file-io, metadata, utility
 
-⚙️ Meta: 
-- @ai-version: 0.1.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.1.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add JSON load/save utilities for local disk persistence 
-- @change-summary: Standardize file-based JSON I/O 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add JSON load/save utilities for local disk persistence
+- @change-summary: Standardize file-based JSON I/O
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Useful for persisting lightweight data structures locally between processing stages.
+    - Change Caution: Paths should be validated externally to avoid writing over critical files.
+    - Future Hints: Add atomic save operations or backup file support for better resilience.
 """
+
 
 
 import json

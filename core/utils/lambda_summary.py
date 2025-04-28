@@ -1,46 +1,44 @@
 """
-Module: core_lib.utils.lambda_summary 
-
-- @ai-path: core_lib.utils.lambda_summary 
-- @ai-source-file: combined_utils.py 
-- @ai-module: lambda_summary 
-- @ai-role: lambda_summarizer 
-- @ai-entrypoint: invoke_summary(), invoke_chatlog_summary() 
+📦 Module: core_lib.utils.lambda_summary
+- @ai-path: core_lib.utils.lambda_summary
+- @ai-source-file: combined_utils.py
+- @ai-role: Lambda Summarizer
 - @ai-intent: "Trigger AWS Lambda summarization using Claude for either standard or chat-style documents."
 
-🔍 Summary:
-This module sends content to a Claude-connected Lambda for summarization. It supports both standard document input and chat logs, with logic to handle retries, prompt formatting, and JSON response unpacking. Errors during Lambda parsing are caught and reported with detail.
+🔍 Module Summary:
+This module enables asynchronous document summarization by invoking a Claude-connected AWS Lambda. 
+It supports both standard document input and specialized chat log summarization with prompt formatting. 
+It includes retry logic, structured result unpacking, and error handling for malformed Lambda responses.
 
-📦 Inputs:
-- s3_filename (str): File name to locate in the parsed S3 bucket
-- override_text (str, optional): If provided, overrides file-based loading (used for direct testing)
+🗂️ Contents:
 
-📤 Outputs:
-- str: Summarized metadata as JSON string
-- unpack_lambda_claude_result → dict or raises: Parsed Lambda payload or informative error
-
-🔗 Related Modules:
-- main_commands → uses these functions for `classify()` and `classify_large()`
-- schema → downstream validation
-- remote_config → AWS paths and Lambda name resolution
+| Name                   | Type     | Purpose                                                   |
+|:------------------------|:---------|:----------------------------------------------------------|
+| invoke_summary          | Function | Summarize standard documents via Lambda.                  |
+| invoke_chatlog_summary  | Function | Summarize chat logs with structured Claude prompt design.  |
+| unpack_lambda_claude_result | Function | Safely parse Lambda payloads into usable metadata.     |
 
 🧠 For AI Agents:
 - @ai-dependencies: boto3, json, time, random
-- @ai-calls: lambda_client.invoke, json.dumps, decode, encode, read
-- @ai-uses: remote, BUCKET_NAME, LAMBDA_NAME, PARSED_PREFIX, get_s3_client
+- @ai-uses: remote, BUCKET_NAME, LAMBDA_NAME, get_s3_client, decode, encode
 - @ai-tags: lambda, summarization, retry, json-parsing, AWS
 
-⚙️ Meta: 
-- @ai-version: 0.1.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.1.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add Lambda Claude summarization logic with fallback handling 
-- @change-summary: Introduced dual-mode summarization functions + result unpacking 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add Lambda Claude summarization logic with fallback handling
+- @change-summary: Introduced dual-mode summarization functions + result unpacking
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Used when documents or chat logs need automatic summarization without local inference costs.
+    - Change Caution: AWS limits on payload size or malformed JSON responses could cause failures.
+    - Future Hints: Add circuit-breaker logic after repeated Lambda failures to prevent downstream corruption.
 """
 
 

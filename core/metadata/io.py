@@ -1,48 +1,45 @@
 """
-Module: core_lib.metadata.io 
-
-- @ai-path: core_lib.metadata.io 
-- @ai-source-file: combined_metadata.py 
-- @ai-module: io 
-- @ai-role: metadata_io 
-- @ai-entrypoint: save_metadata(), load_metadata() 
+📦 Module: core_lib.metadata.io
+- @ai-path: core_lib.metadata.io
+- @ai-source-file: combined_metadata.py
+- @ai-role: Metadata I/O Handler
 - @ai-intent: "Provide save/load operations for document metadata with JSON validation and schema enforcement."
 
-🔍 Summary: This module defines two core I/O functions: `save_metadata`, which saves a dictionary of document metadata to a `.meta.json` file (after validating it against a schema), and `load_metadata`, which reads metadata back from disk and ensures it's still valid. The module assumes `Path` directory structure and schema-driven safety.
+🔍 Module Summary:
+This module defines two core I/O functions: `save_metadata`, which saves a dictionary of document metadata 
+to a `.meta.json` file (after validating it against a schema), and `load_metadata`, which reads metadata back 
+from disk and ensures it's still valid. It uses `Path`-based file management and schema-driven validation to 
+ensure reliable storage and retrieval of metadata objects.
 
-📦 Inputs:
-- filename (str): The document identifier (without extension).
-- metadata (dict): Metadata dictionary to save (for `save_metadata`).
-- meta_dir (Path): Path to metadata directory (default: `metadata/`).
+🗂️ Contents:
 
-📤 Outputs:
-- save_metadata → str: Full path to the saved metadata file
-- load_metadata → dict: Parsed and validated metadata dictionary
-
-🔗 Related Modules:
-- validate_metadata → schema enforcement
-- save_json / load_json → raw I/O helpers
-- merge_metadata_blocks → often called after classification
+| Name              | Type    | Purpose                                           |
+|:------------------|:--------|:--------------------------------------------------|
+| save_metadata     | Function | Save validated metadata to a .meta.json file.      |
+| load_metadata     | Function | Load and validate metadata from a .meta.json file. |
 
 🧠 For AI Agents:
 - @ai-dependencies: pathlib, json
-- @ai-calls: validate_metadata, save_json, load_json, mkdir
 - @ai-uses: Path, str, dict
 - @ai-tags: metadata, validation, io, schema, persistence
 
-⚙️ Meta: 
-- @ai-version: 0.2.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.2.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Initial save/load with validation logic 
-- @change-summary: Add schema validation to metadata I/O 
-- @notes: 
-"""
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Initial save/load with validation logic
+- @change-summary: Add schema validation to metadata I/O
+- @notes: ""
 
+👤 Human Overview:
+    - Context: Used to persist and restore metadata in document processing workflows.
+    - Change Caution: Schema assumptions are embedded; changes must synchronize with validation logic.
+    - Future Hints: Extend for versioning support or alternate formats like YAML if needed.
+"""
 
 from core_lib.metadata.schema import validate_metadata
 from core_lib.storage.local_utils import save_json, load_json

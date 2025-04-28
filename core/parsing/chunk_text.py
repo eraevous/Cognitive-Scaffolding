@@ -1,44 +1,44 @@
-""" 
-Module: core_lib.parsing.chunk_text 
-
-- @ai-path: core_lib.parsing.chunk_text 
-- @ai-source-file: combined_parsing.py 
-- @ai-module: chunk_text 
-- @ai-role: chunker 
-- @ai-entrypoint: chunk_text 
+"""
+📦 Module: core_lib.parsing.chunk_text
+- @ai-path: core_lib.parsing.chunk_text
+- @ai-source-file: combined_parsing.py
+- @ai-role: Chunker
 - @ai-intent: "Divide long input text into paragraph-preserving segments for model input size limits."
 
-🔍 Summary: This function splits a large text input into smaller chunks that do not exceed a specified character count. It respects paragraph boundaries where feasible, but will slice large paragraphs if necessary. Used to prepare text for LLM summarization or classification in size-constrained contexts.
+🔍 Module Summary:
+This module provides a utility to divide a long text into manageable chunks, respecting paragraph boundaries 
+whenever possible. It ensures that no chunk exceeds a specified maximum character limit, preparing text 
+for downstream LLM summarization, classification, or ingestion workflows.
 
-📦 Inputs:
-- text (str): The full text document to be divided into chunks.
-- max_chars (int): The maximum character length allowed per chunk (default is 14,000).
+🗂️ Contents:
 
-📤 Outputs:
-- List[str]: Cleaned list of chunked text strings under the `max_chars` limit.
-
-🔗 Related Modules:
-- extract_text → provides raw input
-- classify_large → uses chunks as unit for metadata generation
+| Name        | Type     | Purpose                                     |
+|:------------|:---------|:--------------------------------------------|
+| chunk_text  | Function | Chunk large text while preserving paragraphs when feasible. |
 
 🧠 For AI Agents:
-- @ai-dependencies: built-in stdlib (no external deps)
-- @ai-calls: split, strip, append, extend, range, len
-- @ai-uses: List, str, text, chunks, paragraphs
+- @ai-dependencies: built-in stdlib (no external dependencies)
+- @ai-uses: List, str, text, paragraphs
 - @ai-tags: chunking, text-preprocessing, LLM-compatibility
 
-⚙️ Meta: 
-- @ai-version: 0.2.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.2.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Initial refactor for paragraph-aware chunking 
-- @change-summary: Adds max_chars limit and preserves paragraph breaks unless paragraph exceeds chunk size 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Initial refactor for paragraph-aware chunking
+- @change-summary: Adds max_chars limit and preserves paragraph breaks unless paragraph exceeds chunk size
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Use this utility when preparing large bodies of text for LLM input, avoiding token overflows.
+    - Change Caution: Very large paragraphs will still be split arbitrarily; consider preprocessing for those cases.
+    - Future Hints: Extend to support sentence-level chunking fallback if paragraph-level split fails.
 """
+
 
 from typing import List
 

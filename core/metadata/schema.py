@@ -1,48 +1,43 @@
 """
-Module: core_lib.metadata.schema 
-
-- @ai-path: core_lib.metadata.schema 
-- @ai-source-file: combined_metadata.py 
-- @ai-module: schema 
-- @ai-role: validator 
-- @ai-entrypoint: validate_metadata() 
+📦 Module: core_lib.metadata.schema
+- @ai-path: core_lib.metadata.schema
+- @ai-source-file: combined_metadata.py
+- @ai-role: Metadata Schema Validator
 - @ai-intent: "Ensure metadata files follow a shared JSON schema structure."
 
-🔍 Summary:
-This module handles loading and applying the project's unified metadata schema. `load_schema` reads the schema JSON from disk, and `validate_metadata` confirms that metadata files conform to the schema's structure and constraints using the `jsonschema` package.
+🔍 Module Summary:
+This module defines schema enforcement for document metadata structures. It loads the unified schema from 
+disk and validates metadata dictionaries against it using `jsonschema`, raising clear errors when violations occur.
 
-📦 Inputs:
-- metadata (dict): A metadata dictionary to validate
-- path (Path): Location of the schema file (defaults to SCHEMA_PATH)
+🗂️ Contents:
 
-📤 Outputs:
-- load_schema → dict: Parsed schema dictionary
-- validate_metadata → bool: Returns True if valid, raises on error
-
-🔗 Related Modules:
-- io.py → validates metadata before saving
-- merge.py → produces merged metadata that is validated before upload
-- metadata_schema.json → defines required fields like summary, topics, tags, etc.
+| Name                 | Type    | Purpose                                           |
+|:---------------------|:--------|:--------------------------------------------------|
+| load_schema          | Function | Load metadata schema from a JSON file.             |
+| validate_metadata    | Function | Validate a metadata dictionary against the schema. |
 
 🧠 For AI Agents:
 - @ai-dependencies: json, jsonschema, pathlib
-- @ai-calls: open, load, validate
-- @ai-uses: SCHEMA_PATH, Path, dict
+- @ai-uses: Path, dict, SCHEMA_PATH
 - @ai-tags: schema, validation, metadata-safety
 
-⚙️ Meta: 
-- @ai-version: 0.1.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.1.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add schema enforcement using jsonschema 
-- @change-summary: Load and apply schema to metadata dictionaries 
-- @notes: 
-"""
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add schema enforcement using jsonschema
+- @change-summary: Load and apply schema to metadata dictionaries
+- @notes: ""
 
+👤 Human Overview:
+    - Context: Used to validate metadata before saving, uploading, or processing in pipelines.
+    - Change Caution: Changes to schema structure require updating validation logic accordingly.
+    - Future Hints: Allow dynamic schema selection for supporting multiple metadata versions.
+"""
 
 import json
 from jsonschema import validate, ValidationError

@@ -1,46 +1,45 @@
 """
-Module: cli/classification.py 
-
-- @ai-path: cli.classification 
-- @ai-source-file: combined_cli.py 
-- @ai-module: classification_cli 
-- @ai-role: cli_entrypoint 
-- @ai-entrypoint: classify(), classify_large() 
+📦 Module: cli.classification
+- @ai-path: cli.classification
+- @ai-source-file: combined_cli.py
+- @ai-role: CLI Entrypoint
 - @ai-intent: "Expose classification and summarization routines as Typer CLI commands."
 
-🔍 Summary:
-These CLI commands run document classification via Claude summarization Lambda. The `classify` command is for individual documents, while `classify_large` automatically chunks large documents and merges metadata.
+🔍 Module Summary:
+This module provides Typer CLI commands to classify documents via Lambda-based Claude summarization. 
+It supports both individual document classification and automated chunked classification for larger inputs. 
+It is intended for fast integration into scalable document processing pipelines.
 
-📦 Inputs:
-- name (str): Filename (raw or parsed) to classify
+🗂️ Contents:
 
-📤 Outputs:
-- S3 `.meta.json` file (via internal `save_metadata_s3`)
-- Printed feedback from classification or chunk merge
-
-🔗 Related Modules:
-- main_commands → executes actual logic
-- lambda_summary → sends content to Claude
-- metadata.schema → used to validate and upload metadata
+| Name           | Type     | Purpose                             |
+|:---------------|:---------|:------------------------------------|
+| classify       | CLI Command | Classify a single document using Claude summarization. |
+| classify_large | CLI Command | Classify large documents by chunking and merging results. |
 
 🧠 For AI Agents:
 - @ai-dependencies: typer
-- @ai-calls: main_commands.classify, main_commands.classify_large
-- @ai-uses: name, str, @app.command
+- @ai-uses: main_commands.classify, main_commands.classify_large
 - @ai-tags: cli, classification, summarization, Lambda, chunking
 
-⚙️ Meta: 
-- @ai-version: 0.3.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.3.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add Typer commands for classification 
-- @change-summary: CLI passthrough to classify and classify_large workflows 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add Typer commands for classification
+- @change-summary: CLI passthrough to classify and classify_large workflows
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Classify new documents directly from the command line without needing manual uploads or processing.
+    - Change Caution: Large document classification is chunk-based; be aware of chunking limits and recombination logic.
+    - Future Hints: Allow manual override of chunk size or prompt template via CLI options.
 """
+
 
 
 import typer

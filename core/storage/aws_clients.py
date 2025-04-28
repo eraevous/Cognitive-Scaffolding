@@ -1,44 +1,43 @@
 """
-Module: core_lib.storage.aws_clients 
-
-- @ai-path: core_lib.storage.aws_clients 
-- @ai-source-file: combined_storage.py 
-- @ai-module: aws_clients 
-- @ai-role: aws_client_provider 
-- @ai-entrypoint: get_s3_client(), get_lambda_client() 
+📦 Module: core_lib.storage.aws_clients
+- @ai-path: core_lib.storage.aws_clients
+- @ai-source-file: combined_storage.py
+- @ai-role: AWS Client Provider
 - @ai-intent: "Provide reusable, profile-aware boto3 clients for AWS service access."
 
-🔍 Summary:
-Provides factory functions to initialize `boto3` clients for AWS services (S3 and Lambda). These functions support injecting AWS CLI profiles (for development environments) and regions (default: "us-east-1"). Used across modules for consistent and testable cloud access.
+🔍 Module Summary:
+This module defines simple factory functions to initialize `boto3` clients for AWS services like S3 and Lambda. 
+Clients can be configured with optional AWS profiles (e.g., for local dev) and target regions (default "us-east-1"), 
+supporting flexibility across deployment environments.
 
-📦 Inputs:
-- profile (Optional[str]): AWS CLI profile name (default: None)
-- region (str): AWS region name (default: "us-east-1")
+🗂️ Contents:
 
-📤 Outputs:
-- boto3.client: Configured boto3 client instance (S3 or Lambda)
-
-🔗 Related Modules:
-- s3_utils.py → uses get_s3_client for upload/download
-- lambda_summary.py → uses get_lambda_client for LLM summarization
+| Name              | Type     | Purpose                               |
+|:------------------|:---------|:--------------------------------------|
+| get_s3_client      | Function | Create a boto3 client for Amazon S3.  |
+| get_lambda_client  | Function | Create a boto3 client for AWS Lambda. |
 
 🧠 For AI Agents:
 - @ai-dependencies: boto3
-- @ai-calls: boto3.Session().client()
-- @ai-uses: profile, region, Session
+- @ai-uses: Session, client
 - @ai-tags: boto3, aws, cloud, s3, lambda
 
-⚙️ Meta: 
-- @ai-version: 0.2.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.2.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add reusable AWS session client functions 
-- @change-summary: Initialize boto3 clients with optional profile and region support 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add reusable AWS session client functions
+- @change-summary: Initialize boto3 clients with optional profile and region support
+- @notes: ""
+
+👤 Human Overview:
+    - Context: Used when consistent, optionally profile-scoped AWS clients are needed across modules.
+    - Change Caution: Ensure AWS credentials and profile configurations are managed securely.
+    - Future Hints: Extend to support additional AWS services if needed (e.g., DynamoDB, SNS).
 """
 
 

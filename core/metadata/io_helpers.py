@@ -1,45 +1,43 @@
 """
-Module: core_lib.metadata.io_helpers 
-
-- @ai-path: core_lib.metadata.io_helpers 
-- @ai-source-file: combined_metadata.py 
-- @ai-module: io_helpers 
-- @ai-role: parsed_text_resolver 
-- @ai-entrypoint: get_parsed_text() 
+📦 Module: core_lib.metadata.io_helpers
+- @ai-path: core_lib.metadata.io_helpers
+- @ai-source-file: combined_metadata.py
+- @ai-role: Parsed Text Resolver
 - @ai-intent: "Return parsed document content by resolving from local file, stub + raw reparsing, or S3 fallback."
 
-🔍 Summary: Attempts to return the parsed text content for a document. It first checks for a local parsed `.txt` file. If missing, it looks for a metadata stub that links to the original raw file and attempts to re-parse it. As a last resort, it downloads the parsed file from S3 using the standard remote config. This function ensures maximum recovery and fault tolerance during preprocessing.
+🔍 Module Summary:
+This module provides a fault-tolerant system for retrieving parsed document text. It first checks for local 
+parsed files, then tries regenerating from raw sources if metadata stubs exist, and finally attempts S3 
+downloads if necessary. This ensures robust handling of missing or incomplete parsed data during preprocessing.
 
-📦 Inputs:
-- name (str): Base document name (with or without `.txt`)
+🗂️ Contents:
 
-📤 Outputs:
-- str: Full parsed text content of the file
-
-🔗 Related Modules:
-- extract_text → used to regenerate missing parsed files
-- s3_utils → used for download fallback
-- upload_utils → writes stub pointing to parsed/raw locations
+| Name              | Type    | Purpose                                 |
+|:------------------|:--------|:----------------------------------------|
+| get_parsed_text    | Function | Recover parsed text via local or remote fallback methods. |
 
 🧠 For AI Agents:
-- @ai-dependencies: pathlib, json, fitz, extract_text, boto3
-- @ai-calls: exists, read_text, extract_text, download_file, get_s3_client, open, json.load
+- @ai-dependencies: pathlib, json, boto3, fitz (for PDF parsing if used downstream)
 - @ai-uses: Path, remote.prefixes, parsed_path, stub_path, raw_path
 - @ai-tags: fallback, resilience, file-recovery, S3-aware
 
-⚙️ Meta: 
-- @ai-version: 0.2.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.2.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Added fallback logic to retrieve missing parsed text 
-- @change-summary: Implements stub and S3 fallback for document parsing 
-- @notes: 
-"""
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Added fallback logic to retrieve missing parsed text
+- @change-summary: Implements stub and S3 fallback for document parsing
+- @notes: ""
 
+👤 Human Overview:
+    - Context: Used when parsed documents may be partially missing during preprocessing or ingestion.
+    - Change Caution: Remote config assumptions (S3 paths) are hardcoded; breaking changes may occur if path structures change.
+    - Future Hints: Support automatic stub regeneration and compression handling for large parsed files.
+"""
 
 import json
 from pathlib import Path
