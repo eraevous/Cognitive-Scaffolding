@@ -1,7 +1,7 @@
 """
-Module: graph_tools/variable_graph.py
-@ai-path: graph_tools.variable_graph
-@ai-source-file: graph_tools/variable_graph.py
+Module: tools/variable_graph.py
+@ai-path: tools.variable_graph
+@ai-source-file: tools/variable_graph.py
 @ai-module: variable_graph
 @ai-role: graph_constructor
 @ai-entrypoint: build_variable_graph()

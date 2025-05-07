@@ -1,3 +1,49 @@
+"""
+Module: tools/combine_scripts.py
+@ai-path: tools.combine_scripts
+@ai-source-file: tools/combine_scripts.py
+@ai-module: combine_scripts
+@ai-role: source_aggregator
+@ai-entrypoint: combine_scripts()
+@ai-intent: "Combine Python source files from multiple directories into aggregated scripts with docstring extraction and summary logging."
+
+🔍 Summary:
+This module provides a CLI tool for recursively scanning Python files under a specified root directory and combining them into single monolithic scripts per subdirectory. Each file is prepended with its module-level docstring (if present) and clearly separated with a marker line. The tool supports directory exclusion, creates a summary CSV log with line counts, and writes all outputs into a user-defined folder.
+
+📦 Inputs:
+- root (Path): Root directory to search for `.py` files.
+- ignore_dirs (str): Comma-separated list of directories to exclude (e.g., `env,tests`).
+- output_dir (str): Folder where combined scripts will be written.
+- log_csv (str): CSV filename for output statistics.
+
+📤 Outputs:
+- Combined `.combined.py` files written to the output directory
+- A CSV summary log of file counts and total lines per bundle
+
+🔗 Related Modules:
+- tools.ast_dependency_cli → for analyzing call graphs post-combination
+- csv, pathlib, typer, os
+
+🧠 For AI Agents:
+- @ai-dependencies: os, csv, pathlib, typer
+- @ai-calls: collect_py_files, extract_module_docstring, combine_files, csv.writer
+- @ai-uses: SEPARATOR, Path, List, open, readlines, mkdir, write_text
+- @ai-tags: cli, code-combiner, docstring-parser, logging, directory-walker
+
+⚙️ Meta:
+@ai-version: 0.2.0
+@ai-generated: true
+@ai-verified: false
+
+📝 Human Collaboration:
+@human-reviewed: false
+@human-edited: false
+@last-commit: Added inline docstring extraction and summary logging support (2024-05-01)
+@change-summary: Builds a monolithic script per directory, prepends file docstrings, logs summary stats to CSV
+@notes: Ideal for bundling source files into reviewable or AI-trainable scripts.
+"""
+
+
 import os
 from pathlib import Path
 import csv
