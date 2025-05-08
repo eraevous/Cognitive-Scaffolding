@@ -42,9 +42,10 @@ disk and validates metadata dictionaries against it using `jsonschema`, raising 
 import json
 from jsonschema import validate, ValidationError
 from pathlib import Path
-from core_lib.config.path_config import PathConfig
+from core.config.path_config import PathConfig
 
-SCHEMA_PATH = PathConfig.from_file().root / PathConfig.from_file().schema
+config = PathConfig.from_file()
+SCHEMA_PATH = config.root / config.schema
 
 
 def load_schema(path: Path = SCHEMA_PATH) -> dict:

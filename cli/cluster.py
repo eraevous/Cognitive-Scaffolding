@@ -42,8 +42,8 @@ visualizations and metadata. Paths can be optionally configured via a JSON confi
 
 import typer
 from pathlib import Path
-from core_lib.clustering.clustering_runner import run_clustering_pipeline
-from core_lib.config.path_config import PathConfig
+from core.clustering.clustering_runner import run_clustering_pipeline
+from core.config.path_config import PathConfig
 
 app = typer.Typer()
 

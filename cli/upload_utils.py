@@ -43,10 +43,10 @@ Resilient against parse errors and supports configurable local/remote paths.
 
 import json
 from pathlib import Path
-from core_lib.config.remote_config import RemoteConfig
-from core_lib.config.path_config import PathConfig
-from core_lib.parsing.extract_text import extract_text
-from core_lib.storage.aws_clients import get_s3_client
+from core.config.remote_config import RemoteConfig
+from core.config.path_config import PathConfig
+from core.parsing.extract_text import extract_text
+from core.storage.aws_clients import get_s3_client
 
 
 def save_upload_stub(source_file: str, parsed_file: str, ext: str, paths: PathConfig, remote: RemoteConfig):

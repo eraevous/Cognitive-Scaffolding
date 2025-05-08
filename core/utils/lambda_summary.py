@@ -45,12 +45,11 @@ It includes retry logic, structured result unpacking, and error handling for mal
 import json
 import time
 import random
-from core_lib.config.remote_config import RemoteConfig
-from core_lib.storage.aws_clients import get_s3_client, get_lambda_client
+from config.remote_config import RemoteConfig
+from core.storage.aws_clients import get_s3_client, get_lambda_client
 from pathlib import Path
 
-CONFIG_PATH = Path(__file__).parent.parent / "config" / "remote_config.json"
-remote = RemoteConfig.from_file(CONFIG_PATH)
+remote = RemoteConfig.from_file()
 
 lambda_client = get_lambda_client(region=remote.region)
 

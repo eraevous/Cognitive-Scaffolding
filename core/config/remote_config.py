@@ -34,6 +34,7 @@ AI-Assistance Tags:
 
 import json
 from pathlib import Path
+from typing import Union
 
 class RemoteConfig:
     def __init__(
@@ -41,9 +42,11 @@ class RemoteConfig:
         bucket_name: str,
         lambda_name: str,
         region: str,
+        root: Path = None,
         openai_api_key: str = None,
         prefixes: dict = None
     ):
+        self.root = Path(root or ".").resolve()
         self.bucket_name = bucket_name
         self.lambda_name = lambda_name
         self.region = region
@@ -51,7 +54,7 @@ class RemoteConfig:
         self.prefixes = prefixes or {}
 
     @classmethod
-    def from_file(cls, config_path: Path):
+    def from_file(cls, config_path: Union[str, Path] = f"{Path(".").resolve()}\\config\\remote_config.json"):
         with open(config_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 

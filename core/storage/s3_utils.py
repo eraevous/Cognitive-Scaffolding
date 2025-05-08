@@ -46,9 +46,9 @@ Designed to support workflows needing reliable cloud storage and retrieval pipel
 
 import json
 from pathlib import Path
-from core_lib.metadata.schema import validate_metadata
-from core_lib.storage.aws_clients import get_s3_client
-from core_lib.config.remote_config import RemoteConfig
+from core.metadata.schema import validate_metadata
+from core.storage.aws_clients import get_s3_client
+from config.remote_config import RemoteConfig
 
 
 def save_metadata_s3(bucket: str, key: str, metadata: dict, s3=None) -> None:

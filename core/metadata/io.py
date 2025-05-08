@@ -41,8 +41,8 @@ ensure reliable storage and retrieval of metadata objects.
     - Future Hints: Extend for versioning support or alternate formats like YAML if needed.
 """
 
-from core_lib.metadata.schema import validate_metadata
-from core_lib.storage.local_utils import save_json, load_json
+from core.metadata.schema import validate_metadata
+from core.storage.local import save_json, load_json
 from pathlib import Path
 
 

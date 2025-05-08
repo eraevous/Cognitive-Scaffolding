@@ -80,7 +80,7 @@ class PathConfig:
         )
 
     @classmethod
-    def from_file(cls, config_path: Union[str, Path] = "path_config.json"):
+    def from_file(cls, config_path: Union[str, Path] = f"{Path(".").resolve()}\\config\\path_config.json"):
         """
         Load a PathConfig from a JSON file.
 
@@ -97,6 +97,7 @@ class PathConfig:
         Returns:
             PathConfig instance
         """
+        print(config_path)
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
 

@@ -53,7 +53,7 @@ import shutil
 from pathlib import Path
 from typing import Dict
 
-from core_lib.metadata.io import load_metadata
+from core.metadata.io import load_metadata
 
 
 def organize_file(name: str, cluster_map: Dict[str, str] = {}, 

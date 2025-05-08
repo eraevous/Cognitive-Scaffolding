@@ -51,14 +51,14 @@ This section defines higher-level CLI commands for batch workflows and admin tas
 import typer
 from pathlib import Path
 import json
-from core_lib.metadata.organize import organize_file
-from core_lib.metadata.schema import validate_metadata
-from core_lib.workflows.main_commands import classify
-from core_lib.storage.s3_utils import save_metadata_s3, clear_s3_folders
-from config import BUCKET_NAME, META_PREFIX
-from core_lib.storage.upload_utils import upload_file
+from organize import organize_file
+from core.metadata.schema import validate_metadata
+from main_commands import classify
+from core.storage.s3_utils import save_metadata_s3, clear_s3_folders
+#from config.remote_config import BUCKET_NAME, META_PREFIX
+from upload import upload_file
 
-from core_lib.config.path_config import PathConfig
+from core.config.path_config import PathConfig
 
 def load_paths(config_file: Path = None) -> PathConfig:
     if config_file and config_file.exists():

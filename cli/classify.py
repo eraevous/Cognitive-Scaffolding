@@ -44,7 +44,7 @@ It is intended for fast integration into scalable document processing pipelines.
 
 import typer
 from cli import clustering, utility
-from core_lib.workflows import main_commands
+from core.workflows import main_commands
 
 app = typer.Typer()
 

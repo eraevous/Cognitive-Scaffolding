@@ -45,16 +45,16 @@ This module contains two core functions to classify documents. `classify()` supp
 """
 
 
-from core_lib.config.path_config import PathConfig
-from core_lib.config.remote_config import RemoteConfig
-from core_lib.storage.aws_clients import get_s3_client
-from core_lib.utils.lambda_summary import (
+from core.config.path_config import PathConfig
+from core.config.remote_config import RemoteConfig
+from core.storage.aws_clients import get_s3_client
+from core.utils.lambda_summary import (
     invoke_summary,
     invoke_chatlog_summary,
     unpack_lambda_claude_result
 )
-from core_lib.metadata.schema import validate_metadata
-from core_lib.storage.s3_utils import save_metadata_s3
+from core.metadata.schema import validate_metadata
+from core.storage.s3_utils import save_metadata_s3
 from pathlib import Path
 import json
 
