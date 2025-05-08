@@ -44,112 +44,85 @@ This module contains two core functions to classify documents. `classify()` supp
 - @notes: 
 """
 
+import json
+from pathlib import Path
+from typing import Optional
 
 from core.config.path_config import PathConfig
 from core.config.remote_config import RemoteConfig
 from core.storage.aws_clients import get_s3_client
-from core.utils.lambda_summary import (
-    invoke_summary,
-    invoke_chatlog_summary,
-    unpack_lambda_claude_result
-)
-from core.metadata.schema import validate_metadata
 from core.storage.s3_utils import save_metadata_s3
-from pathlib import Path
-import json
+from core.utils.upload_utils import upload_file
+from core.llm.invoke import summarize_text
+from core.parsing.chunk_text import chunk_text
+from core.metadata.schema import validate_metadata
+from core.metadata.merge import merge_metadata_blocks
 
 
-remote = RemoteConfig.from_file(Path(__file__).parent.parent / "config" / "remote_config.json")
-s3_meta_path = lambda name: f"{remote.prefixes['metadata']}{name}.meta.json"
+def get_parsed_text(name: str, paths: Optional[PathConfig] = None) -> str:
+    paths = paths or PathConfig.from_file()
+    parsed_path = paths.parsed / name
+    return parsed_path.read_text(encoding="utf-8")
 
 
-def classify(name: str, paths: PathConfig = None, remote: RemoteConfig = None) -> dict:
-    """
-    Classify a single parsed document (chatlog or regular) and save metadata to S3.
-
-    Args:
-        name (str): Name of parsed file (txt only)
-        paths (PathConfig): Optional paths to override default config
-        remote (RemoteConfig): Optional AWS config to override default
-
-    Returns:
-        dict: Final validated metadata block
-    """
-    paths = paths or PathConfig.from_file("path_config.json")
-    
-    if isinstance(remote, (str, Path)):
-        remote = RemoteConfig.from_file(remote)
-    elif remote is None:
-        remote = RemoteConfig.from_file(Path(__file__).parent.parent / "config" / "remote_config.json")
+def looks_like_chatlog(text: str) -> bool:
+    lines = text.lower().splitlines()
+    return sum(1 for l in lines[:50] if any(k in l for k in ["user:", "assistant:", "you:", "chatgpt:"])) > 2
 
 
-    s3 = get_s3_client(region=remote.region)
+def classify(name: str, paths: Optional[PathConfig] = None, remote: Optional[RemoteConfig] = None) -> dict:
+    paths = paths or PathConfig.from_file()
+    remote = remote or RemoteConfig.from_file()
 
-    key = f"{paths.parsed.name}/{name}"
-    print(f"\nKey = {key}\nBucket = {remote.bucket_name}")
-    response = s3.get_object(Bucket=remote.bucket_name, Key=key)
-    content = response["Body"].read().decode("utf-8")
+    text = get_parsed_text(name, paths)
+    doc_type = "chatlog" if looks_like_chatlog(text) else "standard"
+    metadata = summarize_text(text, doc_type=doc_type, config=remote)
 
-    def looks_like_chatlog(text: str) -> bool:
-        lines = text.lower().splitlines()
-        return sum(1 for l in lines[:50] if any(k in l for k in ["user:", "assistant:", "you:", "chatgpt:"])) > 2
-
-    # Summarize
-    raw = invoke_chatlog_summary(name) if looks_like_chatlog(content) else invoke_summary(name)
-    metadata = json.loads(raw) if isinstance(raw, str) else raw
-    validate_metadata(metadata)
-
-    # Attach stub if available
     stub_path = paths.metadata / f"{name}.stub.json"
     if stub_path.exists():
-        stub = json.loads(stub_path.read_text(encoding="utf-8"))
+        stub = json.loads(stub_path.read_text("utf-8"))
         metadata.update(stub)
 
-    s3_key = f"{paths.metadata.name}/{name}.meta.json"
-    save_metadata_s3(remote.bucket_name, s3_key, metadata, s3=s3)
-
+    validate_metadata(metadata)
+    save_metadata_s3(remote.bucket_name, f"{remote.prefixes['metadata']}{name}.meta.json", metadata)
     return metadata
 
-def classify_large(name: str, paths: PathConfig = PathConfig()) -> dict:
-    """
-    Classify a large file in multiple chunks and upload merged metadata to S3.
 
-    Args:
-        name (str): Raw or parsed filename
+def classify_large(name: str, paths: Optional[PathConfig] = None, remote: Optional[RemoteConfig] = None) -> dict:
+    paths = paths or PathConfig.from_file()
+    remote = remote or RemoteConfig.from_file()
 
-    Returns:
-        dict: Final merged metadata block
-    """
-    parsed_name = resolve_parsed_filename(name)
-    content = get_parsed_text(parsed_name)
+    parsed_name = name if name.endswith(".txt") else Path(name).stem + ".txt"
+    content = get_parsed_text(parsed_name, paths)
     chunks = chunk_text(content)
 
     metadata_blocks = []
     for i, chunk in enumerate(chunks):
         if not chunk.strip():
             continue
-        if len(chunk) > 16000:
-            continue
-
-        chunk_name = f"{Path(name).stem}_chunk{i+1}.txt"
-        raw = invoke_summary(chunk_name, override_text=chunk)
         try:
-            meta = json.loads(raw)
-            validate_metadata(meta)
-            metadata_blocks.append(meta)
+            metadata = summarize_text(chunk, config=remote)
+            validate_metadata(metadata)
+            metadata_blocks.append(metadata)
         except Exception as e:
-            print(f"Failed to classify chunk {i+1}: {e}")
+            print(f"Chunk {i+1} failed: {e}")
 
     if not metadata_blocks:
-        raise ValueError("No valid metadata returned from chunk classification")
+        raise ValueError("No valid metadata returned from chunks.")
 
     merged = merge_metadata_blocks(metadata_blocks)
 
-    # Attach stub
     stub_path = paths.metadata / f"{parsed_name}.stub.json"
     if stub_path.exists():
-        stub = json.loads(stub_path.read_text(encoding="utf-8"))
+        stub = json.loads(stub_path.read_text("utf-8"))
         merged.update(stub)
 
-    save_metadata_s3(remote.bucket_name, s3_meta_path(parsed_name), merged)
+    validate_metadata(merged)
+    save_metadata_s3(remote.bucket_name, f"{remote.prefixes['metadata']}{parsed_name}.meta.json", merged)
     return merged
+
+
+def pipeline_from_upload(file_name: str, parsed_name: Optional[str] = None) -> dict:
+    upload_file(file_name, parsed_name)
+    txt_name = parsed_name or Path(file_name).stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
+    return classify(txt_name)
