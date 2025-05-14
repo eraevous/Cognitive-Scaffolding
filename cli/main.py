@@ -1,15 +1,13 @@
 import typer
-#import clustering
-#import classification
+import classification
 import batch_ops
+import clustering
 
 app = typer.Typer()
 
-# Attach sub-apps
-#app.add_typer(clustering.app, name="cluster")
-#app.add_typer(classification.app, name="classify")
+app.add_typer(classification.app, name="classify")
 app.add_typer(batch_ops.app, name="batch")
-# app.add_typer(utility.app, name="utils")  # if you want
+app.add_typer(clustering.app, name="cluster")
 
 if __name__ == "__main__":
     app()

@@ -43,21 +43,13 @@ It is intended for fast integration into scalable document processing pipelines.
 
 
 import typer
-from cli import clustering, utility
-from core.workflows import main_commands
+from core.workflows.main_commands import classify
 
 app = typer.Typer()
 
-# Register command groups
-app.add_typer(clustering.app, name="cluster")
-app.add_typer(utility.app, name="utils")
-
 @app.command()
-def classify(name: str):
-    """Classify a single document."""
-    main_commands.classify(name)
-
-@app.command()
-def classify_large(name: str):
-    """Classify a large document in chunks."""
-    main_commands.classify_large(name)
+def classify_one(name: str, chunked: bool = False):
+    """Classify a single document (optionally in chunked mode)."""
+    result = classify(name, chunked=chunked)
+    print("✅ Metadata saved.")
+    print(result)

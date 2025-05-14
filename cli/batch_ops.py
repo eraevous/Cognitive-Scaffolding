@@ -50,108 +50,50 @@ This section defines higher-level CLI commands for batch workflows and admin tas
 
 import typer
 from pathlib import Path
-import json
-from organize import organize_file
-from core.metadata.schema import validate_metadata
-from main_commands import classify
-from core.storage.s3_utils import save_metadata_s3, clear_s3_folders
-#from config.remote_config import BUCKET_NAME, META_PREFIX
-from upload import upload_file
-
-from core.config.path_config import PathConfig
-
-def load_paths(config_file: Path = None) -> PathConfig:
-    if config_file and config_file.exists():
-        return PathConfig.from_file(config_file)
-    return PathConfig()
+from core.config.config_registry import get_path_config
+from core.workflows.main_commands import classify, upload_and_prepare, pipeline_from_upload
 
 app = typer.Typer()
 
 @app.command()
-def organize_all(
-    cluster_file: Path = typer.Option(None, help="Optional cluster assignment JSON")
-, config_file: Path = typer.Option(None, help="Optional path config file")):
-    """Organize all documents using their metadata (and optional cluster map)."""
-    cluster_map = {}
-    if cluster_file and cluster_file.exists():
-        with open(cluster_file, "r") as f:
-            cluster_map = json.load(f)
+def classify_all(chunked: bool = False, overwrite: bool = False):
+    """Classify all parsed files in the system."""
+    paths = get_path_config()
+    for file in sorted(paths.parsed.glob("*.txt")):
+        name = file.name
+        meta_path = paths.metadata / f"{name}.meta.json"
 
-    paths = load_paths(config_file)
-    meta_dir = paths.metadata
-    for meta_path in meta_dir.glob("*.meta.json"):
-        doc_id = meta_path.stem.replace(".meta", "")
-        organize_file(doc_id, cluster_map)
-    print("✅ All files organized.")
-
-@app.command()
-def classify_all(config_file: Path = typer.Option(None, help="Optional path config file")):
-    """Classify all parsed documents in `parsed/` without `.meta.json` output yet."""
-    paths = load_paths(config_file)
-    parsed_dir = paths.parsed
-    meta_dir = paths.metadata
-    paths = load_paths(config_file)
-    meta_dir = paths.metadata
-    done = {f.stem.replace(".meta", "") for f in meta_dir.glob("*.meta.json")}
-
-    for txt_file in parsed_dir.glob("*.txt"):
-        name = txt_file.name
-        if name in done:
+        if meta_path.exists() and not overwrite:
+            print(f"🟡 Skipping {name} (already classified)")
             continue
+
         try:
-            classify(name)
+            print(f"🔍 Classifying {name}...")
+            classify(name, chunked=chunked)
+            print(f"✅ Done: {name}")
         except Exception as e:
-            print(f"❌ Failed to classify {name}: {e}")
+            print(f"❌ Error: {name} — {e}")
 
-    print("✅ All unclassified files processed.")
-
-@app.command()
-def recover_failed(config_file: Path = typer.Option(None, help="Optional path config file")):
-    """Re-attempt classification of files with stubs but no valid metadata."""
-    paths = load_paths(config_file)
-    stub_dir = paths.metadata
-    for stub_file in stub_dir.glob("*.stub.json"):
-        name = stub_file.stem.replace(".stub", "")
-        meta_file = stub_dir / f"{name}.meta.json"
-        if not meta_file.exists():
-            print(f"🔁 Retrying: {name}")
-            try:
-                classify(name)
-            except Exception as e:
-                print(f"❌ Still failed on {name}: {e}")
-
-    print("🔄 Recovery attempt complete.")
 
 @app.command()
-def clean_corrupt_meta(config_file: Path = typer.Option(None, help="Optional path config file")):
-    """Remove `.meta.json` files that fail schema validation."""
-    meta_dir = Path("metadata")
-    for meta_file in meta_dir.glob("*.meta.json"):
+def upload_all(directory: Path):
+    """Upload and parse all files in the given local directory."""
+    for file in sorted(directory.glob("*")):
         try:
-            data = json.loads(meta_file.read_text("utf-8"))
-            validate_metadata(data)
+            print(f"📤 Uploading {file.name}...")
+            upload_and_prepare(file)
         except Exception as e:
-            print(f"🧹 Removing {meta_file.name}: {e}")
-            meta_file.unlink()
+            print(f"❌ Failed on {file.name}: {e}")
 
-    print("🧼 Corrupt metadata cleaned.")
 
 @app.command()
-def upload_all(config_file: Path = typer.Option(None, help="Optional path config file")):
-    """Upload all raw files and generate parsed + stub metadata."""
-    paths = load_paths(config_file)
-    for file in paths.raw.glob("*.*"):
+def ingest_all(directory: Path, chunked: bool = False):
+    """Full pipeline: upload, parse, classify for all files in directory."""
+    for file in sorted(directory.glob("*")):
         try:
-            upload_file(str(file))
+            print(f"🚀 Ingesting {file.name}...")
+            parsed_name = None  # Optional override name
+            result = pipeline_from_upload(file, parsed_name=parsed_name)
+            print(f"✅ Metadata: {result.get('summary', '')[:100]}...")
         except Exception as e:
-            print(f"❌ Failed to upload {file.name}: {e}")
-
-    print("✅ Upload complete.")
-
-
-@app.command()
-def clear_s3(prefixes: str = typer.Option("raw/,parsed/,metadata/", help="Comma-separated S3 prefixes to clear")):
-    """Delete all objects under given S3 prefixes."""
-    prefix_list = [p.strip() for p in prefixes.split(",") if p.strip()]
-    clear_s3_folders(prefix_list)
-    print("✅ S3 folders cleared.")
+            print(f"❌ Error during ingestion of {file.name}: {e}")
