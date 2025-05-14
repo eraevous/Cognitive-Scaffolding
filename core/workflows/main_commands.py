@@ -48,81 +48,62 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from core.config.path_config import PathConfig
-from core.config.remote_config import RemoteConfig
-from core.storage.aws_clients import get_s3_client
-from core.storage.s3_utils import save_metadata_s3
+from core.config.config_registry import get_path_config, get_remote_config
 from core.storage.upload_local import upload_file
 from core.llm.invoke import summarize_text
 from core.parsing.chunk_text import chunk_text
 from core.metadata.schema import validate_metadata
 from core.metadata.merge import merge_metadata_blocks
 
+MAX_CHARS = 16000
 
-def get_parsed_text(name: str, paths: Optional[PathConfig] = None) -> str:
-    paths = paths or PathConfig.from_file()
+def get_parsed_text(name: str) -> str:
+    paths = get_path_config()
     parsed_path = paths.parsed / name
     return parsed_path.read_text(encoding="utf-8")
-
 
 def looks_like_chatlog(text: str) -> bool:
     lines = text.lower().splitlines()
     return sum(1 for l in lines[:50] if any(k in l for k in ["user:", "assistant:", "you:", "chatgpt:"])) > 2
 
+def classify(name: str, chunked: bool = False) -> dict:
+    paths = get_path_config()
+    parsed_path = paths.parsed / name
+    text = parsed_path.read_text(encoding="utf-8")
 
-def classify(name: str, paths: Optional[PathConfig] = None, remote: Optional[RemoteConfig] = None) -> dict:
-    paths = paths or PathConfig.from_file()
-    remote = remote or RemoteConfig.from_file()
-
-    text = get_parsed_text(name, paths)
     doc_type = "chatlog" if looks_like_chatlog(text) else "standard"
-    metadata = summarize_text(text, doc_type=doc_type, config=remote)
 
+    if not chunked and len(text) <= MAX_CHARS:
+        metadata = summarize_text(text, doc_type=doc_type)
+    else:
+        chunks = chunk_text(text)
+        block_results = [summarize_text(chunk, doc_type=doc_type) for chunk in chunks if chunk.strip()]
+        metadata = merge_metadata_blocks(block_results)
+
+    # Merge with stub if present
     stub_path = paths.metadata / f"{name}.stub.json"
     if stub_path.exists():
         stub = json.loads(stub_path.read_text("utf-8"))
         metadata.update(stub)
 
     validate_metadata(metadata)
-    save_metadata_s3(remote.bucket_name, f"{remote.prefixes['metadata']}{name}.meta.json", metadata)
+
+    out_path = paths.metadata / f"{name}.meta.json"
+    out_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return metadata
 
+def upload_metadata_to_s3(name: str, metadata: dict):
+    from core.config.remote_config import RemoteConfig
+    from core.storage.s3_utils import save_metadata_s3
+    remote = get_remote_config()
+    key = f"{remote.prefixes['metadata']}{name}.meta.json"
+    save_metadata_s3(remote.bucket_name, key, metadata)
 
-def classify_large(name: str, paths: Optional[PathConfig] = None, remote: Optional[RemoteConfig] = None) -> dict:
-    paths = paths or PathConfig.from_file()
-    remote = remote or RemoteConfig.from_file()
-
-    parsed_name = name if name.endswith(".txt") else Path(name).stem + ".txt"
-    content = get_parsed_text(parsed_name, paths)
-    chunks = chunk_text(content)
-
-    metadata_blocks = []
-    for i, chunk in enumerate(chunks):
-        if not chunk.strip():
-            continue
-        try:
-            metadata = summarize_text(chunk, config=remote)
-            validate_metadata(metadata)
-            metadata_blocks.append(metadata)
-        except Exception as e:
-            print(f"Chunk {i+1} failed: {e}")
-
-    if not metadata_blocks:
-        raise ValueError("No valid metadata returned from chunks.")
-
-    merged = merge_metadata_blocks(metadata_blocks)
-
-    stub_path = paths.metadata / f"{parsed_name}.stub.json"
-    if stub_path.exists():
-        stub = json.loads(stub_path.read_text("utf-8"))
-        merged.update(stub)
-
-    validate_metadata(merged)
-    save_metadata_s3(remote.bucket_name, f"{remote.prefixes['metadata']}{parsed_name}.meta.json", merged)
-    return merged
-
+def upload_and_prepare(file_name: str, parsed_name: Optional[str] = None):
+    upload_file(file_name, parsed_name)
 
 def pipeline_from_upload(file_name: str, parsed_name: Optional[str] = None) -> dict:
-    upload_file(file_name, parsed_name)
+    upload_and_prepare(file_name, parsed_name)
     txt_name = parsed_name or Path(file_name).stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
-    return classify(txt_name)
+    metadata = classify(txt_name)
+    return metadata

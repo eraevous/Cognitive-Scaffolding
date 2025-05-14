@@ -44,26 +44,11 @@ from pathlib import Path
 from jsonschema import validate, ValidationError
 from typing import Union
 from core.config.path_config import PathConfig
+from core.config.config_registry import get_path_config
 
+paths = get_path_config()
 
-import json
-from pathlib import Path
-from jsonschema import validate, ValidationError
-from typing import Union
-from core.config.path_config import PathConfig
-
-
-def get_schema_path(config_path: Union[str, Path] = None) -> Path:
-    try:
-        config = PathConfig.from_file(config_path) if config_path else PathConfig()
-        schema_path = Path(f"{config.metadata}/{config.schema}")
-        print(f"[schema.py] Config schema path: {schema_path}")
-        return schema_path if schema_path.is_absolute() else (config.root / schema_path).resolve()
-    except Exception as e:
-        raise FileNotFoundError(f"Failed to resolve schema path.\n{e}")
-
-
-def validate_metadata(metadata: dict, config_path: Union[str, Path] = None) -> None:
+def validate_metadata(metadata: dict) -> None:
     """
     Validate a metadata dictionary against the configured JSON schema.
 
@@ -75,7 +60,7 @@ def validate_metadata(metadata: dict, config_path: Union[str, Path] = None) -> N
         ValidationError: If metadata does not conform to schema.
         FileNotFoundError: If schema path is missing or invalid.
     """
-    schema_path = get_schema_path(config_path)
+    schema_path = Path(paths.schema)
     print(f"[schema.py] Using schema path: {schema_path}")
 
     if not schema_path.exists():

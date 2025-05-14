@@ -4,12 +4,14 @@ from core.config.remote_config import RemoteConfig
 from core.config.path_config import PathConfig
 from core.parsing.extract_text import extract_text
 from core.storage.aws_clients import get_s3_client
+from core.config.config_registry import get_path_config
+
+paths = get_path_config()
 
 
 def upload_file_to_s3(
     file_path: Path,
     parsed_name: str = None,
-    paths: PathConfig = None,
     remote: RemoteConfig = None
 ) -> dict:
     """
@@ -22,7 +24,6 @@ def upload_file_to_s3(
 def push_document_to_s3(
     file_path: Path,
     parsed_name: str = None,
-    paths: PathConfig = None,
     remote: RemoteConfig = None
 ) -> dict:
     """
@@ -37,7 +38,6 @@ def push_document_to_s3(
     Returns:
         dict: Uploaded stub metadata
     """
-    paths = paths or PathConfig.from_file()
     remote = remote or RemoteConfig.from_file()
     s3 = get_s3_client(region=remote.region)
 

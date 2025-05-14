@@ -54,12 +54,13 @@ class PathConfig:
         output: Union[str, Path] = None,
         schema: Union[str, Path] = None,
     ):
+        # Use the root provided (do not resolve relative to codebase)
         self.root = Path(root).expanduser().resolve() if root else Path(".").resolve()
-        self.raw = self._resolve_path(raw, default=self.root / "raw")
-        self.parsed = self._resolve_path(parsed, default=self.root / "parsed")
-        self.metadata = self._resolve_path(metadata, default=self.root / "metadata")
-        self.output = self._resolve_path(output, default=self.root / "output")
-        self.schema = self._resolve_path(schema, default=self.root / "metadata_schema.json")
+        self.raw = self._resolve_path_relative_to_root(raw, default="raw")
+        self.parsed = self._resolve_path_relative_to_root(parsed, default="parsed")
+        self.metadata = self._resolve_path_relative_to_root(metadata, default="metadata")
+        self.output = self._resolve_path_relative_to_root(output, default="output")
+        self.schema = self._resolve_path_relative_to_root(schema, default="config/metadata_schema.json")
 
     def __repr__(self):
         return (
@@ -71,12 +72,12 @@ class PathConfig:
             f"SCHEMA:   {self.schema}\n"
         )
 
-    def _resolve_path(self, path_value, default):
+    def _resolve_path_relative_to_root(self, path_value, default):
         try:
-            path = Path(path_value) if path_value else default
+            path = Path(path_value or default)
             return path if path.is_absolute() else (self.root / path).resolve()
         except Exception as e:
-            raise ValueError(f"Failed to resolve path: {path_value}\n{e}")
+            raise ValueError(f"Failed to resolve path relative to root: {path_value}\n{e}")
 
     @classmethod
     def from_file(cls, config_path: Union[str, Path] = Path("core/config/path_config.json")):
@@ -85,12 +86,12 @@ class PathConfig:
 
         Expected format:
         {
-            "root": "C:/project/data",
+            "root": "C:/my/project/dir",
             "raw": "raw",
             "parsed": "parsed_docs",
             "metadata": "meta",
             "output": "clustered",
-            "schema": "metadata_schema.json"
+            "schema": "config/metadata_schema.json"
         }
         """
         config_path = Path(config_path).expanduser().resolve()

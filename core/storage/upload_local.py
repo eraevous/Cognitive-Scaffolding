@@ -2,12 +2,13 @@ import json
 from pathlib import Path
 from core.config.path_config import PathConfig
 from core.parsing.extract_text import extract_text
+from core.config.config_registry import get_path_config
 
+paths = get_path_config()
 
 def prepare_document_for_processing(
     file_path: Path,
     parsed_name: str = None,
-    paths: PathConfig = None
 ) -> dict:
     """
     Convert a raw document into parsed text and save a stub locally.
@@ -21,7 +22,6 @@ def prepare_document_for_processing(
         dict: Stub metadata linking source and parsed files
     """
     file_path = Path(file_path) 
-    paths = paths or PathConfig.from_file()
     paths.raw.mkdir(parents=True, exist_ok=True)
     paths.parsed.mkdir(parents=True, exist_ok=True)
     paths.metadata.mkdir(parents=True, exist_ok=True)
@@ -52,16 +52,18 @@ def prepare_document_for_processing(
     stub_file = paths.metadata / f"{parsed_name}.stub.json"
     stub_file.write_text(json.dumps(stub, indent=2), encoding="utf-8")
 
+    print(f"Saved stub locally: {stub_file}")
+    print(f"Uploaded parsed version to: {dest_parsed}")
+
     return stub
 
 
 def upload_file(
     file_path: Path,
     parsed_name: str = None,
-    paths: PathConfig = None
 ) -> dict:
     """
     Alias for prepare_document_for_processing.
     Maintained for compatibility with legacy calls.
     """
-    return prepare_document_for_processing(file_path, parsed_name, paths)
+    return prepare_document_for_processing(file_path, parsed_name)

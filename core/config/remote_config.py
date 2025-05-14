@@ -32,6 +32,8 @@ AI-Assistance Tags:
 @ai-version: 0.1.0
 """
 
+# remote_config.py (Enforced Explicit Config Path — No Defaults Allowed)
+
 import json
 from pathlib import Path
 from typing import Union
@@ -42,22 +44,17 @@ class RemoteConfig:
         self,
         bucket_name: str,
         lambda_name: str,
-        region: str = "us-east-1",
-        root: Union[str, Path] = None,
-        openai_api_key: str = None,
-        prefixes: dict = None
+        region: str,
+        root: Union[str, Path],
+        openai_api_key: str,
+        prefixes: dict
     ):
-        self.root = Path(root).expanduser().resolve() if root else Path(".").resolve()
+        self.root = Path(root).expanduser().resolve()
         self.bucket_name = bucket_name
         self.lambda_name = lambda_name
         self.region = region
         self.openai_api_key = openai_api_key
-        self.prefixes = prefixes or {
-            "raw": "raw/",
-            "parsed": "parsed/",
-            "stub": "stub/",
-            "metadata": "metadata/"
-        }
+        self.prefixes = prefixes
 
     def __repr__(self):
         return (
@@ -70,6 +67,24 @@ class RemoteConfig:
 
     @classmethod
     def from_file(cls, config_path: Union[str, Path] = Path("core/config/remote_config.json")):
+        """
+        Load a RemoteConfig from a JSON file.
+
+        Requires full specification of all required fields.
+        {
+            "bucket_name": "your-bucket",
+            "lambda_name": "your-lambda",
+            "region": "us-east-1",
+            "root": "C:/your/project",
+            "openai_api_key": "sk-...",
+            "prefixes": {
+                "raw": "raw/",
+                "parsed": "parsed/",
+                "stub": "stub/",
+                "metadata": "metadata/"
+            }
+        }
+        """
         config_path = Path(config_path).expanduser().resolve()
         if not config_path.exists():
             raise FileNotFoundError(f"Remote config file not found at: {config_path}")
@@ -77,11 +92,16 @@ class RemoteConfig:
         with open(config_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
+        required_keys = ["bucket_name", "lambda_name", "region", "root", "openai_api_key", "prefixes"]
+        missing = [k for k in required_keys if k not in data]
+        if missing:
+            raise KeyError(f"Missing required remote config fields: {missing}")
+
         return cls(
-            bucket_name=data.get("bucket_name"),
-            lambda_name=data.get("lambda_name"),
-            region=data.get("region", "us-east-1"),
-            root=data.get("root"),
-            openai_api_key=data.get("openai_api_key"),
-            prefixes=data.get("prefixes", {})
+            bucket_name=data["bucket_name"],
+            lambda_name=data["lambda_name"],
+            region=data["region"],
+            root=data["root"],
+            openai_api_key=data["openai_api_key"],
+            prefixes=data["prefixes"]
         )
