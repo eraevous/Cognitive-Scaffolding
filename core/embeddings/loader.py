@@ -50,22 +50,15 @@ import json
 import numpy as np
 from pathlib import Path
 from typing import Tuple, List, Union
+from core.config.config_registry import get_remote_config, get_path_config
 
-
-def load_embeddings(embedding_path: Union[str, Path]) -> Tuple[List[str], np.ndarray]:
-    """
-    Load JSON-based document embeddings and return doc IDs and matrix.
-
-    Args:
-        embedding_path (str | Path): Path to .json file of {doc_id: embedding_vector}
-
-    Returns:
-        Tuple[List[str], np.ndarray]: (doc_ids, embedding_matrix)
-    """
-    embedding_path = Path(embedding_path)
+def load_embeddings(embedding_path: Union[str, Path] = None) -> Tuple[List[str], np.ndarray]:
+    embedding_path = Path(embedding_path) if embedding_path else get_path_config().root / "rich_doc_embeddings.json"
+    
     with open(embedding_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     doc_ids = list(data.keys())
     X = np.array([data[doc_id] for doc_id in doc_ids])
     return doc_ids, X
+s
