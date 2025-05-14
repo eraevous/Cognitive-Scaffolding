@@ -43,35 +43,27 @@ from pathlib import Path
 import json
 from typing import Union
 
+
 class PathConfig:
     def __init__(
         self,
-        root: Path = None,
-        raw: Path = None,
-        parsed: Path = None,
-        metadata: Path = None,
-        output: Path = None,
-        schema: Path = None,
+        root: Union[str, Path] = None,
+        raw: Union[str, Path] = None,
+        parsed: Union[str, Path] = None,
+        metadata: Union[str, Path] = None,
+        output: Union[str, Path] = None,
+        schema: Union[str, Path] = None,
     ):
-        """
-        Initialize a PathConfig object for controlling storage paths.
-
-        Args:
-            root (Path | str): Optional base directory. Defaults to cwd.
-            raw (Path | str): Path to raw/ folder (default: root/raw)
-            parsed (Path | str): Path to parsed/ folder (default: root/parsed)
-            metadata (Path | str): Path to metadata/ folder (default: root/metadata)
-            output (Path | str): Path to output/ folder (default: root/output)
-        """
-        self.root = Path(root or ".").resolve()
-        self.raw = Path(raw or self.root / "raw")
-        self.parsed = Path(parsed or self.root / "parsed")
-        self.metadata = Path(metadata or self.root / "metadata")
-        self.output = Path(output or self.root / "output")
-        self.schema = Path(schema or self.root / "schema")
+        self.root = Path(root).expanduser().resolve() if root else Path(".").resolve()
+        self.raw = self._resolve_path(raw, default=self.root / "raw")
+        self.parsed = self._resolve_path(parsed, default=self.root / "parsed")
+        self.metadata = self._resolve_path(metadata, default=self.root / "metadata")
+        self.output = self._resolve_path(output, default=self.root / "output")
+        self.schema = self._resolve_path(schema, default=self.root / "metadata_schema.json")
 
     def __repr__(self):
         return (
+            f"ROOT:     {self.root}\n"
             f"RAW:      {self.raw}\n"
             f"PARSED:   {self.parsed}\n"
             f"METADATA: {self.metadata}\n"
@@ -79,25 +71,32 @@ class PathConfig:
             f"SCHEMA:   {self.schema}\n"
         )
 
+    def _resolve_path(self, path_value, default):
+        try:
+            path = Path(path_value) if path_value else default
+            return path if path.is_absolute() else (self.root / path).resolve()
+        except Exception as e:
+            raise ValueError(f"Failed to resolve path: {path_value}\n{e}")
+
     @classmethod
-    def from_file(cls, config_path: Union[str, Path] = f"{Path(".").resolve()}\\config\\path_config.json"):
+    def from_file(cls, config_path: Union[str, Path] = Path("core/config/path_config.json")):
         """
         Load a PathConfig from a JSON file.
 
-        The file can contain:
+        Expected format:
         {
-            "root": "/project/data",
+            "root": "C:/project/data",
             "raw": "raw",
             "parsed": "parsed_docs",
             "metadata": "meta",
-            "output": "clustered"
+            "output": "clustered",
             "schema": "metadata_schema.json"
         }
-
-        Returns:
-            PathConfig instance
         """
-        print(config_path)
+        config_path = Path(config_path).expanduser().resolve()
+        if not config_path.exists():
+            raise FileNotFoundError(f"Path config file not found at: {config_path}")
+
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
 
@@ -109,4 +108,3 @@ class PathConfig:
             output=config.get("output"),
             schema=config.get("schema")
         )
-    

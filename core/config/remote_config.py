@@ -36,25 +36,44 @@ import json
 from pathlib import Path
 from typing import Union
 
+
 class RemoteConfig:
     def __init__(
         self,
         bucket_name: str,
         lambda_name: str,
-        region: str,
-        root: Path = None,
+        region: str = "us-east-1",
+        root: Union[str, Path] = None,
         openai_api_key: str = None,
         prefixes: dict = None
     ):
-        self.root = Path(root or ".").resolve()
+        self.root = Path(root).expanduser().resolve() if root else Path(".").resolve()
         self.bucket_name = bucket_name
         self.lambda_name = lambda_name
         self.region = region
         self.openai_api_key = openai_api_key
-        self.prefixes = prefixes or {}
+        self.prefixes = prefixes or {
+            "raw": "raw/",
+            "parsed": "parsed/",
+            "stub": "stub/",
+            "metadata": "metadata/"
+        }
+
+    def __repr__(self):
+        return (
+            f"ROOT:     {self.root}\n"
+            f"S3 Bucket: {self.bucket_name}\n"
+            f"Lambda:    {self.lambda_name} ({self.region})\n"
+            f"Prefixes:  {self.prefixes}\n"
+            f"OpenAI:    {'set' if self.openai_api_key else 'missing'}\n"
+        )
 
     @classmethod
-    def from_file(cls, config_path: Union[str, Path] = f"{Path(".").resolve()}\\config\\remote_config.json"):
+    def from_file(cls, config_path: Union[str, Path] = Path("core/config/remote_config.json")):
+        config_path = Path(config_path).expanduser().resolve()
+        if not config_path.exists():
+            raise FileNotFoundError(f"Remote config file not found at: {config_path}")
+
         with open(config_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
@@ -62,14 +81,7 @@ class RemoteConfig:
             bucket_name=data.get("bucket_name"),
             lambda_name=data.get("lambda_name"),
             region=data.get("region", "us-east-1"),
+            root=data.get("root"),
             openai_api_key=data.get("openai_api_key"),
             prefixes=data.get("prefixes", {})
-        )
-
-    def __repr__(self):
-        return (
-            f"S3 Bucket:   {self.bucket_name}\n"
-            f"Lambda:      {self.lambda_name} ({self.region})\n"
-            f"Parsed Dir:  {self.prefixes.get('parsed')}\n"
-            f"OpenAI Key:  {'set' if self.openai_api_key else 'missing'}"
         )

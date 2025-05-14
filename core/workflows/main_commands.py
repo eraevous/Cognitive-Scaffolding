@@ -52,7 +52,7 @@ from core.config.path_config import PathConfig
 from core.config.remote_config import RemoteConfig
 from core.storage.aws_clients import get_s3_client
 from core.storage.s3_utils import save_metadata_s3
-from core.utils.upload_utils import upload_file
+from core.storage.upload_local import upload_file
 from core.llm.invoke import summarize_text
 from core.parsing.chunk_text import chunk_text
 from core.metadata.schema import validate_metadata

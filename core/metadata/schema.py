@@ -40,45 +40,48 @@ disk and validates metadata dictionaries against it using `jsonschema`, raising 
 """
 
 import json
-from jsonschema import validate, ValidationError
 from pathlib import Path
+from jsonschema import validate, ValidationError
+from typing import Union
 from core.config.path_config import PathConfig
 
-config = PathConfig.from_file()
-SCHEMA_PATH = config.root / config.schema
+
+import json
+from pathlib import Path
+from jsonschema import validate, ValidationError
+from typing import Union
+from core.config.path_config import PathConfig
 
 
-def load_schema(path: Path = SCHEMA_PATH) -> dict:
+def get_schema_path(config_path: Union[str, Path] = None) -> Path:
+    try:
+        config = PathConfig.from_file(config_path) if config_path else PathConfig()
+        schema_path = Path(f"{config.metadata}/{config.schema}")
+        print(f"[schema.py] Config schema path: {schema_path}")
+        return schema_path if schema_path.is_absolute() else (config.root / schema_path).resolve()
+    except Exception as e:
+        raise FileNotFoundError(f"Failed to resolve schema path.\n{e}")
+
+
+def validate_metadata(metadata: dict, config_path: Union[str, Path] = None) -> None:
     """
-    Loads a JSON schema from file.
-
-    @ai-role: loader
-    @ai-intent: "Load the latest metadata schema JSON from disk"
+    Validate a metadata dictionary against the configured JSON schema.
 
     Args:
-        path (Path): Path to the schema JSON file
+        metadata (dict): The metadata block to check.
+        config_path (str | Path, optional): Optional override for config file.
 
-    Returns:
-        dict: Loaded schema
+    Raises:
+        ValidationError: If metadata does not conform to schema.
+        FileNotFoundError: If schema path is missing or invalid.
     """
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    schema_path = get_schema_path(config_path)
+    print(f"[schema.py] Using schema path: {schema_path}")
 
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found at: {schema_path}")
 
-def validate_metadata(metadata: dict, schema_path: Path = SCHEMA_PATH) -> bool:
-    """
-    Validates a metadata dictionary against a JSON schema.
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema = json.load(f)
 
-    @ai-role: validator
-    @ai-intent: "Confirm metadata meets schema structure and constraints"
-
-    Args:
-        metadata (dict): Metadata to validate
-        schema_path (Path): Path to the schema file
-
-    Returns:
-        bool: True if valid, raises ValidationError otherwise
-    """
-    schema = load_schema(schema_path)
     validate(instance=metadata, schema=schema)
-    return True

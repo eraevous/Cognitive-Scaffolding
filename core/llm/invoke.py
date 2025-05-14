@@ -53,6 +53,7 @@ import json
 from pathlib import Path
 from typing import Literal, Optional
 import openai
+from openai import OpenAI
 from core.config.remote_config import RemoteConfig
 
 PROMPT_DIR = Path(__file__).parent / "prompts"
@@ -72,9 +73,9 @@ def run_openai_completion(
     max_tokens: int = 700,
     api_key: Optional[str] = None
 ) -> str:
-    openai.api_key = api_key or RemoteConfig.from_file().openai_api_key
+    client = OpenAI(api_key=api_key or RemoteConfig.from_file().openai_api_key)
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=temperature,

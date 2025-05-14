@@ -48,7 +48,7 @@ import json
 from pathlib import Path
 from core.metadata.schema import validate_metadata
 from core.storage.aws_clients import get_s3_client
-from config.remote_config import RemoteConfig
+from core.config.remote_config import RemoteConfig
 
 
 def save_metadata_s3(bucket: str, key: str, metadata: dict, s3=None) -> None:
