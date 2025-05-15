@@ -5,8 +5,13 @@ from pathlib import Path
 
 #pipeline_from_upload("mydoc.pdf")
 
-generate_embeddings(
-    #source_dir=Path("metadata"),
-    method="summary",
-    out_path=Path("test_embeddings.json")
-)
+# generate_embeddings(
+#     #source_dir=Path("metadata"),
+#     method="summary",
+#     out_path=Path("test_embeddings.json")
+# )
+
+from scripts.pipeline import run_full_pipeline
+from pathlib import Path
+
+run_full_pipeline(Path("./incoming_docs"), chunked=True, method="summary")
