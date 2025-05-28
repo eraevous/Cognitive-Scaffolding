@@ -39,26 +39,33 @@ visualizations and metadata. Paths can be optionally configured via a JSON confi
     - Future Hints: Add options to select clustering algorithm or embedding model dynamically.
 """
 
-
 import typer
 from pathlib import Path
-from core.clustering.clustering_runner import run_clustering_pipeline
-from core.config.path_config import PathConfig
+from core.config.config_registry import get_path_config
+from core.clustering.clustering_steps import run_all_steps
 
 app = typer.Typer()
 
 @app.command()
-def cluster(
-    embedding_path: Path = Path("rich_doc_embeddings.json"),
-    metadata_dir: Path = Path("metadata"),
-    out_dir: Path = Path("output"),
-    config_file: Path = typer.Option(None, help="Optional config file for flexible paths")
+def run_all(
+    embedding_path: Path = typer.Option(None, help="Path to the rich_doc_embeddings.json file"),
+    metadata_dir: Path = typer.Option(None, help="Path to directory with .meta.json files"),
+    out_dir: Path = typer.Option(None, help="Directory to save outputs"),
+    method: str = "hdbscan",
+    model: str = "gpt-4"
 ):
-    """Run UMAP, clustering, labeling, and export."""
-    paths = PathConfig.from_file(config_file) if config_file else PathConfig()
+    """
+    Run full clustering pipeline from existing embeddings.
+    """
+    paths = get_path_config()
+    embedding_path = embedding_path or (paths.root / "rich_doc_embeddings.json")
+    metadata_dir = metadata_dir or paths.metadata
+    out_dir = out_dir or (paths.output / "cluster_output")
 
-    run_clustering_pipeline(
+    run_all_steps(
         embedding_path=embedding_path,
-        metadata_dir=paths.metadata,
-        out_dir=paths.output
+        metadata_dir=metadata_dir,
+        out_dir=out_dir,
+        method=method,
+        model=model
     )

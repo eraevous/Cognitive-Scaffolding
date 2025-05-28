@@ -46,49 +46,70 @@ This function sends each document cluster to a GPT model and requests a short se
 - [ ] Add label cleaning (e.g., max character limits, safe character filtering)
 """
 
-
-import openai
+# core/clustering/labeling.py
 import json
 from typing import Dict, List
+from openai import OpenAI
+from core.config.config_registry import get_remote_config
 
-
-def label_clusters_with_gpt(
-    clusters: Dict[str, List[str]],
+def label_clusters(
+    doc_ids: List[str],
+    labels: List[int],
+    metadata_dir,
     model: str = "gpt-4",
     preview: bool = True
 ) -> Dict[str, str]:
     """
-    Label clusters using GPT-4 summarization.
+    Generate GPT labels for each cluster.
 
     Args:
-        clusters (Dict[str, List[str]]): Cluster ID → list of doc_ids
-        model (str): OpenAI model name (default: "gpt-4")
-        preview (bool): Whether to print labels live
+        doc_ids: List of document IDs
+        labels: Cluster assignments (same order as doc_ids)
+        metadata_dir: Path to .meta.json files
+        model: OpenAI model
+        preview: Whether to print live output
 
     Returns:
-        Dict[str, str]: Cluster ID → label
+        cluster_id → label
     """
-    smart_labels = {}
+    # Build cluster → [titles] mapping
+    cluster_map = {}
+    for doc, label in zip(doc_ids, labels):
+        if label == -1:
+            continue
+        meta_path = metadata_dir / f"{doc}.meta.json"
+        if not meta_path.exists():
+            continue
+        try:
+            meta = json.loads(meta_path.read_text("utf-8"))
+            title = meta.get("summary") or "Untitled"
+        except Exception:
+            title = "Untitled"
+        cluster_map.setdefault(f"cluster_{label}", []).append(title)
 
-    for cluster_id, docs in clusters.items():
-        prompt = f"""You are an expert in information design and semantic clustering.
+    # Init GPT
+    config = get_remote_config()
+    client = OpenAI(api_key=config.openai_api_key)
 
-These are document topics:
-
-{json.dumps(docs, indent=2)}
-
-Provide a short (2–6 words) high-level label for this cluster:
-"""
-
-        response = openai.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.4
-        )
-
-        label = response.choices[0].message.content.strip()
-        smart_labels[cluster_id] = label
+    label_map = {}
+    for cluster_id, docs in cluster_map.items():
+        prompt = f"""You are an expert in document summarization and thematic clustering.
+    Here are summaries of documents in a cluster:
+    {json.dumps(docs, indent=2)}
+    Give a short 2–6 word descriptive label for this cluster:
+    """
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.4
+            )
+            label = response.choices[0].message.content.strip()
+        except Exception as e:
+            label = "Unlabeled"
+            print(f"❌ {cluster_id}: {e}")
+        label_map[cluster_id] = label
         if preview:
             print(f"{cluster_id}: {label}")
 
-    return smart_labels
+    return label_map

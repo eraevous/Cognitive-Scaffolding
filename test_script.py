@@ -15,3 +15,8 @@ from scripts.pipeline import run_full_pipeline
 from pathlib import Path
 
 run_full_pipeline(Path("./incoming_docs"), chunked=True, method="summary")
+
+doc_ids, X, coords = run_dimensionality_reduction(path_to_embeddings)
+labels = run_clustering(X, method="spectral")
+label_map = run_labeling(doc_ids, labels, metadata_dir)
+run_export(doc_ids, coords, labels, label_map, out_dir, metadata_dir)

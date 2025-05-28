@@ -61,4 +61,3 @@ def load_embeddings(embedding_path: Union[str, Path] = None) -> Tuple[List[str],
     doc_ids = list(data.keys())
     X = np.array([data[doc_id] for doc_id in doc_ids])
     return doc_ids, X
-s

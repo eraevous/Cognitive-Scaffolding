@@ -73,15 +73,19 @@ def extract_text(filepath: str) -> str:
             return markdown.markdown(f.read())
 
     elif ext == ".pdf":
-        text = ""
-        with fitz.open(filepath) as doc:
-            for page in doc:
-                text += page.get_text()
-        return text
+        try:
+            with fitz.open(filepath) as doc:
+                return "\n".join([page.get_text() for page in doc])
+        except Exception as e:
+            raise ValueError(f"PDF extraction failed with PyMuPDF: {e}")
 
     elif ext == ".docx":
         doc = Document(filepath)
         return "\n".join([para.text for para in doc.paragraphs])
 
     else:
-        raise ValueError(f"Unsupported file type: {ext}")
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            raise ValueError(f"Unsupported file type: {ext} with error: {e}")

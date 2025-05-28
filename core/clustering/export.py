@@ -51,60 +51,77 @@ This function saves the results of clustering to disk. It serializes cluster map
 - [ ] Optionally validate metadata files against schema before ingesting
 """
 
-
+# core/clustering/export.py
 import json
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any
+from typing import List, Dict
+from core.clustering.cluster_utils import plot_umap_clusters
 
 
-def export_clusters_and_summary(
-    cluster_maps: Dict[str, Any],
-    assignments: Dict[str, str],
-    umap_df: pd.DataFrame,
-    metadata_dir: Path,
-    out_dir: Path
-) -> None:
+def export_cluster_data(
+    doc_ids: List[str],
+    coords: List[List[float]],
+    labels: List[int],
+    label_map: Dict[str, str],
+    out_dir: Path,
+    metadata_dir: Path = None
+):
     """
-    Save cluster maps, assignments, and a labeled metadata summary CSV.
+    Export cluster plot, labeled assignment map, and cluster CSV.
 
     Args:
-        cluster_maps (Dict[str, Any]): e.g. {"hdb": clusters_hdb, "spec": clusters_spec}
-        assignments (Dict[str, str]): doc → label
-        umap_df (pd.DataFrame): must include doc_id and UMAP coords
-        metadata_dir (Path): path to all metadata files
-        out_dir (Path): output folder
+        doc_ids: Document IDs
+        coords: 2D UMAP coordinates
+        labels: Cluster assignments
+        label_map: cluster → label
+        out_dir: Output folder
+        metadata_dir: Where to read .meta.json (optional, for CSV)
     """
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save cluster maps
-    for name, data in cluster_maps.items():
-        with open(out_dir / f"cluster_map_{name}.json", "w") as f:
-            json.dump(data, f, indent=2)
+    df = pd.DataFrame(coords, columns=["x", "y"])
+    df["doc"] = doc_ids
+    df["cluster_id"] = labels
+    df["cluster_label"] = [label_map.get(f"cluster_{label}", "Unlabeled") if label != -1 else "Noise" for label in labels]
 
-    with open(out_dir / "cluster_assignments.json", "w") as f:
-        json.dump(assignments, f, indent=2)
-
-    # Build CSV
-    records = []
-    for doc in umap_df["doc"]:
-        meta_path = metadata_dir / f"{doc}.meta.json"
-        if not meta_path.exists():
+    # Save cluster JSONs
+    cluster_map = {}
+    for doc, label in zip(doc_ids, labels):
+        if label == -1:
             continue
-        with open(meta_path, "r", encoding="utf-8") as f:
-            try:
-                meta = json.load(f)
-            except:
-                continue
-        records.append({
-            "doc": doc,
-            "category": meta.get("category"),
-            "summary": meta.get("summary", "")[:180],
-            "topics": ", ".join(meta.get("topics", [])),
-            "tags": ", ".join(meta.get("tags", [])),
-            "themes": ", ".join(meta.get("themes", [])),
-            "cluster_label": assignments.get(doc.lower(), "Unknown")
-        })
+        cluster_map.setdefault(f"cluster_{label}", []).append(doc)
 
-    pd.DataFrame(records).to_csv(out_dir / "cluster_summary.csv", index=False)
-    print("✅ Cluster data exported.")
+    with open(out_dir / "cluster_map.json", "w") as f:
+        json.dump(cluster_map, f, indent=2)
+
+    with open(out_dir / "cluster_labels.json", "w") as f:
+        json.dump(label_map, f, indent=2)
+
+    # Save cluster assignments
+    df.to_csv(out_dir / "cluster_assignments.csv", index=False)
+
+    # Optional metadata summary
+    if metadata_dir:
+        records = []
+        for row in df.itertuples():
+            meta_path = metadata_dir / f"{row.doc}.meta.json"
+            if not meta_path.exists():
+                continue
+            try:
+                meta = json.loads(meta_path.read_text("utf-8"))
+            except Exception:
+                continue
+            records.append({
+                "doc": row.doc,
+                "summary": meta.get("summary", "")[:180],
+                "topics": ", ".join(meta.get("topics", [])),
+                "tags": ", ".join(meta.get("tags", [])),
+                "themes": ", ".join(meta.get("themes", [])),
+                "label": row.cluster_label
+            })
+        pd.DataFrame(records).to_csv(out_dir / "cluster_summary.csv", index=False)
+
+    # Save PNG
+    plot_umap_clusters(df, "cluster_label", "UMAP Clusters", out_dir / "umap_plot.png")
+    print("✅ Cluster results exported.")

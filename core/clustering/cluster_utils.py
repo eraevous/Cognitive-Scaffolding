@@ -39,7 +39,24 @@ This function transforms a hierarchical cluster mapping (cluster ID → list of 
 - @notes:
 """
 
+# core/clustering/utils.py
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from pathlib import Path
 from typing import Dict, List
+
+
+def cluster_dict(labels: List[int], doc_ids: List[str]) -> Dict[str, List[str]]:
+    """
+    Create cluster_id → list of doc_ids mapping.
+    """
+    out = {}
+    for label, doc in zip(labels, doc_ids):
+        if label == -1:
+            continue
+        out.setdefault(f"cluster_{label}", []).append(doc)
+    return out
 
 
 def flatten_cluster_map(
@@ -48,13 +65,6 @@ def flatten_cluster_map(
 ) -> Dict[str, str]:
     """
     Flatten cluster ID mappings and attach labels per document.
-
-    Args:
-        cluster_map (Dict[str, List[str]]): cluster_id → [doc_ids]
-        label_map (Dict[str, str]): cluster_id → cluster label
-
-    Returns:
-        Dict[str, str]: doc_id → assigned label
     """
     flat = {}
     for cluster_id, docs in cluster_map.items():
@@ -62,3 +72,27 @@ def flatten_cluster_map(
         for doc in docs:
             flat[doc.lower()] = label
     return flat
+
+
+def plot_umap_clusters(
+    df: pd.DataFrame,
+    label_col: str,
+    title: str,
+    out_file: Path
+):
+    """
+    Generate and save a UMAP cluster plot.
+    """
+    plt.figure(figsize=(14, 10))
+    labels = df[label_col].unique()
+    colors = plt.get_cmap("tab20")(np.linspace(0, 1, len(labels)))
+
+    for i, label in enumerate(labels):
+        sub = df[df[label_col] == label]
+        plt.scatter(sub["x"], sub["y"], label=label, alpha=0.7, s=50, color=colors[i % len(colors)])
+
+    plt.legend(loc='best', fontsize=9)
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(out_file)
+    plt.close()
