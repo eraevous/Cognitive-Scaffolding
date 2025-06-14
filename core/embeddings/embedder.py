@@ -6,40 +6,34 @@ import openai
 from core.config.config_registry import get_remote_config, get_path_config
 
 
-def embed_text(text: str, model: str = "text-embedding-3-small") -> list[float]:
-    config = get_remote_config()
-    client = openai.OpenAI(api_key=config.openai_api_key)
-    response = client.embeddings.create(input=text, model=model)
-    return response.data[0].embedding
+def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
+    """
+    Get OpenAI embedding for a given text.
+    """
+    remote = get_remote_config()
+    openai.api_key = remote.openai_api_key
+
+    response = openai.Embedding.create(
+        input=text,
+        model=model
+    )
+    return response['data'][0]['embedding']
 
 
 def generate_embeddings(
     source_dir: Path = None,
     method: Literal["parsed", "summary", "raw", "meta"] = "parsed",
-    out_path: Path = None,
+    out_path: Path = Path("rich_doc_embeddings.json"),
     model: str = "text-embedding-3-small"
 ) -> None:
+    """
+    Generate document embeddings from the specified source text.
+    """
     paths = get_path_config()
-
-    # Use correct directories from config
-    if method in ["summary", "meta"]:
-        source_dir = source_dir or paths.metadata
-    elif method == "parsed":
-        source_dir = source_dir or paths.parsed
-    elif method == "raw":
-        source_dir = source_dir or paths.raw
-    else:
-        raise ValueError(f"Unknown method: {method}")
-    
-    print(f"Generating embeddings from {source_dir} using method: {method}")
-
-
-    out_path = out_path or (paths.output / "rich_doc_embeddings.json")
-
+    source_dir = source_dir or paths.parsed
     embeddings: Dict[str, List[float]] = {}
 
-    pattern = "*.meta.json" if method in ["meta", "summary"] else "*.txt"
-    for file in sorted(source_dir.glob(pattern)):
+    for file in sorted(source_dir.glob("*.txt" if method != "meta" else "*.meta.json")):
         doc_id = file.stem
 
         if method == "parsed":
@@ -49,7 +43,6 @@ def generate_embeddings(
             text = raw_path.read_text(encoding="utf-8") if raw_path.exists() else ""
         elif method == "summary" or method == "meta":
             try:
-                print(f"🔍 Reading metadata from {file.name}...")
                 meta = json.loads(file.read_text("utf-8"))
                 text = meta.get("summary", "")
             except Exception:
