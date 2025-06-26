@@ -1,7 +1,9 @@
-from core.workflows.main_commands import pipeline_from_upload
+from pathlib import Path
+
 from core.config.config_registry import get_path_config, get_remote_config
 from core.embeddings.embedder import generate_embeddings
-from pathlib import Path
+from core.workflows.main_commands import pipeline_from_upload
+from scripts.pipeline import run_full_pipeline
 
 #pipeline_from_upload("mydoc.pdf")
 
@@ -11,8 +13,6 @@ from pathlib import Path
 #     out_path=Path("test_embeddings.json")
 # )
 
-from scripts.pipeline import run_full_pipeline
-from pathlib import Path
 
 run_full_pipeline(Path("./incoming_docs"), chunked=True, method="summary")
 

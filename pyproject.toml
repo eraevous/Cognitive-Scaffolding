@@ -1,0 +1,42 @@
+[project]
+name = "kairos"
+version = "0.0.1"
+description = "Zach's modular RAG pipeline & CLI"
+authors = [{ name = "Zach" }]
+dependencies = [
+    "typer[all]>=0.12.3",
+    "tiktoken>=0.5.1",
+    "typer[all]",
+    "openai",
+    "tiktoken",
+    "faiss-cpu",
+    "boto3",
+    "markdown",
+    "python-docx",
+    "pymupdf",          # PyPI name for fitz
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "umap-learn",
+    "hdbscan",
+    "matplotlib",
+    "tqdm",
+    "transformers",
+    "sentencepiece",
+    "streamlit",
+    "fastapi",
+    "pytest",
+    "ruff",
+    "mypy"
+]
+
+[project.scripts]
+kairos = "cli.main:app"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
