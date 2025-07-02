@@ -180,7 +180,6 @@ config.py
 *.docx
 *.txt
 *.pdf
-*.md
 *.json
 *.xlsx
 
