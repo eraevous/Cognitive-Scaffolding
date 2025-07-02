@@ -1,0 +1,9 @@
+{
+  "root": ".",
+  "raw": "raw",
+  "parsed": "parsed",
+  "metadata": "metadata",
+  "output": "output",
+  "vector": "vector",
+  "schema": "config/metadata_schema.json"
+}

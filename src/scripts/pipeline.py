@@ -46,6 +46,6 @@ def run_full_pipeline(
         except Exception as e:
             print(f"❌ Classification failed: {name} — {e}")
 
-    print("📊 Generating embeddings...")
+    print("📊 Generating embeddings and updating vector index...")
     generate_embeddings(method=method)
     print("✅ Pipeline complete.")
