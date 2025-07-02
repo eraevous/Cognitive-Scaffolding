@@ -31,3 +31,5 @@
 - The embedding generation adapts based on the method—"summary" and "meta" pull from JSON metadata, while "parsed"/"raw" use file text directly.
 - JSON output is a lightweight, interoperable format suitable for direct clustering use.
 - A future enhancement could batch texts for API efficiency or allow token truncation thresholds to be configured.
+- Generated vectors are now streamed directly into a FAISS index (`core.vectorstore.faiss_store`).
+- Embedding JSON output is retained for clustering but no longer required for search.
