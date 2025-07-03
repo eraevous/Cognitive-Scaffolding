@@ -28,3 +28,4 @@
 - `get_path_config()` and `get_remote_config()` provide cached access, reloadable via `force_reload=True`.
 - Both `PathConfig` and `RemoteConfig` enforce structure but can be extended to support `.env`, CLI args, or dynamic reloading.
 - This system separates runtime configuration concerns from hardcoded constants, enabling safe parallel use across local and cloud environments.
+- New path entry `vector` will store FAISS index files alongside other outputs.

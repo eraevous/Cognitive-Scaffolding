@@ -138,6 +138,12 @@ python main.py classify-all
 
 # Organize everything
 python main.py organize-all --cluster-file output/cluster_assignments.json
+
+# Semantic search over your corpus
+python main.py search semantic "How did Lincoln justify suspension of habeas corpus?" --k 5
+
+# Run a cooperative agent workflow
+python main.py agent run "Summarize recent policy shifts" --roles synthesizer,associative
 ```
 
 ---
@@ -203,11 +209,18 @@ project_root/
 ├── config/
 │   ├── path_config.py
 │   ├── remote_config.py        # (split S3/Lambda setup separately)
+│   └── vector                  # FAISS index files
 │
 ├── core/
 │   ├── embeddings/
 │   │   ├── loader.py
 │   │
+│   ├── vectorstore/
+│   │   └── faiss_store.py
+│   ├── retrieval/
+│   │   └── retriever.py
+│   ├── agent_hub.py
+│
 │   ├── parsing/
 │   │   ├── extract_text.py
 │   │   ├── chunk_text.py
@@ -236,6 +249,7 @@ project_root/
 │   │   ├── lambda_summary.py
 │   │   ├── strings.py
 │   │   ├── upload_utils.py
+│   │   └── budget_tracker.py
 │
 ├── workflows/
 │   ├── main_commands.py
