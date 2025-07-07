@@ -9,7 +9,6 @@ import numpy as np
 import tiktoken
 
 from core.config.config_registry import get_path_config, get_remote_config
-from core.parsing.topic_segmenter import topic_segmenter
 from core.vectorstore.faiss_store import FaissStore
 from core.utils.logger import get_logger
 
@@ -25,12 +24,6 @@ MODEL_BY_DIM = {v: k for k, v in MODEL_DIMS.items()}
 def get_model_for_dim(dim: int) -> str:
     """Return embedding model name corresponding to FAISS index dimension."""
     return MODEL_BY_DIM.get(dim, "text-embedding-3-small")
-logger = get_logger(__name__)
-
-MODEL_DIMS = {
-    "text-embedding-3-small": 1536,
-    "text-embedding-3-large": 3072,
-}
 
 logger = get_logger(__name__)
 
@@ -111,6 +104,7 @@ def generate_embeddings(
 
         try:
             if segment_mode:
+                from core.parsing.topic_segmenter import topic_segmenter
                 segments = topic_segmenter(text, model=model)
                 for idx, chunk in enumerate(segments):
                     seg_id = f"{doc_id}_chunk{idx:02d}"
@@ -120,12 +114,14 @@ def generate_embeddings(
                     id_map[str(hashed)] = seg_id
                     (chunk_dir / f"{seg_id}.txt").write_text(chunk, encoding="utf-8")
             else:
-              hashed_id = int.from_bytes(
-                  hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
-                  "big",
-              ) & 0x7FFF_FFFF_FFFF_FFFF  # truncate to 63 bits for FAISS
-              store.add([hashed_id], [vector])
-              id_map[str(hashed_id)] = doc_id
+                vector = embed_text(text, model=model)
+                embeddings[doc_id] = vector
+                hashed_id = int.from_bytes(
+                    hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
+                    "big",
+                ) & 0x7FFF_FFFF_FFFF_FFFF  # truncate to 63 bits for FAISS
+                store.add([hashed_id], [vector])
+                id_map[str(hashed_id)] = doc_id
         except Exception:
             logger.exception("Failed embedding %s", file.name)
 
