@@ -13,10 +13,12 @@ from core.utils.logger import get_logger
 
 
 MAX_EMBED_TOKENS = 8191
+
 MODEL_DIMS = {
     "text-embedding-3-small": 1536,
     "text-embedding-3-large": 3072,
 }
+
 logger = get_logger(__name__)
 
 
