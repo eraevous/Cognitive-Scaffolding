@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Dict, List, Literal
 
-import openai
+from openai import OpenAI
 
 from core.config.config_registry import get_path_config, get_remote_config
 from core.vectorstore.faiss_store import FaissStore
@@ -14,13 +14,13 @@ def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
     Get OpenAI embedding for a given text.
     """
     remote = get_remote_config()
-    openai.api_key = remote.openai_api_key
+    client = OpenAI(api_key=remote.openai_api_key)
 
-    response = openai.Embedding.create(
-        input=text,
+    response = client.embeddings.create(
+        input=[text],
         model=model
     )
-    return response['data'][0]['embedding']
+    return response.data[0].embedding
 
 
 def generate_embeddings(
