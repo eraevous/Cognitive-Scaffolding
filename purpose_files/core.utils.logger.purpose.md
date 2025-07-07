@@ -24,3 +24,5 @@
 ### 🗣 Dialogic Notes
 - Called by `core.embeddings.embedder` for detailed error reporting.
 - Additional modules may import this to standardize logging.
+- Used by `core.parsing.semantic_chunk` to emit boundary details when
+  LOG_LEVEL is set to DEBUG.

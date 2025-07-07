@@ -59,7 +59,11 @@ from core.workflows.main_commands import (classify, pipeline_from_upload,
 app = typer.Typer()
 
 @app.command()
-def classify_all(chunked: bool = False, overwrite: bool = False):
+def classify_all(
+    chunked: bool = False,
+    overwrite: bool = False,
+    segmentation: str = "semantic",
+):
     """Classify all parsed files in the system."""
     paths = get_path_config()
     for file in sorted(paths.parsed.glob("*.txt")):
@@ -72,7 +76,7 @@ def classify_all(chunked: bool = False, overwrite: bool = False):
 
         try:
             print(f"🔍 Classifying {name}...")
-            classify(name, chunked=chunked)
+            classify(name, chunked=chunked, segmentation=segmentation)
             print(f"✅ Done: {name}")
         except Exception as e:
             print(f"❌ Error: {name} — {e}")
@@ -90,13 +94,21 @@ def upload_all(directory: Path):
 
 
 @app.command()
-def ingest_all(directory: Path, chunked: bool = False):
+def ingest_all(
+    directory: Path,
+    chunked: bool = False,
+    segmentation: str = "semantic",
+):
     """Full pipeline: upload, parse, classify for all files in directory."""
     for file in sorted(directory.glob("*")):
         try:
             print(f"🚀 Ingesting {file.name}...")
             parsed_name = None  # Optional override name
-            result = pipeline_from_upload(file, parsed_name=parsed_name)
+            result = pipeline_from_upload(
+                file,
+                parsed_name=parsed_name,
+                segmentation=segmentation,
+            )
             print(f"✅ Metadata: {result.get('summary', '')[:100]}...")
         except Exception as e:
             print(f"❌ Error during ingestion of {file.name}: {e}")

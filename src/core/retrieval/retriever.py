@@ -1,4 +1,5 @@
 from typing import List, Tuple
+from pathlib import Path
 import json
 
 import numpy as np
@@ -12,7 +13,12 @@ from core.utils.logger import get_logger
 class Retriever:
     """Embed queries and return top-k document IDs from the FAISS index."""
 
-    def __init__(self, store: FaissStore | None = None, model: str | None = None):
+    def __init__(
+        self,
+        store: FaissStore | None = None,
+        model: str | None = None,
+        chunk_dir: Path | None = None,
+    ):
         self.logger = get_logger(__name__)
         paths = get_path_config()
         default_model = model or "text-embedding-3-small"
@@ -24,6 +30,7 @@ class Retriever:
             self.id_map = {int(k): v for k, v in json.loads(id_map_path.read_text()).items()}
         else:
             self.id_map = {}
+        self.chunk_dir = chunk_dir or (paths.vector / "chunks" if (paths.vector / "chunks").exists() else None)
         if model is None and self.dim != dim:
             inferred = get_model_for_dim(self.dim)
             self.logger.info(
@@ -33,7 +40,15 @@ class Retriever:
         else:
             self.model = default_model
 
-    def query(self, text: str, k: int = 5) -> List[Tuple[str, float]]:
+    def query(self, text: str, k: int = 5, return_text: bool = False):
         vec = np.asarray(embed_text(text, model=self.model), dtype="float32")
         results = self.store.search(vec, k)
-        return [(self.id_map.get(doc_id, str(doc_id)), score) for doc_id, score in results]
+        ids_scores = [(self.id_map.get(doc_id, str(doc_id)), score) for doc_id, score in results]
+        if return_text and self.chunk_dir is not None:
+            enriched = []
+            for doc_id, score in ids_scores:
+                chunk_path = self.chunk_dir / f"{doc_id}.txt"
+                text_val = chunk_path.read_text("utf-8") if chunk_path.exists() else ""
+                enriched.append((doc_id, score, text_val))
+            return enriched
+        return ids_scores

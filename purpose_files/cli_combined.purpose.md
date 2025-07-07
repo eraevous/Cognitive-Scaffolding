@@ -11,6 +11,7 @@
 | 📥 In     | file_path     | Path    | Raw document to upload or classify                     |
 | 📥 In     | directory     | Path    | Folder of documents to batch upload or ingest          |
 | 📥 In     | method        | str     | Embedding source (summary, parsed, raw, etc.)          |
+| 📥 In     | segmentation  | str     | "semantic" or "paragraph" segmentation for classification |
 | 📥 In     | model         | str     | Model to use for clustering (e.g., GPT-4)              |
 | 📥 In     | cluster_method| str     | Algorithm for clustering (e.g., hdbscan)               |
 | 📤 Out    | metadata      | JSON    | Saved `.meta.json` with classification/summary         |
@@ -38,3 +39,4 @@
 - New sub-commands `search` and `agent` will expose FAISS retrieval and multi-agent RAG workflows.
 - `search` accepts a natural language query and returns document IDs ranked by semantic similarity.
 - `agent` orchestrates cooperative roles such as Synthesizer and Insight Aggregator while respecting a budget cap.
+- Classification commands now accept `--segmentation` to switch between semantic or paragraph chunking.
