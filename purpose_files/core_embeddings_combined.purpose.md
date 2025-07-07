@@ -21,6 +21,7 @@
 - `openai` – Embedding model API
 - `json`, `numpy`, `pathlib` – Data handling and persistence
 - `core.config.config_registry` – To load user-defined paths and credentials
+- `core.utils.logger` – Standard logging helper for progress and errors
 
 ### ⚙️ AI-Memory Tags
 - `@ai-assumes:` Metadata contains summaries; paths are set correctly in config.
@@ -35,3 +36,4 @@
 - Generated vectors are now streamed directly into a FAISS index (`core.vectorstore.faiss_store`).
 - Embedding JSON output is retained for clustering but no longer required for search.
 - Embedding utilities also support short window sampling for semantic boundary detection via `semantic_chunk_text`.
+- Logging now handled via `core.utils.logger`; failures emit stack traces for easier debugging.
