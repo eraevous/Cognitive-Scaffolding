@@ -10,7 +10,8 @@ def run_full_pipeline(
     input_dir: Path,
     chunked: bool = False,
     overwrite: bool = True,
-    method: str = "summary"
+    method: str = "summary",
+    segmentation: str = "semantic",
 ):
     """
     Full ingestion pipeline:
@@ -41,7 +42,7 @@ def run_full_pipeline(
             print(f"⏭️ Skipping {name} (already classified)")
             continue
         try:
-            classify(name, chunked=chunked)
+            classify(name, chunked=chunked, segmentation=segmentation)
             print(f"✅ {name} classified")
         except Exception as e:
             print(f"❌ Classification failed: {name} — {e}")

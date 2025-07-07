@@ -49,8 +49,12 @@ from core.workflows.main_commands import classify
 app = typer.Typer()
 
 @app.command()
-def classify_one(name: str, chunked: bool = False):
+def classify_one(
+    name: str,
+    chunked: bool = False,
+    segmentation: str = "semantic",
+):
     """Classify a single document (optionally in chunked mode)."""
-    result = classify(name, chunked=chunked)
+    result = classify(name, chunked=chunked, segmentation=segmentation)
     print("✅ Metadata saved.")
     print(result)

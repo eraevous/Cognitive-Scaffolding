@@ -46,7 +46,7 @@ This module contains two core functions to classify documents. `classify()` supp
 
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
 
 from core.config.config_registry import get_path_config, get_remote_config
 from core.llm.invoke import summarize_text
@@ -67,7 +67,14 @@ def looks_like_chatlog(text: str) -> bool:
     lines = text.lower().splitlines()
     return sum(1 for l in lines[:50] if any(k in l for k in ["user:", "assistant:", "you:", "chatgpt:"])) > 2
 
-def classify(name: str, chunked: bool = False) -> dict:
+from core.parsing.topic_segmenter import segment_text
+
+
+def classify(
+    name: str,
+    chunked: bool = False,
+    segmentation: Literal["semantic", "paragraph"] = "semantic",
+) -> dict:
     paths = get_path_config()
     parsed_path = paths.parsed / name
     text = parsed_path.read_text(encoding="utf-8")
@@ -77,8 +84,11 @@ def classify(name: str, chunked: bool = False) -> dict:
     if not chunked and len(text) <= MAX_CHARS:
         metadata = summarize_text(text, doc_type=doc_type)
     else:
-        raw_chunks = semantic_chunk_text(text)
-        if not raw_chunks:
+        if segmentation == "semantic":
+            raw_chunks = segment_text(text)
+            if not raw_chunks:
+                raw_chunks = chunk_text(text)
+        else:
             raw_chunks = chunk_text(text)
         block_results = [
             summarize_text(chunk, doc_type=doc_type) for chunk in raw_chunks if chunk.strip()
@@ -107,8 +117,12 @@ def upload_metadata_to_s3(name: str, metadata: dict):
 def upload_and_prepare(file_name: str, parsed_name: Optional[str] = None):
     upload_file(file_name, parsed_name)
 
-def pipeline_from_upload(file_name: str, parsed_name: Optional[str] = None) -> dict:
+def pipeline_from_upload(
+    file_name: str,
+    parsed_name: Optional[str] = None,
+    segmentation: Literal["semantic", "paragraph"] = "semantic",
+) -> dict:
     upload_and_prepare(file_name, parsed_name)
     txt_name = parsed_name or Path(file_name).stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
-    metadata = classify(txt_name)
+    metadata = classify(txt_name, segmentation=segmentation)
     return metadata

@@ -13,11 +13,15 @@ import numpy as np
 import tiktoken
 import umap
 
+from .semantic_chunk import semantic_chunk_text
 from core.embeddings.embedder import embed_text
 from core.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+def segment_text(text: str) -> List[str]:
+    """Return semantic segments of ``text`` using :func:`semantic_chunk_text`."""
+    return semantic_chunk_text(text)
 
 def segment_topics(
     text: str,

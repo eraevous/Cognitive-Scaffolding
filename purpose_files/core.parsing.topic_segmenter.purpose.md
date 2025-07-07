@@ -11,7 +11,7 @@
 - @ai-risk-performance: "Embedding and clustering can be slow on long documents."
 
 # Module: core.parsing.topic_segmenter
-> Identify topical boundaries in documents with density-based clustering.
+> Identify topical boundaries in documents to segment text into topic-coherent chunks and use density-based clustering.
 
 ### 🎯 Intent & Responsibility
 - Slide a fixed-size window over tokenized text and embed each slice.
@@ -33,7 +33,8 @@
 - `tiktoken`, `umap-learn`, `hdbscan`
 - `core.embeddings.embedder.embed_text`
 - `core.utils.logger.get_logger`
+- `core.parsing.semantic_chunk_text`
 
 ### 🗣 Dialogic Notes
 - Noise points (`cluster_id = -1`) simply propagate as separate segments.
-- Future versions may support additional clustering methods or heuristics.
+- Future versions may support additional clustering methods or heuristics
