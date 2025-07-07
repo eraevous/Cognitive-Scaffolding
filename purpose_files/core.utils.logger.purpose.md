@@ -1,4 +1,10 @@
 # Module: core.utils.logger
+
+# @ai-path: core.utils.logger
+# @ai-source-file: logger.py
+# @ai-role: utility
+# @ai-intent: "Provide a thin wrapper for consistent, environment-aware logging across modules."
+
 > Provide a simple helper to configure and retrieve Python loggers with a common format.
 
 ### 🎯 Intent & Responsibility

@@ -13,6 +13,12 @@ from core.utils.logger import get_logger
 
 
 MAX_EMBED_TOKENS = 8191
+
+MODEL_DIMS = {
+    "text-embedding-3-small": 1536,
+    "text-embedding-3-large": 3072,
+}
+
 logger = get_logger(__name__)
 
 
@@ -51,7 +57,12 @@ def generate_embeddings(
     source_dir = source_dir or paths.parsed
     out_path = out_path or paths.vector / "rich_doc_embeddings.json"
     embeddings: Dict[str, List[float]] = {}
-    store = FaissStore(dim=1536, path=paths.vector / "mosaic.index")
+    index_dim = MODEL_DIMS.get(model, 1536)
+    index_path = paths.vector / "mosaic.index"
+    if index_path.exists():
+        logger.info("Reinitializing FAISS index at %s", index_path)
+        index_path.unlink()
+    store = FaissStore(dim=index_dim, path=index_path)
 
     for file in sorted(source_dir.glob("*.txt" if method != "meta" else "*.meta.json")):
         doc_id = file.stem

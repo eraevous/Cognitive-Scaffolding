@@ -37,3 +37,4 @@
 - Embedding JSON output is retained for clustering but no longer required for search.
 - Embedding utilities also support short window sampling for semantic boundary detection via `semantic_chunk_text`.
 - Logging now handled via `core.utils.logger`; failures emit stack traces for easier debugging.
+- The FAISS index is reinitialized each run to avoid dimension mismatches.

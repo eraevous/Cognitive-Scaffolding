@@ -17,6 +17,8 @@
 - Manage an inner-product FAISS index keyed by document IDs.
 - Provide `add(ids, vecs)`, `search(vec, k)`, and `persist()` methods.
 - Load existing indexes from disk on initialization.
+- Accepts a `dim` parameter to enforce vector dimension; old indexes are cleared
+  when `dim` differs from the stored index.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name  | Type | Brief Description |
