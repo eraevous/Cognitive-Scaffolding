@@ -25,6 +25,13 @@ def get_model_for_dim(dim: int) -> str:
     return MODEL_BY_DIM.get(dim, "text-embedding-3-small")
 logger = get_logger(__name__)
 
+MODEL_DIMS = {
+    "text-embedding-3-small": 1536,
+    "text-embedding-3-large": 3072,
+}
+
+logger = get_logger(__name__)
+
 
 def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
     """Return an embedding for ``text``. Handles long inputs by chunking."""

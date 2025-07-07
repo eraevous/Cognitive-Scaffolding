@@ -60,7 +60,7 @@ def run_all(
     Run full clustering pipeline from existing embeddings.
     """
     paths = get_path_config()
-    embedding_path = embedding_path or (paths.root / "rich_doc_embeddings.json")
+    embedding_path = embedding_path or (paths.vector / "rich_doc_embeddings.json")
     metadata_dir = metadata_dir or paths.metadata
     out_dir = out_dir or (paths.output / "cluster_output")
 
