@@ -31,3 +31,4 @@
 - Normalization is simple and irreversible (loss of case/formatting); designed for ID safety.
 - Future extensions could add support for HTML/EPUB and fallback token-based chunking for edge cases.
 - New `semantic_chunk_text` function performs window embedding, clustering, and boundary detection to create topic-coherent segments.
+- `topic_segmenter` combines `semantic_chunk_text` with paragraph fallback for embedding workflows.

@@ -12,6 +12,8 @@
 | 📥 In     | source_dir   | Path (optional)    | Directory to pull text or metadata from (auto-selected by method) |
 | 📥 In     | model        | str                | OpenAI model used to generate embeddings (default: `text-embedding-3-small`) |
 | 📥 In     | embedding_path | Path              | Path to existing JSON file with `{doc_id: vector}` format         |
+| 📥 In     | segment_mode | bool | If true, split docs via `topic_segmenter` and embed each chunk |
+| 📥 In     | chunk_dir | Path (optional) | Directory to save chunk text when `segment_mode` is on |
 | 📤 Out    | embeddings   | Dict[str, List[float]] | Document ID to vector mapping                                    |
 | 📤 Out    | doc_ids      | List[str]          | Ordered list of document identifiers                             |
 | 📤 Out    | X            | np.ndarray         | 2D array of embeddings for clustering                            |
@@ -38,3 +40,4 @@
 - Embedding utilities also support short window sampling for semantic boundary detection via `semantic_chunk_text`.
 - Logging now handled via `core.utils.logger`; failures emit stack traces for easier debugging.
 - The FAISS index is reinitialized each run to avoid dimension mismatches.
+- When `segment_mode` is enabled, each topic chunk is embedded separately and stored under composite IDs like `doc_chunk01`.

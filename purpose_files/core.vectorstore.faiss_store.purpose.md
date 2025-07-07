@@ -21,11 +21,12 @@
 - Accepts a `dim` parameter and warns if a stored index exists with a different
   dimension.
 - Numeric IDs are resolved back to filenames via `id_map.json` written by the embedding step.
+- `add` now accepts string IDs and returns their hashed integer form for FAISS.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name  | Type | Brief Description |
 |-----------|-------|------|-------------------|
-| 📥 In | ids | List[int] | Unique identifiers for each vector |
+| 📥 In | ids | Iterable[int or str] | Document or chunk identifiers (hashed internally) |
 | 📥 In | vecs | np.ndarray | 2D array of float32 vectors |
 | 📥 In | vec | np.ndarray | Query vector for search |
 | 📤 Out | results | List[Tuple[int, float]] | `(id, score)` pairs from search |
