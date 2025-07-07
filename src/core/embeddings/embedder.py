@@ -40,13 +40,14 @@ def generate_embeddings(
     source_dir: Path = None,
     method: Literal["parsed", "summary", "raw", "meta"] = "parsed",
     out_path: Path = Path("rich_doc_embeddings.json"),
-    model: str = "text-embedding-3-small"
+    model: str = "text-embedding-3-large"
 ) -> None:
     """
     Generate document embeddings from the specified source text.
     """
     paths = get_path_config()
     source_dir = source_dir or paths.parsed
+    out_path = out_path or paths.vector / "rich_doc_embeddings.json"
     embeddings: Dict[str, List[float]] = {}
     store = FaissStore(dim=1536, path=paths.vector / "mosaic.index")
 
