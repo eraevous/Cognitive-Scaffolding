@@ -13,6 +13,7 @@ app = typer.Typer()
 def run_all(
     input_dir: Path = typer.Option(..., help="Directory with raw input documents"),
     chunked: bool = False,
+    segmentation: str = "semantic",
     method: str = "summary",
     cluster_method: str = "hdbscan",
     model: str = "gpt-4"
@@ -31,7 +32,8 @@ def run_all(
         input_dir=input_dir,
         chunked=chunked,
         method=method,
-        overwrite=True
+        overwrite=True,
+        segmentation=segmentation,
     )
 
     # Step 4
