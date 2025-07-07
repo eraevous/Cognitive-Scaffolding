@@ -12,6 +12,7 @@
 | 📥 In     | file_name         | str               | Raw input file path (PDF, DOCX, etc.)                                                |
 | 📥 In     | parsed_name       | Optional[str]     | Custom filename for parsed `.txt` version                                            |
 | 📥 In     | name              | str               | Name of parsed file (e.g., `foo.txt`)                                                |
+| 📥 In     | segmentation      | str               | "semantic" or "paragraph" segmentation strategy |
 | 📤 Out    | metadata          | dict              | Structured JSON metadata saved locally or uploaded to S3                             |
 
 ### 🔗 Dependencies
@@ -29,6 +30,7 @@
 
 ### 🗣 Dialogic Notes
 - `classify()` chooses summarization strategy based on size and chatlog heuristics.
+- Supports optional `segmentation` choice to use semantic or paragraph boundaries.
 - `pipeline_from_upload()` provides a single-call ingestion-to-metadata interface.
 - Works with either local-only or hybrid S3-local workflows.
 - Meant to decouple CLI and backend logic, enabling reuse in batch processing or UIs.

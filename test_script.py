@@ -26,7 +26,12 @@ from core.clustering.clustering_steps import (
 
 
 def run_demo():
-    run_full_pipeline(Path("./incoming_docs"), chunked=True, method="summary")
+    run_full_pipeline(
+        Path("./incoming_docs"),
+        chunked=True,
+        method="summary",
+        segmentation="semantic",
+    )
 
     paths = get_path_config()
     path_to_embeddings = paths.root / "rich_doc_embeddings.json"
