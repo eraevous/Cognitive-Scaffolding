@@ -104,7 +104,7 @@ def generate_embeddings(
             hashed_id = int.from_bytes(
                 hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
                 "big",
-            )
+            ) & 0x7FFF_FFFF_FFFF_FFFF  # truncate to 63 bits for FAISS
             store.add([hashed_id], [vector])
             id_map[str(hashed_id)] = doc_id
         except Exception:
