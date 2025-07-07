@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import List, Tuple
 
+from core.utils.logger import get_logger
+
 import faiss
 import numpy as np
 
@@ -11,9 +13,16 @@ class FaissStore:
     def __init__(self, dim: int, path: Path):
         self.dim = dim
         self.path = path
+        self.logger = get_logger(__name__)
         self.index = faiss.IndexIDMap(faiss.IndexFlatIP(dim))
         if path.exists():
             self._load()
+            if self.index.d != dim:
+                self.logger.warning(
+                    "Index dimension %d differs from requested %d; using stored dimension",
+                    self.index.d,
+                    dim,
+                )
 
     def add(self, ids: List[int], vecs: np.ndarray) -> None:
         vecs = np.asarray(vecs, dtype="float32")

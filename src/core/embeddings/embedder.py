@@ -9,9 +9,21 @@ import tiktoken
 
 from core.config.config_registry import get_path_config, get_remote_config
 from core.vectorstore.faiss_store import FaissStore
+from core.utils.logger import get_logger
 
 
 MAX_EMBED_TOKENS = 8191
+MODEL_DIMS = {
+    "text-embedding-3-small": 1536,
+    "text-embedding-3-large": 3072,
+}
+MODEL_BY_DIM = {v: k for k, v in MODEL_DIMS.items()}
+
+
+def get_model_for_dim(dim: int) -> str:
+    """Return embedding model name corresponding to FAISS index dimension."""
+    return MODEL_BY_DIM.get(dim, "text-embedding-3-small")
+logger = get_logger(__name__)
 
 
 def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
@@ -49,7 +61,12 @@ def generate_embeddings(
     source_dir = source_dir or paths.parsed
     out_path = out_path or paths.vector / "rich_doc_embeddings.json"
     embeddings: Dict[str, List[float]] = {}
-    store = FaissStore(dim=1536, path=paths.vector / "mosaic.index")
+    index_dim = MODEL_DIMS.get(model, 1536)
+    index_path = paths.vector / "mosaic.index"
+    if index_path.exists():
+        logger.info("Reinitializing FAISS index at %s", index_path)
+        index_path.unlink()
+    store = FaissStore(dim=index_dim, path=index_path)
 
     for file in sorted(source_dir.glob("*.txt" if method != "meta" else "*.meta.json")):
         doc_id = file.stem
@@ -69,16 +86,16 @@ def generate_embeddings(
             raise ValueError(f"Unsupported method: {method}")
 
         if not text.strip():
-            print(f"⚠️ Skipping empty: {file.name}")
+            logger.warning("Skipping empty file: %s", file.name)
             continue
 
         try:
             vector = embed_text(text, model=model)
             embeddings[doc_id] = vector
             store.add([hash(doc_id)], [vector])
-        except Exception as e:
-            print(f"❌ Failed embedding {file.name}: {e}")
+        except Exception:
+            logger.exception("Failed embedding %s", file.name)
 
     out_path.write_text(json.dumps(embeddings, indent=2))
     store.persist()
-    print(f"✅ Saved {len(embeddings)} embeddings to {out_path}")
+    logger.info("Saved %d embeddings to %s", len(embeddings), out_path)
