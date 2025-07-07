@@ -31,3 +31,4 @@
 - Handles exceptions gracefully at each step; doesn’t halt pipeline on single failure.
 - Embedding method can be aligned with downstream semantic search or classification heuristics.
 - Could be expanded to support logging, dry-run mode, or parallel processing.
+- When embeddings are generated, vectors are simultaneously added to the FAISS index for immediate searchability.

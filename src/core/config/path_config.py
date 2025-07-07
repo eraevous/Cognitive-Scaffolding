@@ -52,6 +52,7 @@ class PathConfig:
         parsed: Union[str, Path] = None,
         metadata: Union[str, Path] = None,
         output: Union[str, Path] = None,
+        vector: Union[str, Path] = None,
         schema: Union[str, Path] = None,
     ):
         # Use the root provided (do not resolve relative to codebase)
@@ -60,6 +61,7 @@ class PathConfig:
         self.parsed = self._resolve_path_relative_to_root(parsed, default="parsed")
         self.metadata = self._resolve_path_relative_to_root(metadata, default="metadata")
         self.output = self._resolve_path_relative_to_root(output, default="output")
+        self.vector = self._resolve_path_relative_to_root(vector, default="vector")
         self.schema = self._resolve_path_relative_to_root(schema, default="config/metadata_schema.json")
 
     def __repr__(self):
@@ -69,6 +71,7 @@ class PathConfig:
             f"PARSED:   {self.parsed}\n"
             f"METADATA: {self.metadata}\n"
             f"OUTPUT:   {self.output}\n"
+            f"VECTOR:   {self.vector}\n"
             f"SCHEMA:   {self.schema}\n"
         )
 
@@ -91,6 +94,7 @@ class PathConfig:
             "parsed": "parsed_docs",
             "metadata": "meta",
             "output": "clustered",
+            "vector": "vector",
             "schema": "config/metadata_schema.json"
         }
         """
@@ -107,5 +111,6 @@ class PathConfig:
             parsed=config.get("parsed"),
             metadata=config.get("metadata"),
             output=config.get("output"),
+            vector=config.get("vector"),
             schema=config.get("schema")
         )
