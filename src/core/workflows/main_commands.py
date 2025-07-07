@@ -53,6 +53,7 @@ from core.llm.invoke import summarize_text
 from core.metadata.merge import merge_metadata_blocks
 from core.metadata.schema import validate_metadata
 from core.parsing.chunk_text import chunk_text
+from core.parsing.semantic_chunk import semantic_chunk_text
 from core.storage.upload_local import upload_file
 
 MAX_CHARS = 16000
@@ -76,8 +77,12 @@ def classify(name: str, chunked: bool = False) -> dict:
     if not chunked and len(text) <= MAX_CHARS:
         metadata = summarize_text(text, doc_type=doc_type)
     else:
-        chunks = chunk_text(text)
-        block_results = [summarize_text(chunk, doc_type=doc_type) for chunk in chunks if chunk.strip()]
+        raw_chunks = semantic_chunk_text(text)
+        if not raw_chunks:
+            raw_chunks = chunk_text(text)
+        block_results = [
+            summarize_text(chunk, doc_type=doc_type) for chunk in raw_chunks if chunk.strip()
+        ]
         metadata = merge_metadata_blocks(block_results)
 
     # Merge with stub if present

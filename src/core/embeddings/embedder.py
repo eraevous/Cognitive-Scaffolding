@@ -4,23 +4,36 @@ from pathlib import Path
 from typing import Dict, List, Literal
 
 from openai import OpenAI
+import numpy as np
+import tiktoken
 
 from core.config.config_registry import get_path_config, get_remote_config
 from core.vectorstore.faiss_store import FaissStore
 
 
+MAX_EMBED_TOKENS = 8191
+
+
 def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
-    """
-    Get OpenAI embedding for a given text.
-    """
+    """Return an embedding for ``text``. Handles long inputs by chunking."""
     remote = get_remote_config()
     client = OpenAI(api_key=remote.openai_api_key)
 
-    response = client.embeddings.create(
-        input=[text],
-        model=model
-    )
-    return response.data[0].embedding
+    enc = tiktoken.encoding_for_model(model)
+    tokens = enc.encode(text, disallowed_special=())
+
+    if len(tokens) <= MAX_EMBED_TOKENS:
+        response = client.embeddings.create(input=[text], model=model)
+        return response.data[0].embedding
+
+    # chunk into MAX_EMBED_TOKENS slices and average embeddings
+    vectors = []
+    for i in range(0, len(tokens), MAX_EMBED_TOKENS):
+        chunk_text = enc.decode(tokens[i : i + MAX_EMBED_TOKENS])
+        resp = client.embeddings.create(input=[chunk_text], model=model)
+        vectors.append(np.asarray(resp.data[0].embedding, dtype="float32"))
+
+    return np.mean(vectors, axis=0).tolist()
 
 
 def generate_embeddings(

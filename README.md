@@ -41,8 +41,8 @@ Cognitive Scaffold answers these questions using intelligent summarization, rich
          │
          ▼
 ┌─────────────────────────────┐
-│ Parse + Chunk Text          │
-│  (extract_text, chunk_text) │
+│ Parse + Semantic Chunk Text │
+│  (extract_text, semantic_chunk_text) │
 └────────┬────────────────────┘
          │
          ▼
@@ -157,7 +157,7 @@ pytest tests/
 Covers:
 - Metadata schema and validation
 - Document parsing logic
-- Chunking and summarization
+ - Semantic chunking and summarization
 - Chat scraping (ChatGPT logs)
 - Clustering and labeling
 
