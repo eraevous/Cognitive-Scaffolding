@@ -120,10 +120,12 @@ def generate_embeddings(
                     id_map[str(hashed)] = seg_id
                     (chunk_dir / f"{seg_id}.txt").write_text(chunk, encoding="utf-8")
             else:
-                vector = embed_text(text, model=model)
-                embeddings[doc_id] = vector
-                hashed = store.add([doc_id], [vector])[0]
-                id_map[str(hashed)] = doc_id
+              hashed_id = int.from_bytes(
+                  hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
+                  "big",
+              ) & 0x7FFF_FFFF_FFFF_FFFF  # truncate to 63 bits for FAISS
+              store.add([hashed_id], [vector])
+              id_map[str(hashed_id)] = doc_id
         except Exception:
             logger.exception("Failed embedding %s", file.name)
 
