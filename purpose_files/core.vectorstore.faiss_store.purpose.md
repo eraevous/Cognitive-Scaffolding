@@ -17,8 +17,8 @@
 - Manage an inner-product FAISS index keyed by document IDs.
 - Provide `add(ids, vecs)`, `search(vec, k)`, and `persist()` methods.
 - Load existing indexes from disk on initialization.
-- Accepts a `dim` parameter to enforce vector dimension; old indexes are cleared
-  when `dim` differs from the stored index.
+- Accepts a `dim` parameter and warns if a stored index exists with a different
+  dimension.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name  | Type | Brief Description |
@@ -33,6 +33,7 @@
 - `faiss` – vector index implementation
 - `numpy` – numeric arrays
 - `pathlib.Path` – file handling
+- `core.utils.logger` – warns on dimension mismatches
 
 ### 🗣 Dialogic Notes
 - Designed as a swap-in component for alternative stores like Qdrant or Milvus.

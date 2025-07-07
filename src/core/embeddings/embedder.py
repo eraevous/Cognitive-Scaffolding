@@ -13,6 +13,17 @@ from core.utils.logger import get_logger
 
 
 MAX_EMBED_TOKENS = 8191
+MODEL_DIMS = {
+    "text-embedding-3-small": 1536,
+    "text-embedding-3-large": 3072,
+}
+MODEL_BY_DIM = {v: k for k, v in MODEL_DIMS.items()}
+
+
+def get_model_for_dim(dim: int) -> str:
+    """Return embedding model name corresponding to FAISS index dimension."""
+    return MODEL_BY_DIM.get(dim, "text-embedding-3-small")
+logger = get_logger(__name__)
 
 MODEL_DIMS = {
     "text-embedding-3-small": 1536,

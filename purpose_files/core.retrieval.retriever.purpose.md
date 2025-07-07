@@ -17,6 +17,7 @@
 - Convert query text to embeddings using the configured model.
 - Delegate search to `FaissStore` and return ranked document IDs.
 - Provide an easy-to-mock layer for CLI and future agent use.
+- Detect index dimension at init and switch embedding model accordingly.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name | Type | Brief Description |
@@ -29,7 +30,9 @@
 - `core.embeddings.embedder.embed_text`
 - `core.vectorstore.faiss_store.FaissStore`
 - `numpy`
+- `core.utils.logger`
 
 ### 🗣 Dialogic Notes
 - Embedding model is configurable; defaults to OpenAI `text-embedding-3-small`.
 - Agents will call this layer instead of accessing FAISS directly.
+- When no model is specified, the retriever infers one by reading the FAISS index dimension.
