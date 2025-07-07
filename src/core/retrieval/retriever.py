@@ -1,4 +1,5 @@
 from typing import List, Tuple
+import json
 
 import numpy as np
 
@@ -18,6 +19,11 @@ class Retriever:
         dim = MODEL_DIMS.get(default_model, 1536)
         self.store = store or FaissStore(dim=dim, path=paths.vector / "mosaic.index")
         self.dim = self.store.index.d
+        id_map_path = paths.vector / "id_map.json"
+        if id_map_path.exists():
+            self.id_map = {int(k): v for k, v in json.loads(id_map_path.read_text()).items()}
+        else:
+            self.id_map = {}
         if model is None and self.dim != dim:
             inferred = get_model_for_dim(self.dim)
             self.logger.info(
@@ -27,6 +33,7 @@ class Retriever:
         else:
             self.model = default_model
 
-    def query(self, text: str, k: int = 5) -> List[Tuple[int, float]]:
+    def query(self, text: str, k: int = 5) -> List[Tuple[str, float]]:
         vec = np.asarray(embed_text(text, model=self.model), dtype="float32")
-        return self.store.search(vec, k)
+        results = self.store.search(vec, k)
+        return [(self.id_map.get(doc_id, str(doc_id)), score) for doc_id, score in results]

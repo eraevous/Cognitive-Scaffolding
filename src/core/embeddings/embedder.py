@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 from typing import Dict, List, Literal
+import hashlib
 
 from openai import OpenAI
 import numpy as np
@@ -68,6 +69,7 @@ def generate_embeddings(
     source_dir = source_dir or paths.parsed
     out_path = out_path or paths.vector / "rich_doc_embeddings.json"
     embeddings: Dict[str, List[float]] = {}
+    id_map = {}
     index_dim = MODEL_DIMS.get(model, 1536)
     index_path = paths.vector / "mosaic.index"
     if index_path.exists():
@@ -99,10 +101,17 @@ def generate_embeddings(
         try:
             vector = embed_text(text, model=model)
             embeddings[doc_id] = vector
-            store.add([hash(doc_id)], [vector])
+            hashed_id = int.from_bytes(
+                hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
+                "big",
+            )
+            store.add([hashed_id], [vector])
+            id_map[str(hashed_id)] = doc_id
         except Exception:
             logger.exception("Failed embedding %s", file.name)
 
     out_path.write_text(json.dumps(embeddings, indent=2))
     store.persist()
+    id_map_path = paths.vector / "id_map.json"
+    id_map_path.write_text(json.dumps(id_map, indent=2))
     logger.info("Saved %d embeddings to %s", len(embeddings), out_path)
