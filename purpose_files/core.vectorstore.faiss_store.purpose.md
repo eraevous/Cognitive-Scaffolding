@@ -12,6 +12,7 @@
 
 # Module: core.vectorstore.faiss_store
 > Lightweight wrapper around FAISS providing add/search and on-disk persistence.
+> Embedding generation stores a JSON map of `{int_id: doc_id}` alongside the index for lookup.
 
 ### 🎯 Intent & Responsibility
 - Manage an inner-product FAISS index keyed by document IDs.
@@ -19,6 +20,7 @@
 - Load existing indexes from disk on initialization.
 - Accepts a `dim` parameter and warns if a stored index exists with a different
   dimension.
+- Numeric IDs are resolved back to filenames via `id_map.json` written by the embedding step.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name  | Type | Brief Description |
