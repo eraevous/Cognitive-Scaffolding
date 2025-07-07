@@ -12,8 +12,7 @@ class Retriever:
 
     def __init__(self, store: FaissStore | None = None, dim: int = 1536):
         paths = get_path_config()
-        # Use the dedicated vector path to locate the persistent FAISS index
-        self.store = store or FaissStore(dim=dim, path=paths.vector / "mosaic.index")
+        self.store = store or FaissStore(dim=dim, path=paths.output / "vector.index")
 
     def query(self, text: str, k: int = 5) -> List[Tuple[int, float]]:
         vec = np.asarray(embed_text(text), dtype="float32")
