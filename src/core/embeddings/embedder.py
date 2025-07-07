@@ -9,6 +9,7 @@ import numpy as np
 import tiktoken
 
 from core.config.config_registry import get_path_config, get_remote_config
+from core.parsing.topic_segmenter import topic_segmenter
 from core.vectorstore.faiss_store import FaissStore
 from core.utils.logger import get_logger
 
@@ -60,10 +61,16 @@ def generate_embeddings(
     source_dir: Path = None,
     method: Literal["parsed", "summary", "raw", "meta"] = "parsed",
     out_path: Path = Path("rich_doc_embeddings.json"),
-    model: str = "text-embedding-3-large"
+    model: str = "text-embedding-3-large",
+    segment_mode: bool = False,
+    chunk_dir: Path | None = None,
 ) -> None:
-    """
-    Generate document embeddings from the specified source text.
+    """Generate embeddings for documents or topic segments.
+
+    When ``segment_mode`` is ``True``, each document is split via
+    ``topic_segmenter`` and every chunk is embedded separately. Resulting
+    vectors are stored in the FAISS index with IDs in the form
+    ``"docID_chunkXX"`` and optionally written to ``chunk_dir``.
     """
     paths = get_path_config()
     source_dir = source_dir or paths.parsed
@@ -76,6 +83,10 @@ def generate_embeddings(
         logger.info("Reinitializing FAISS index at %s", index_path)
         index_path.unlink()
     store = FaissStore(dim=index_dim, path=index_path)
+
+    chunk_dir = chunk_dir or (paths.vector / "chunks")
+    if segment_mode:
+        chunk_dir.mkdir(parents=True, exist_ok=True)
 
     for file in sorted(source_dir.glob("*.txt" if method != "meta" else "*.meta.json")):
         doc_id = file.stem
@@ -99,14 +110,20 @@ def generate_embeddings(
             continue
 
         try:
-            vector = embed_text(text, model=model)
-            embeddings[doc_id] = vector
-            hashed_id = int.from_bytes(
-                hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
-                "big",
-            )
-            store.add([hashed_id], [vector])
-            id_map[str(hashed_id)] = doc_id
+            if segment_mode:
+                segments = topic_segmenter(text, model=model)
+                for idx, chunk in enumerate(segments):
+                    seg_id = f"{doc_id}_chunk{idx:02d}"
+                    vector = embed_text(chunk, model=model)
+                    embeddings[seg_id] = vector
+                    hashed = store.add([seg_id], [vector])[0]
+                    id_map[str(hashed)] = seg_id
+                    (chunk_dir / f"{seg_id}.txt").write_text(chunk, encoding="utf-8")
+            else:
+                vector = embed_text(text, model=model)
+                embeddings[doc_id] = vector
+                hashed = store.add([doc_id], [vector])[0]
+                id_map[str(hashed)] = doc_id
         except Exception:
             logger.exception("Failed embedding %s", file.name)
 

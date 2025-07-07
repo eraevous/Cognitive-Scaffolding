@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import List, Tuple
+from typing import Iterable, List, Tuple
+import hashlib
 
 from core.utils.logger import get_logger
 
@@ -24,10 +25,18 @@ class FaissStore:
                     dim,
                 )
 
-    def add(self, ids: List[int], vecs: np.ndarray) -> None:
+    def _hash_id(self, identifier: str) -> int:
+        return int.from_bytes(
+            hashlib.blake2b(identifier.encode("utf-8"), digest_size=8).digest(),
+            "big",
+        )
+
+    def add(self, ids: Iterable[int | str], vecs: np.ndarray) -> List[int]:
         vecs = np.asarray(vecs, dtype="float32")
-        ids = np.asarray(ids, dtype="int64")
-        self.index.add_with_ids(vecs, ids)
+        hashed = [self._hash_id(i) if isinstance(i, str) else int(i) for i in ids]
+        ids_array = np.asarray(hashed, dtype="int64")
+        self.index.add_with_ids(vecs, ids_array)
+        return hashed
 
     def search(self, vec: np.ndarray, k: int = 5) -> List[Tuple[int, float]]:
         vec = np.asarray(vec, dtype="float32").reshape(1, -1)

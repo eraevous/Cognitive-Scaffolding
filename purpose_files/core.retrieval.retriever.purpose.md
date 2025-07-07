@@ -24,7 +24,9 @@
 |-----------|------|------|-------------------|
 | 📥 In | text | str | Search query text |
 | 📥 In | k | int | Number of results to return |
-| 📤 Out | results | List[Tuple[str, float]] | Matching document filenames with scores |
+| 📥 In | chunk_dir | Path (optional) | Directory holding text chunks for retrieval |
+| 📥 In | return_text | bool (optional) | Include chunk text when `chunk_dir` is configured |
+| 📤 Out | results | List[Tuple[str, float]] or List[Tuple[str, float, str]] | Matching IDs and scores, with text when requested |
 
 ### 🔗 Dependencies
 - `core.embeddings.embedder.embed_text`
@@ -37,3 +39,4 @@
 - Agents will call this layer instead of accessing FAISS directly.
 - When no model is specified, the retriever infers one by reading the FAISS index dimension.
 - Uses `id_map.json` to translate FAISS integer IDs back to document filenames.
+- When embeddings include chunk IDs (`doc_chunk01`), results may refer to those composite identifiers and `return_text` can load the chunk file if available.
