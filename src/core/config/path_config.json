@@ -1,9 +1,9 @@
 {
-  "root": ".",
+  "root": "C:/Users/Admin/Documents/My Repo/Robot Organizer",
   "raw": "raw",
   "parsed": "parsed",
   "metadata": "metadata",
   "output": "output",
   "vector": "vector",
-  "schema": "config/metadata_schema.json"
+  "schema": "metadata_schema.json"
 }
