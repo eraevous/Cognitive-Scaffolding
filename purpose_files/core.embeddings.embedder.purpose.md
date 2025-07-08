@@ -23,7 +23,7 @@
 | 📥 In | source_dir | Path | Directory containing text or `.meta.json` files |
 | 📥 In | method | Literal[str] | How to select text (`"parsed"`, `"raw"`, `"summary"`, `"meta"`) |
 | 📥 In | model | str | OpenAI model name |
-| 📥 In | segment_mode | bool | If true, split docs via `topic_segmenter` and embed each chunk |
+| 📥 In | segment_mode | bool | Overrides config to use topic segmentation when True; defaults to `PathConfig.semantic_chunking` |
 | 📥 In | chunk_dir | Path (optional) | Where to write chunk text when `segment_mode` is enabled |
 | 📤 Out | rich_doc_embeddings.json | JSON file of `{doc_id: vector}` |
 | 📤 Out | mosaic.index | FAISS index persisted to disk |
@@ -41,3 +41,5 @@
 - FAISS index is recreated on each run if dimensions mismatch.
 - Topic segmentation import is lazy to avoid circular dependencies with
   `semantic_chunk_text`.
+- If `segment_mode` is omitted, `PathConfig.semantic_chunking` determines whether
+  to segment via topics or simple paragraphs.

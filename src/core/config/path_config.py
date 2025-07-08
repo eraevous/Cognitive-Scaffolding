@@ -54,6 +54,7 @@ class PathConfig:
         output: Union[str, Path] = None,
         vector: Union[str, Path] = None,
         schema: Union[str, Path] = None,
+        semantic_chunking: bool = False,
     ):
         # Use the root provided (do not resolve relative to codebase)
         self.root = Path(root).expanduser().resolve() if root else Path(".").resolve()
@@ -63,6 +64,7 @@ class PathConfig:
         self.output = self._resolve_path_relative_to_root(output, default="output")
         self.vector = self._resolve_path_relative_to_root(vector, default="vector")
         self.schema = self._resolve_path_relative_to_root(schema, default="config/metadata_schema.json")
+        self.semantic_chunking = bool(semantic_chunking)
 
     def __repr__(self):
         return (
@@ -73,6 +75,7 @@ class PathConfig:
             f"OUTPUT:   {self.output}\n"
             f"VECTOR:   {self.vector}\n"
             f"SCHEMA:   {self.schema}\n"
+            f"SEMANTIC_CHUNKING: {self.semantic_chunking}\n"
         )
 
     def _resolve_path_relative_to_root(self, path_value, default):
@@ -112,5 +115,6 @@ class PathConfig:
             metadata=config.get("metadata"),
             output=config.get("output"),
             vector=config.get("vector"),
-            schema=config.get("schema")
+            schema=config.get("schema"),
+            semantic_chunking=config.get("semantic_chunking", False)
         )
