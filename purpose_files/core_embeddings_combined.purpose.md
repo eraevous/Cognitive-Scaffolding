@@ -41,3 +41,9 @@
 - Logging now handled via `core.utils.logger`; failures emit stack traces for easier debugging.
 - The FAISS index is reinitialized each run to avoid dimension mismatches.
 - When `segment_mode` is enabled, each topic chunk is embedded separately and stored under composite IDs like `doc_chunk01`.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** Embedding loader and generator interact with `FaissStore` and optionally call `topic_segmenter` before vectorizing.
+- **Integration Points:** Outputs are used by `core.retrieval.retriever`, RAG Synthesizer steps, and TokenMap Analyzer for mapping tokens to chunks.
+- **Risks:** Large embedding matrices may exceed available memory; over-segmentation increases runtime and storage.

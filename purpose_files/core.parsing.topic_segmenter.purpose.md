@@ -43,3 +43,9 @@
 - Future versions may support additional clustering methods or heuristics
 - Designed for embedding generation when `segment_mode` is enabled.
 - Keeps segments small and coherent for improved retrieval granularity.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** Invoked by embedding workflows when topic segmentation is requested. Segment dicts are persisted and passed to downstream embedding and summarization steps.
+- **Integration Points:** Downstream modules include `core.retrieval.retriever`, document Synthesizer routines, and TokenMap Analyzer for segment indexing.
+- **Risks:** UMAP/HDBSCAN parameters may overcluster or generate noise points, increasing GPU cost and fragmenting retrieval.

@@ -41,3 +41,9 @@
 ### 🗣 Dialogic Notes
 - Designed as a swap-in component for alternative stores like Qdrant or Milvus.
 - Future enhancement: write-ahead log for crash-safe incremental indexing.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** `FaissStore` persists embeddings from the embedder and provides search to the Retriever. Index dimension guides model selection.
+- **Integration Points:** Used by `core.embeddings.embedder`, `core.retrieval.retriever`, and TokenMap Analyzer for vector lookups.
+- **Risks:** Large indexes consume disk and RAM; mismatched dimensions cause search failures.
