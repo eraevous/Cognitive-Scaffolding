@@ -4,6 +4,7 @@ from pathlib import Path
 import typer
 
 from core.embeddings.embedder import generate_embeddings
+from core.config.config_registry import get_path_config
 
 app = typer.Typer()
 
@@ -14,5 +15,5 @@ def all(
 ):
     """
     Generate embeddings from parsed text, summaries, or raw content.
-    """
-    generate_embeddings(method=method, out_path=out_path)
+    """    paths = get_path_config()
+    generate_embeddings(method=method, out_path=out_path, segment_mode=paths.semantic_chunking)

@@ -30,5 +30,6 @@
 - This is the operational entry point for batch processing; ideal for CLI runners, cron jobs, or one-off runs.
 - Handles exceptions gracefully at each step; doesn’t halt pipeline on single failure.
 - Embedding method can be aligned with downstream semantic search or classification heuristics.
+- Embedding segmentation now respects `PathConfig.semantic_chunking` for topic vs. paragraph mode.
 - Could be expanded to support logging, dry-run mode, or parallel processing.
 - When embeddings are generated, vectors are simultaneously added to the FAISS index for immediate searchability.
