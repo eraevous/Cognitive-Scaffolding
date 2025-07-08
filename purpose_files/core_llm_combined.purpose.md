@@ -20,6 +20,7 @@
 - `openai`, `json`, `pathlib`
 - `core.config.remote_config` – for OpenAI API key
 - Local `prompts/` directory for standard and chatlog prompt templates
+- `core.utils.budget_tracker.get_budget_tracker` – enforces monthly spend limit
 
 ### ⚙️ AI-Memory Tags
 - `@ai-assumes:` Prompt files exist and contain a `{text}` placeholder.
@@ -30,3 +31,4 @@
 - Prompt routing enables flexible experimentation—use `prompt_override` to test new summarization styles.
 - Parsing failures raise clearly surfaced exceptions, but no retry mechanism exists yet.
 - This is the primary bridge between raw content and metadata extraction in the classification pipeline.
+- Each completion request estimates cost using `BudgetTracker`. Execution stops when the budget is exceeded.

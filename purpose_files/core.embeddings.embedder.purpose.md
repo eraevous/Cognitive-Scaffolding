@@ -34,6 +34,7 @@
 - `core.vectorstore.faiss_store` for index management
 - `core.config.config_registry` for path lookups
 - `core.utils.logger` for logging
+- `core.utils.budget_tracker.get_budget_tracker` for budget checks
 
 ### 🗣 Dialogic Notes
 - Document IDs are hashed via Blake2b and **masked to 63 bits** (`0x7FFF_FFFF_FFFF_FFFF`) so FAISS can store them as signed `int64` without overflow.
@@ -43,3 +44,4 @@
   `semantic_chunk_text`.
 - If `segment_mode` is omitted, `PathConfig.semantic_chunking` determines whether
   to segment via topics or simple paragraphs.
+- Estimated OpenAI cost is checked via `BudgetTracker`; calls abort when the budget is exceeded.

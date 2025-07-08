@@ -55,10 +55,21 @@ from typing import Literal, Optional
 
 import openai
 from openai import OpenAI
+import tiktoken
 
 from core.config.remote_config import RemoteConfig
+from core.utils.budget_tracker import get_budget_tracker
 
 PROMPT_DIR = Path(__file__).parent / "prompts"
+
+LLM_PROMPT_COST_PER_1K = {
+    "gpt-4": 0.03,
+    "gpt-4o": 0.005,
+}
+LLM_COMPLETION_COST_PER_1K = {
+    "gpt-4": 0.06,
+    "gpt-4o": 0.015,
+}
 
 
 def load_prompt(prompt_name: str) -> str:
@@ -76,6 +87,17 @@ def run_openai_completion(
     api_key: Optional[str] = None
 ) -> str:
     client = OpenAI(api_key=api_key or RemoteConfig.from_file().openai_api_key)
+    tracker = get_budget_tracker()
+
+    if tracker:
+        enc = tiktoken.encoding_for_model(model)
+        prompt_tokens = len(enc.encode(prompt, disallowed_special=()))
+        est_cost = (
+            prompt_tokens / 1000 * LLM_PROMPT_COST_PER_1K.get(model, 0)
+            + max_tokens / 1000 * LLM_COMPLETION_COST_PER_1K.get(model, 0)
+        )
+        if not tracker.check(est_cost):
+            raise RuntimeError("Budget exceeded for completion request")
 
     response = client.chat.completions.create(
         model=model,

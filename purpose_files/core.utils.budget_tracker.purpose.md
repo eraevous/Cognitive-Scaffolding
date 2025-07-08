@@ -16,12 +16,15 @@
 ### 🎯 Intent & Responsibility
 - Wrap OpenAI API calls to accumulate token usage and convert to dollar cost.
 - Provide `check(cost)` and `reset(month)` helpers for CLI and agents.
+- Offer `get_budget_tracker()` to fetch a singleton instance from environment variables.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name | Type | Brief Description |
 |-----------|------|------|-------------------|
 | 📥 In | max_usd | float | Monthly budget ceiling |
 | 📥 In | cost | float | Cost increment to add |
+| 📥 In | OPENAI_BUDGET_USD | env | Sets monthly budget when using `get_budget_tracker` |
+| 📥 In | OPENAI_BUDGET_LOG | env | Optional log file for spending persistence |
 | 📤 Out | ok | bool | Whether the call is allowed |
 
 ### 🔗 Dependencies
