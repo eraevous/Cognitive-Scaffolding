@@ -49,10 +49,24 @@ If uncertain, default to **Drift**.
 
 Cadence tags may be used for clarity:
 
-```md
-- @ai-cadence: run
-- @ai-cadence: drift
-```
+* @ai-cadence: run
+* @ai-cadence: drift
+
+### Run/Drift Heuristics
+
+| Trigger                                                  | Suggested Cadence | Rationale                                                                  |
+| -------------------------------------------------------- | ----------------- | -------------------------------------------------------------------------- |
+| User types “debug”, error trace, or user mentions errors | `Run`             | Execution-focused — rapid iteration needed                                 |
+| Prompt contains “ask”, “explore”, or is of "ask" type    | `Drift`           | User is introspecting or seeking structural insight                        |
+| `.purpose.md` update or reconciliation requested         | `Drift`           | Requires semantic reflection and structural reconciliation                 |
+| User requests execution of multiple code tasks           | `Run`             | Execution sequence — optimize throughput and preserve intent fidelity      |
+| User pauses, reflects on goals, or talks abstractly      | `Drift`           | Indicates cadence deceleration — time for alignment and memory capture     |
+| Output deviates from intent, user requests comparison    | `Drift`           | Suggest reconciliation, possibly `DriftDiff` or `.intent.md` capture       |
+| User switches module focus                               | `Drift`           | Recommend memory state sync before shifting to new context                 |
+| Budget threshold approached                              | `Drift`           | Drift-trigger from BudgetTracker should prompt evaluation or consolidation |
+| New agent introduced                                     | `Drift`           | Validate role, IO contract, and `.purpose.md` scaffold                     |
+| User prompts "proceed" or other execution keywords       | `Run`             | User is satisfied with plannint and moves to execution pipeline            |
+| -------------------------------------------------------- | ----------------- | -------------------------------------------------------------------------- |
 
 > **StressTest Insight**: Modules with long-running coordination loops should enforce explicit cadence tagging to avoid drift-blend confusion.
 
