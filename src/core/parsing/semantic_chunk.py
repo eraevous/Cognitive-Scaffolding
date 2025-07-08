@@ -22,7 +22,7 @@ def semantic_chunk_text(
     tokens = enc.encode(text, disallowed_special=())
     logger.debug("Tokenized into %d tokens", len(tokens))
 
-    windows = []
+    windows: List[List[float]] = []
     starts = []
     for i in range(0, len(tokens), step_tokens):
         window = tokens[i : i + window_tokens]
