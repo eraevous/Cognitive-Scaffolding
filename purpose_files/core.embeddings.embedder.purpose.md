@@ -16,6 +16,7 @@
 - Create embeddings for parsed, raw, summary, or metadata text.
 - Insert vectors into `FaissStore` for later retrieval or clustering.
 - Store a JSON map linking hashed IDs to document filenames.
+- When segmenting, persist chunk metadata with embeddings for downstream search.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name | Type | Brief Description |
@@ -28,6 +29,7 @@
 | 📤 Out | rich_doc_embeddings.json | JSON file of `{doc_id: vector}` |
 | 📤 Out | mosaic.index | FAISS index persisted to disk |
 | 📤 Out | id_map.json | Map of int IDs to original filenames |
+| 📤 Out | chunks/*.json | Per-chunk files with text, embedding, and metadata |
 
 ### 🔗 Dependencies
 - `openai`, `tiktoken`, `numpy`
@@ -41,7 +43,7 @@
 - Embeddings for long documents are averaged from token chunks.
 - FAISS index is recreated on each run if dimensions mismatch.
 - Topic segmentation import is lazy to avoid circular dependencies with
-  `semantic_chunk_text`.
+  `semantic_chunk`.
 - If `segment_mode` is omitted, `PathConfig.semantic_chunking` determines whether
   to segment via topics or simple paragraphs.
 - Estimated OpenAI cost is checked via `BudgetTracker`; calls abort when the budget is exceeded.
