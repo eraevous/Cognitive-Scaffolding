@@ -119,14 +119,17 @@ def generate_embeddings(
 
         try:
             if segment_mode:
-                from core.parsing.topic_segmenter import topic_segmenter
-                segments = topic_segmenter(text, model=model)
+                from core.parsing.semantic_chunk import semantic_chunk
+                segments = semantic_chunk(text, model=model)
             else:
                 from core.parsing.chunk_text import chunk_text
-                segments = chunk_text(text)
+                segments = [
+                    {"text": t, "embedding": embed_text(t, model=model)}
+                    for t in chunk_text(text)
+                ]
 
             if len(segments) == 1 and not segment_mode:
-                vector = embed_text(segments[0], model=model)
+                vector = segments[0]["embedding"]
                 embeddings[doc_id] = vector
                 hashed_id = int.from_bytes(
                     hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
@@ -138,11 +141,14 @@ def generate_embeddings(
                 chunk_dir.mkdir(parents=True, exist_ok=True)
                 for idx, chunk in enumerate(segments):
                     seg_id = f"{doc_id}_chunk{idx:02d}"
-                    vector = embed_text(chunk, model=model)
+                    vector = chunk["embedding"]
                     embeddings[seg_id] = vector
-                    hashed = store.add([seg_id], [vector])[0] & 0x7FFF_FFFF_FFFF_FFFF
+                    hashed = store._hash_id(seg_id) & 0x7FFF_FFFF_FFFF_FFFF
+                    store.add([hashed], [vector])
                     id_map[str(hashed)] = seg_id
-                    (chunk_dir / f"{seg_id}.txt").write_text(chunk, encoding="utf-8")
+                    (chunk_dir / f"{seg_id}.json").write_text(
+                        json.dumps(chunk, indent=2), encoding="utf-8"
+                    )
         except Exception:
             logger.exception("Failed embedding %s", file.name)
 
