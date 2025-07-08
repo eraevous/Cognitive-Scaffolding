@@ -33,3 +33,9 @@
 - Embedding segmentation now respects `PathConfig.semantic_chunking` for topic vs. paragraph mode.
 - Could be expanded to support logging, dry-run mode, or parallel processing.
 - When embeddings are generated, vectors are simultaneously added to the FAISS index for immediate searchability.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** Runs end-to-end steps—upload, parse, segment, summarize, embed—ensuring outputs are synchronized before index update.
+- **Integration Points:** Utilizes `core.embeddings.embedder`, `core.retrieval.retriever`, and passes metadata to Synthesizer and TokenMap Analyzer modules.
+- **Risks:** Pipeline failures at any step can leave partial outputs; large document batches magnify OpenAI costs and GPU usage.

@@ -34,3 +34,9 @@
 - `pipeline_from_upload()` provides a single-call ingestion-to-metadata interface.
 - Works with either local-only or hybrid S3-local workflows.
 - Meant to decouple CLI and backend logic, enabling reuse in batch processing or UIs.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** Wraps parsing, topic segmentation, summarization, and embedding into a single flow. Metadata output guides downstream retrieval and synthesis.
+- **Integration Points:** Relies on `core.parsing.topic_segmenter`, `core.embeddings.embedder`, and feeds results to Retriever and Synthesizer loops, plus TokenMap Analyzer for audit.
+- **Risks:** Misconfigured segmentation or missing metadata can derail later search and summarization stages; long documents increase OpenAI costs.

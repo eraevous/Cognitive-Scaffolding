@@ -45,3 +45,9 @@
 - If `segment_mode` is omitted, `PathConfig.semantic_chunking` determines whether
   to segment via topics or simple paragraphs.
 - Estimated OpenAI cost is checked via `BudgetTracker`; calls abort when the budget is exceeded.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** Embedding generation triggers semantic chunking when enabled and writes vectors to `FaissStore`. Index files are then consumed by `core.retrieval.retriever`.
+- **Integration Points:** Downstream usage includes Retriever search, Synthesizer summarization loops, and TokenMap Analyzer for chunk metrics.
+- **Risks:** Excessive chunk count inflates API spend and FAISS index size; GPU memory may limit batch processing.

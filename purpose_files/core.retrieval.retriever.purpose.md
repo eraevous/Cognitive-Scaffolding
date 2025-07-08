@@ -40,3 +40,9 @@
 - When no model is specified, the retriever infers one by reading the FAISS index dimension.
 - Uses `id_map.json` to translate FAISS integer IDs back to document filenames.
 - When embeddings include chunk IDs (`doc_chunk01`), results may refer to those composite identifiers and `return_text` can load the chunk file if available.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** Receives query embeddings from `embed_text` and consults `FaissStore`; optionally loads chunk text for Synthesizer steps.
+- **Integration Points:** Results feed directly into the Synthesizer RAG loop and TokenMap Analyzer for token-level context alignment.
+- **Risks:** Retrieval across many chunks may load large text blobs and increase latency; misaligned embeddings reduce search quality.

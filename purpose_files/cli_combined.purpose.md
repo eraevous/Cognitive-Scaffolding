@@ -40,3 +40,9 @@
 - `search` accepts a natural language query and returns document IDs ranked by semantic similarity.
 - `agent` orchestrates cooperative roles such as Synthesizer and Insight Aggregator while respecting a budget cap.
 - Classification commands now accept `--segmentation` to switch between semantic or paragraph chunking.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** CLI commands orchestrate uploads, segmentation, embedding, and retrieval through underlying workflow modules.
+- **Integration Points:** Invokes `core.workflows.main_commands`, `core.embeddings.embedder`, and leverages Retriever and Synthesizer agents plus TokenMap Analyzer outputs.
+- **Risks:** Mismatched CLI flags may bypass segmentation; large batch operations can exceed API budget.

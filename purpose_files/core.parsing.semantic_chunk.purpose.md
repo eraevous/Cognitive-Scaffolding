@@ -35,3 +35,9 @@
 ### 🗣 Dialogic Notes
 - Works best when text length >> window size, giving enough context for clustering.
 - Future improvements might use HDBSCAN or heuristics to auto-select cluster count.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** Called by `core.embeddings.embedder` when `segment_mode=True`; outputs are written to disk and embedded for vector search.
+- **Integration Points:** Results feed into `core.retrieval.retriever`, `core.synthesizer` workflows, and TokenMap Analyzer.
+- **Risks:** Overclustering can fragment context, while excessive window count drives GPU and API cost.
