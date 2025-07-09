@@ -182,9 +182,11 @@ config.py
 *.pdf
 *.json
 *.xlsx
+*.trace.*
 
 # Dev Tools
 
 Cognitive-Scaffolding.code-workspace
 
 !ast_deps.csv
+!metadata_schema.json
