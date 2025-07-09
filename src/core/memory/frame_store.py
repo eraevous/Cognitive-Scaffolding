@@ -26,7 +26,11 @@ class FrameStore:
         return ""
 
     def inject_memory(self, text: str, frame_ids: list[str]) -> str:
-        fragments = [self.load_frame(fid) for fid in frame_ids if self.load_frame(fid)]
+        fragments = []
+        for fid in frame_ids:
+            fragment = self.load_frame(fid)
+            if fragment:
+                fragments.append(fragment)
         if fragments:
             return "\n".join(fragments) + "\n" + text
         return text
