@@ -13,18 +13,17 @@ def clean_trace_line(line: str) -> str:
     return line.strip()
 
 
-def truncate_to_sentences(text: str, max_sentences: int = 3) -> str:
-    # Split by punctuation followed by whitespace or end-of-line
+def truncate_to_sentences(text: str, max_sentences: int = 4, max_chars: int = 400) -> str:
     sentences = re.split(r'(?<=[.!?])\s+', text)
+    truncated = " ".join(sentences[:max_sentences]).strip()
     if len(sentences) > max_sentences:
-        return " ".join(sentences[:max_sentences]).strip() + " ..."
-    return " ".join(sentences).strip()
+        truncated += " ..."
+    if len(truncated) > max_chars:
+        truncated = truncated[:max_chars].rstrip() + " ..."
+    return truncated
 
 
-def extract_codex_reasoning(input_path: str, output_md: str, output_jsonl: str = None):
-    input_path = Path(input_path)
-    output_md = Path(output_md)
-
+def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Path = None):
     try:
         lines = input_path.read_text(encoding="utf-8").splitlines()
     except UnicodeDecodeError:
@@ -69,6 +68,8 @@ def extract_codex_reasoning(input_path: str, output_md: str, output_jsonl: str =
             "text": truncate_to_sentences(combined)
         })
 
+    # Save Markdown
+    output_md.parent.mkdir(parents=True, exist_ok=True)
     with output_md.open("w", encoding="utf-8") as f:
         f.write("## 🧠 Codex Reasoning Chain\n\n")
         if prompt:
@@ -76,24 +77,42 @@ def extract_codex_reasoning(input_path: str, output_md: str, output_jsonl: str =
         for step in reasoning_steps:
             f.write(f"### 🪄 Step {step['step']}\n\n{step['text']}\n\n---\n\n")
 
+    # Save JSONL if requested
     if output_jsonl:
-        with Path(output_jsonl).open("w", encoding="utf-8") as jf:
+        with output_jsonl.open("w", encoding="utf-8") as jf:
             for step in reasoning_steps:
                 jf.write(json.dumps(step) + "\n")
 
     print(f"✅ Extracted {len(reasoning_steps)} reasoning steps")
-    print(f"📝 Markdown saved to: {output_md}")
+    print(f"📝 Markdown: {output_md.name}")
     if output_jsonl:
-        print(f"📦 JSONL saved to: {output_jsonl}")
+        print(f"📦 JSONL: {output_jsonl.name}")
+
+
+def bulk_process_dir(input_dir: Path, output_dir: Path):
+    trace_files = list(input_dir.rglob("*.trace.txt")) + list(input_dir.rglob("*.trace.md")) + list(input_dir.rglob("*.trace.jsonl"))
+    for trace in trace_files:
+        rel_path = trace.relative_to(input_dir)
+        out_md = output_dir / rel_path.with_suffix(".cleaned.md")
+        out_jsonl = output_dir / rel_path.with_suffix(".cleaned.jsonl")
+        extract_codex_reasoning(trace, out_md, out_jsonl)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python clean_trace.py <input_trace> <output_md> [<output_jsonl>]")
+    if len(sys.argv) < 2:
+        print("Usage:")
+        print("  Single file : python clean_trace.py <input_file> <output_md> [<output_jsonl>]")
+        print("  Bulk mode   : python clean_trace.py <input_dir> <output_dir>")
         sys.exit(1)
 
-    extract_codex_reasoning(
-        input_path=sys.argv[1],
-        output_md=sys.argv[2],
-        output_jsonl=sys.argv[3] if len(sys.argv) > 3 else None
-    )
+    input_path = Path(sys.argv[1])
+    output_path = Path(sys.argv[2])
+
+    if input_path.is_dir():
+        bulk_process_dir(input_path, output_path)
+    else:
+        extract_codex_reasoning(
+            input_path=input_path,
+            output_md=output_path,
+            output_jsonl=Path(sys.argv[3]) if len(sys.argv) > 3 else None
+        )
