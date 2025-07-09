@@ -154,6 +154,13 @@ python main.py agent run "Summarize recent policy shifts" --roles synthesizer,as
 pytest tests/
 ```
 
+Running the tests requires the `openai` package. If you haven't installed
+development dependencies yet, run:
+
+```bash
+pip install -r requirements.txt
+```
+
 Covers:
 - Metadata schema and validation
 - Document parsing logic
