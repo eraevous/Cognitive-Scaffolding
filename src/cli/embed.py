@@ -15,5 +15,6 @@ def all(
 ):
     """
     Generate embeddings from parsed text, summaries, or raw content.
-    """    paths = get_path_config()
+    """    
+    paths = get_path_config()
     generate_embeddings(method=method, out_path=out_path, segment_mode=paths.semantic_chunking)
