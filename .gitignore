@@ -186,3 +186,5 @@ config.py
 # Dev Tools
 
 Cognitive-Scaffolding.code-workspace
+
+!ast_deps.csv
