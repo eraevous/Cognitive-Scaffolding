@@ -32,3 +32,9 @@
 - Future extensions could add support for HTML/EPUB and fallback token-based chunking for edge cases.
 - New `semantic_chunk_text` function performs window embedding, clustering, and boundary detection to create topic-coherent segments.
 - `topic_segmenter` combines `semantic_chunk_text` with paragraph fallback for embedding workflows.
+
+### 9 Pipeline Integration
+- @ai-pipeline-order: inverse
+- **Coordination Mechanics:** Parsing functions supply normalized filenames and semantic chunks consumed by `core.embeddings.embedder`.
+- **Integration Points:** Outputs route through `core.retrieval.retriever` and Synthesizer modules; TokenMap Analyzer uses chunk metadata.
+- **Risks:** Mis-segmented text may degrade embedding quality; large files increase clustering cost.

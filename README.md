@@ -13,6 +13,7 @@ Cognitive Scaffold answers these questions using intelligent summarization, rich
 - 🔍 **Organize and explore** based on category, themes, tags, tone, and stage
 - 🧭 **Suggest exploration trails** and semantic connections
 - 🧰 **Export to folders**, metadata files, and future-ready search/RAG systems
+See [docs/QAT_Quickstart.md](docs/QAT_Quickstart.md) for a brief guide to the QAT layout and basic usage.
 
 ---
 
@@ -152,6 +153,13 @@ python main.py agent run "Summarize recent policy shifts" --roles synthesizer,as
 
 ```bash
 pytest tests/
+```
+
+Running the tests requires the `openai` package. If you haven't installed
+development dependencies yet, run:
+
+```bash
+pip install -r requirements.txt
 ```
 
 Covers:

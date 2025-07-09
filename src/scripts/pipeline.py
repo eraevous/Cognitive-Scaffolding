@@ -48,5 +48,5 @@ def run_full_pipeline(
             print(f"❌ Classification failed: {name} — {e}")
 
     print("📊 Generating embeddings and updating vector index...")
-    generate_embeddings(method=method)
+    generate_embeddings(method=method, segment_mode=paths.semantic_chunking)
     print("✅ Pipeline complete.")

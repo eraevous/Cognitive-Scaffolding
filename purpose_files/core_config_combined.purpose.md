@@ -29,3 +29,4 @@
 - Both `PathConfig` and `RemoteConfig` enforce structure but can be extended to support `.env`, CLI args, or dynamic reloading.
 - This system separates runtime configuration concerns from hardcoded constants, enabling safe parallel use across local and cloud environments.
 - New path entry `vector` will store FAISS index files alongside other outputs.
+- Boolean `semantic_chunking` toggles topic segmentation for embedding generation.
