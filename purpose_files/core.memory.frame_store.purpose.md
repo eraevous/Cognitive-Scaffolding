@@ -1,42 +1,84 @@
-- @ai-path: core.memory.frame_store
-- @ai-source-file: frame_store.py
+- @ai-path: core.memory
+- @ai-source-files: [frame_store.py, memory_proxy.py]
 - @ai-role: memory
-- @ai-intent: "Persist and inject small text frames for lightweight conversational memory."
-- @ai-version: 0.1.0
+- @ai-intent: "Store and simulate memory elements to support reflective and context-aware AI behavior."
+- @ai-version: 0.2.0
 - @ai-generated: true
 - @ai-verified: false
-- @schema-version: 0.2
+- @schema-version: 0.3
 - @ai-risk-pii: medium
-- @ai-risk-performance: "File I/O per frame; minimal impact for short texts."
+- @ai-risk-performance: low
+- @ai-risk-drift: "May surface outdated or conflicting `.intent.md` fragments — recommend validation."
+- @ai-used-by: core.prompting.orchestrator, core.retriever.query_router
+- @ai-downstream: core.analysis.intent_scanner
 
-# Module: core.memory.frame_store
-> File-backed frame storage for ephemeral memory injection.
+# Module: core.memory
+> Provides cognitive memory scaffolding for AI systems, including ephemeral frame injection and structured memory recall via `.intent.md` fragments.
+
+---
 
 ### 🎯 Intent & Responsibility
-- Store frame text as JSON files under `paths.output/frames` by default.
-- Load frames by ID to support contextual recall.
-- Provide `inject_memory` to prepend saved frames to new prompts.
+
+- Persist short text frames for prompt augmentation (`FrameStore`)
+- Load and inject saved memory into active prompts
+- Parse and surface `.intent.md` fragments that match task context (`Memory Proxy Mode`)
+- Enable simulated recall, tradeoff re-surfacing, and drift alerts in Codex-style workflows
+
+---
 
 ### 📥 Inputs & 📤 Outputs
-| Direction | Name | Type | Description |
-|-----------|------|------|-------------|
-| 📥 In | frame_id | str | Identifier for memory frame |
-| 📥 In | text | str | Text content to store |
-| 📥 In | frame_ids | list[str] | Frames to inject into prompt |
-| 📤 Out | combined | str | Original text with prepended memory |
-| 📤 Out | file_path | Path | Saved frame path on disk |
+
+| Direction | Name         | Type             | Description |
+|-----------|--------------|------------------|-------------|
+| 📥 In     | frame_id     | str              | Identifier for short text memory frame |
+| 📥 In     | text         | str              | Content to persist in memory |
+| 📥 In     | frame_ids    | list[str]        | Multiple frame IDs to inject |
+| 📥 In     | prompt       | str              | Active user/system prompt to match against `.intent.md` |
+| 📤 Out    | combined     | str              | Prompt with memory prepended |
+| 📤 Out    | file_path    | Path             | Saved frame file path |
+| 📤 Out    | intent_hits  | list[Dict]       | Relevant `.intent.md` fragment metadata and content |
+
+---
 
 ### 🔗 Dependencies
-- `core.config.config_registry.get_path_config`
-- `json`, `pathlib.Path`
+
+- `core.config.config_registry`
+- `core.utils.template` (for prompt injection)
+- `json`, `pathlib`, `re`, `datetime`
+
+---
 
 ### 🗣 Dialogic Notes
-- Intended for lightweight human-in-the-loop use; not a fully fledged vector DB.
-- Frame IDs are arbitrary strings (e.g., topic names or timestamps).
-- `FrameStore` is also available via `from core.memory import FrameStore` for
-  convenience.
+
+- This is not a full vector search system — it uses keyword relevance or RAG plug-ins
+- `Memory Proxy` can be Codex-facing or used in pipelines (e.g. `drift` reconciliation)
+- Outputs should be validated when surfaced to prevent outdated logic being reused
+- Memory fragments may be embedded or quoted as Codex prompt scaffolds
+
+---
 
 ### 9 Pipeline Integration
-- **Coordination Mechanics:** Used prior to LLM invocation to inject persistent notes or recap summaries.
-- **Integration Points:** Works with `summarize_documents` outputs or manual notes.
-- **Risks:** Stale frames may mislead summarization; implement expiration or versioning as needed.
+
+- **Coordination Mechanics:**
+  - `FrameStore`: Used before LLM invocation to insert summary/notes into prompts
+  - `Memory Proxy`: Called during Drift to recover and surface prior reasoning
+  - Compatible with `Run/Drift Tracker`, `DriftDiff`, `Fork Agent`
+
+- **Integration Points:**
+  - Upstream: `summarize_documents`, `.intent.md` writers
+  - Downstream: `Codex prompt engine`, `reconciliation routines`
+
+- **Risks:**
+  - Injected memory may contain outdated tradeoffs — always cite with timestamps
+  - Future expansion may require intent embedding or retrieval confidence scoring
+
+---
+
+### 🧠 Tags
+
+@ai-role: memory  
+@ai-intent: support reflective, memory-aware agent behaviors  
+@ai-cadence: drift-preferred  
+@ai-risk-recall: medium  
+@ai-semantic-scope: .intent.md, prompt context  
+@ai-coordination: simulated memory injection + recall  

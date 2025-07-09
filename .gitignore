@@ -184,6 +184,7 @@ config.py
 *.xlsx
 
 # Dev Tools
-Combined_Scripts/
 
 Cognitive-Scaffolding.code-workspace
+
+!ast_deps.csv

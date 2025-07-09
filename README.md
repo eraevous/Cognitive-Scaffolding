@@ -143,6 +143,9 @@ python main.py organize-all --cluster-file output/cluster_assignments.json
 # Semantic search over your corpus
 python main.py search semantic "How did Lincoln justify suspension of habeas corpus?" --k 5
 
+# Parse a ChatGPT export
+python main.py export parse export.zip
+
 # Run a cooperative agent workflow
 python main.py agent run "Summarize recent policy shifts" --roles synthesizer,associative
 ```
