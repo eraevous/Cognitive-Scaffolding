@@ -405,6 +405,32 @@ def run_all(
         model=model
     )
 #__________________________________________________________________
+# File: dedup.py
+# No docstring found
+
+from pathlib import Path
+import typer
+
+from core.config.config_registry import get_path_config
+from core.utils.dedup import dedup_lines_in_folder
+
+app = typer.Typer()
+
+@app.command()
+def dedup_prompts(
+    prompt_dir: Path = typer.Option(None, help="Directory with prompt text files"),
+    out_file: Path = typer.Option(None, help="Output file for unique lines"),
+) -> None:
+    """Deduplicate lines across prompt files."""
+    paths = get_path_config()
+    if prompt_dir is None:
+        prompt_dir = Path(paths.parsed) / "prompts"
+    if out_file is None:
+        out_file = Path("dedup.txt")
+    dedup_lines_in_folder(prompt_dir, out_file)
+    typer.echo(f"✅ Wrote deduped lines to {out_file}")
+
+#__________________________________________________________________
 # File: embed.py
 # No docstring found
 
@@ -428,6 +454,25 @@ def all(
     """    
     paths = get_path_config()
     generate_embeddings(method=method, out_path=out_path, segment_mode=paths.semantic_chunking)#__________________________________________________________________
+# File: export.py
+# No docstring found
+
+import typer
+from pathlib import Path
+
+from core.config.config_registry import get_path_config
+from core.parsing import parse_chatgpt_export
+
+app = typer.Typer()
+
+@app.command()
+def parse(export_zip: Path, out_dir: Path = None):
+    """Parse a ChatGPT export ZIP into conversation text files."""
+    paths = get_path_config()
+    out = out_dir or paths.parsed / "chatgpt_export"
+    parse_chatgpt_export(export_zip, out)
+
+#__________________________________________________________________
 # File: main.py
 # No docstring found
 
@@ -441,6 +486,8 @@ import cli.pipeline as pipeline
 import cli.tokens as tokens
 import cli.search as search
 import cli.agent as agent
+import cli.dedup as dedup
+import cli.export as export
 
 app = typer.Typer()
 
@@ -452,6 +499,8 @@ app.add_typer(pipeline.app, name="pipeline")
 app.add_typer(tokens.app, name="tokens")
 app.add_typer(search.app, name="search")
 app.add_typer(agent.app, name="agent")
+app.add_typer(dedup.app, name="dedup")
+app.add_typer(export.app, name="export")
 
 if __name__ == "__main__":
     app()
