@@ -13,15 +13,22 @@ def clean_trace_line(line: str) -> str:
     return line.strip()
 
 
-def truncate_to_sentences(text: str, max_sentences: int = 4, max_chars: int = 400) -> str:
-    sentences = re.split(r'(?<=[.!?])\s+', text)
-    truncated = " ".join(sentences[:max_sentences]).strip()
-    if len(sentences) > max_sentences:
-        truncated += " ..."
-    if len(truncated) > max_chars:
-        truncated = truncated[:max_chars].rstrip() + " ..."
-    return truncated
+def truncate_to_sentences(text: str, max_sentences: int = 6, max_chars: int = 200) -> str:
+    text = re.sub(r'\s+', ' ', text).strip()
 
+    # Try to split into sentences with punctuation or code-structure
+    sentences = re.split(r'(?<=[.!?])\s+|(?<=[:;])\s+|(?<=\))\s+', text)
+    truncated = " ".join(sentences[:max_sentences]).strip()
+
+    # Hard truncate regardless of sentence structure
+    truncated = truncated[:max_chars].rstrip()
+    if len(text) > max_chars:
+        truncated += " ..."
+    elif len(text) > max_chars:
+        # Fallback in case sentence logic fails entirely
+        truncated = text[:max_chars].rstrip() + " ..."
+
+    return truncated
 
 def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Path = None):
     try:
