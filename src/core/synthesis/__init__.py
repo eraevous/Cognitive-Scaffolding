@@ -1,0 +1,1 @@
+from .insight_summarizer import summarize_and_link
