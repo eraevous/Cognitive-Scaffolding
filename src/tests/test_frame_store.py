@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
 
-from core.memory.frame_store import FrameStore
+from core.memory import FrameStore
 
 
 def test_save_and_load(tmp_path):

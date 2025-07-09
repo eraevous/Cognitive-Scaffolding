@@ -11,7 +11,7 @@ sys.modules['faiss'] = DummyFaiss()
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
 
-from core.synthesis.summarizer import summarize_documents
+from core.synthesis import summarize_documents
 from core.retrieval import retriever as retriever_mod
 
 

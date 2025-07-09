@@ -33,6 +33,8 @@
 ### 🗣 Dialogic Notes
 - Intended for lightweight human-in-the-loop use; not a fully fledged vector DB.
 - Frame IDs are arbitrary strings (e.g., topic names or timestamps).
+- `FrameStore` is also available via `from core.memory import FrameStore` for
+  convenience.
 
 ### 9 Pipeline Integration
 - **Coordination Mechanics:** Used prior to LLM invocation to inject persistent notes or recap summaries.

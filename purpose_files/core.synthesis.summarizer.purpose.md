@@ -32,6 +32,7 @@
 ### 🗣 Dialogic Notes
 - `summarize_documents` gracefully handles missing text; empty retrieval yields empty summary.
 - Designed for chaining with `Retriever` and future `Memory` modules as part of insight synthesis pipelines.
+- Available via `from core.synthesis import summarize_documents` for package-level access.
 
 ### 9 Pipeline Integration
 - **Coordination Mechanics:** Accepts document IDs from search steps; output feeds into higher-level synthesizers or reporting agents.
