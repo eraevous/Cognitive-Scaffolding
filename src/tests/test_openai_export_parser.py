@@ -109,3 +109,19 @@ def test_parse_export_handles_missing_messages(tmp_path: Path, monkeypatch):
     out_dir = tmp_path / "out_err"
     with pytest.raises(ValueError):
         parse_chatgpt_export(export_zip, out_dir)
+
+
+def test_extract_messages_skips_invalid_nodes(tmp_path: Path):
+    export_zip = make_export_zip(tmp_path)
+    # modify export to include a malformed node
+    with zipfile.ZipFile(export_zip, "a") as zf:
+        conversations = json.loads(zf.read("conversations.json"))
+        malformed = conversations[0]
+        malformed["mapping"]["3"]["message"] = None
+        zf.writestr("conversations.json", json.dumps(conversations))
+    out_dir = tmp_path / "out_skip"
+    parse_chatgpt_export(export_zip, out_dir)
+    convo_file = out_dir / "0000_test_chat.txt"
+    assert convo_file.exists()
+    text = convo_file.read_text().strip()
+    assert text == "USER: Hello"
