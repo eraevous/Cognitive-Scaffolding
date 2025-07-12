@@ -48,6 +48,11 @@ class Retriever:
         """Return top ``k`` results for a single query string."""
         return self.query_multi([text], k=k, return_text=return_text)
 
+    def query_file(self, file: str | Path, k: int = 5, return_text: bool = False):
+        """Return top ``k`` results using the contents of ``file`` as the query."""
+        text = Path(file).read_text("utf-8")
+        return self.query(text, k=k, return_text=return_text)
+
     def query_multi(
         self,
         texts: Iterable[str],
