@@ -25,6 +25,8 @@
 | 📥 In     | out_dir      | Path            | Directory to write conversation and prompt files |
 | 📤 Out    | conversation | Path            | File path for each conversation transcript |
 | 📤 Out    | prompts      | Path            | File path for user prompts only |
+| 📤 Out    | outputs      | List[Dict[str, Path]] | [{'conversation': Path, 'prompts': Path}] per chat |
+=======
 
 ### 🔗 Dependencies
 - `zipfile`, `json`, `pathlib`
@@ -36,6 +38,6 @@
 - Prompts are separated to help detect duplicate questions across chats.
 
 ### 9 Pipeline Integration
-- **Coordination Mechanics:** Intended for manual invocation or future CLI command. Outputs may feed indexing or deduplication workflows.
+- **Coordination Mechanics:** Used by Typer command `chatgpt parse` to generate files on demand. Outputs may feed indexing or deduplication workflows.
 - **Integration Points:** Downstream modules could ingest these transcripts for embedding or topic analysis.
 - **Risks:** Export contains personal data; handle securely and avoid accidental commits.

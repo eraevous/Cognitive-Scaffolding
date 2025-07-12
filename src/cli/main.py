@@ -8,6 +8,7 @@ import cli.pipeline as pipeline
 import cli.tokens as tokens
 import cli.search as search
 import cli.agent as agent
+import cli.chatgpt as chatgpt
 import cli.dedup as dedup
 import cli.export as export
 
@@ -21,6 +22,7 @@ app.add_typer(pipeline.app, name="pipeline")
 app.add_typer(tokens.app, name="tokens")
 app.add_typer(search.app, name="search")
 app.add_typer(agent.app, name="agent")
+app.add_typer(chatgpt.app, name="chatgpt")
 app.add_typer(dedup.app, name="dedup")
 app.add_typer(export.app, name="export")
 
