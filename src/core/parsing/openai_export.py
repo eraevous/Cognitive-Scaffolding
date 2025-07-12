@@ -58,6 +58,7 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
 def parse_chatgpt_export(
     export_path: Path, out_dir: Path, *, markdown: bool = False
 ) -> List[Dict[str, Path]]:
+
     """Parse conversations and write text + prompt files.
 
     Parameters
@@ -66,10 +67,8 @@ def parse_chatgpt_export(
         Path to the `.zip` export or the extracted folder.
     out_dir: Path
         Directory to write conversation and prompt files.
-
     markdown: bool, optional
         If True, save conversation transcripts as Markdown rather than plain text.
-
     Returns
     -------
     List[Dict[str, Path]]
@@ -90,7 +89,6 @@ def parse_chatgpt_export(
         slug = normalize_filename(title)[:32]
         convo_file = out_dir / f"{idx:04d}_{slug}.{ext}"
         prompt_file = prompt_dir / f"{idx:04d}_{slug}_prompts.txt"
-
         lines = []
         prompts = []
         for role, text in _extract_messages(convo):

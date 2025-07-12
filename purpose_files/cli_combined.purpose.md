@@ -18,6 +18,7 @@
 | 📤 Out    | organized_dir | Folder  | Output directory of categorized files and metadata     |
 | 📤 Out    | embeddings    | JSON    | Document embedding vectors                             |
 | 📤 Out    | s3_uploads    | S3      | Raw and parsed documents uploaded                      |
+| 📤 Out    | chatgpt_texts | Folder  | Conversation transcripts from ChatGPT exports |
 
 ### 🔗 Dependencies
 - `core.workflows.main_commands` – Orchestrates classification, upload, ingestion
@@ -40,8 +41,11 @@
 - `search` accepts a natural language query and returns document IDs ranked by semantic similarity.
 - `agent` orchestrates cooperative roles such as Synthesizer and Insight Aggregator while respecting a budget cap.
 - `chatgpt` parses personal ChatGPT exports into conversation and prompt files; `--markdown` saves transcripts as `.md`.
+- A `dedup` command consolidates prompt text files into a single deduplicated list.
+
 - Classification commands now accept `--segmentation` to switch between semantic or paragraph chunking.
 
+- Export command `export parse` converts ChatGPT exports to text files.
 ### 9 Pipeline Integration
 - @ai-pipeline-order: inverse
 - **Coordination Mechanics:** CLI commands orchestrate uploads, segmentation, embedding, and retrieval through underlying workflow modules.

@@ -182,8 +182,14 @@ config.py
 *.pdf
 *.json
 *.xlsx
+*.trace.*
 
 # Dev Tools
-Combined_Scripts/
 
 Cognitive-Scaffolding.code-workspace
+*.combined.py
+/Combined_Scripts
+Combined_Scripts/
+!ast_deps.csv
+!metadata_schema.json
+!remote_config_example.json

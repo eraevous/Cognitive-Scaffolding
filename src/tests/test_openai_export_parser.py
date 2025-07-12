@@ -61,8 +61,7 @@ def test_parse_export(tmp_path: Path):
     assert prompt_file.exists()
     assert "USER: Hello" in convo_file.read_text()
     assert prompt_file.read_text().strip() == "Hello"
-
-
+    
 def test_parse_export_markdown(tmp_path: Path):
     export_zip = make_export_zip(tmp_path)
     out_dir = tmp_path / "out_md"
