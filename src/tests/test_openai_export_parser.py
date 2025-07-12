@@ -1,7 +1,9 @@
 import json
 import zipfile
 import sys
+import pytest
 from pathlib import Path
+from typing import Dict, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
@@ -52,7 +54,9 @@ def make_export_zip(tmp_path: Path) -> Path:
 
 def make_nested_export_zip(tmp_path: Path) -> Path:
     """Create a zip where conversations.json is under a folder."""
-    conversations = [{"title": "Nested", "current_node": None, "mapping": {}}]
+    conversations: List[Dict[str, object]] = [
+        {"title": "Nested", "current_node": None, "mapping": {}}
+    ]
     export_zip = tmp_path / "nested.zip"
     with zipfile.ZipFile(export_zip, "w") as zf:
         zf.writestr(
@@ -91,3 +95,52 @@ def test_parse_export_nested_dir(tmp_path: Path):
     assert len(results) == 1
     convo_file = out_dir / "0000_nested.txt"
     assert convo_file.exists()
+
+
+def test_parse_export_handles_missing_messages(tmp_path: Path, monkeypatch):
+    export_zip = make_export_zip(tmp_path)
+
+    def fake_extract_messages(_):
+        return None
+
+    monkeypatch.setattr(
+        "core.parsing.openai_export._extract_messages", fake_extract_messages
+    )
+    out_dir = tmp_path / "out_err"
+    with pytest.raises(ValueError):
+        parse_chatgpt_export(export_zip, out_dir)
+
+
+def test_extract_messages_skips_invalid_nodes(tmp_path: Path):
+    export_zip = make_export_zip(tmp_path)
+    # modify export to include a malformed node
+    with zipfile.ZipFile(export_zip, "a") as zf:
+        conversations = json.loads(zf.read("conversations.json"))
+        malformed = conversations[0]
+        malformed["mapping"]["3"]["message"] = None
+        zf.writestr("conversations.json", json.dumps(conversations))
+    out_dir = tmp_path / "out_skip"
+    parse_chatgpt_export(export_zip, out_dir)
+    convo_file = out_dir / "0000_test_chat.txt"
+    assert convo_file.exists()
+    text = convo_file.read_text().strip()
+    assert text == "USER: Hello"
+
+
+def test_extract_messages_ignores_nonstring_parts(tmp_path: Path):
+    export_zip = make_export_zip(tmp_path)
+    # modify export to include a dict part representing an image
+    with zipfile.ZipFile(export_zip, "a") as zf:
+        conversations = json.loads(zf.read("conversations.json"))
+        convo = conversations[0]
+        convo["mapping"]["3"]["message"]["content"]["parts"] = [
+            {"content_type": "image"},
+            "Hi!",
+        ]
+        zf.writestr("conversations.json", json.dumps(conversations))
+    out_dir = tmp_path / "out_img"
+    parse_chatgpt_export(export_zip, out_dir)
+    convo_file = out_dir / "0000_test_chat.txt"
+    assert convo_file.exists()
+    lines = [line.strip() for line in convo_file.read_text().splitlines()]
+    assert lines[-1] == "ASSISTANT: Hi!"
