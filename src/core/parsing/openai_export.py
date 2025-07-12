@@ -4,7 +4,7 @@
 - @ai-source-file: openai_export.py
 - @ai-role: parser
 - @ai-intent: "Parse ChatGPT Data Export zip to extract conversation transcripts and user prompts."
-- @ai-version: 0.1.0
+- @ai-version: 0.1.2
 - @ai-generated: true
 - @ai-verified: false
 - @human-reviewed: false
@@ -49,7 +49,11 @@ def _load_conversations(export_path: Path) -> List[Dict]:
 
 
 def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
-    """Return ordered (role, text) tuples for a conversation."""
+    """Return ordered (role, text) tuples for a conversation.
+
+    Malformed nodes are skipped so that parsing continues even if
+    individual messages are missing or not structured as expected.
+    """
     mapping = convo.get("mapping", {})
     node_id = convo.get("current_node")
     path: List[Tuple[str, str]] = []
@@ -58,11 +62,15 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
         if not node:
             break
         msg = node.get("message")
-        if msg and msg.get("author", {}).get("role") != "system":
-            role = msg["author"].get("role", "")
+        if not msg or not isinstance(msg, dict):
+            node_id = node.get("parent")
+            continue
+        if msg.get("author", {}).get("role") != "system":
+            role = msg["author"].get("role", "unknown")
             parts = msg.get("content", {}).get("parts") or []
-            text = "\n".join(parts)
-            path.append((role, text))
+            if parts:
+                text = "\n".join(parts)
+                path.append((role, text))
         node_id = node.get("parent")
     return reversed(path)
 
@@ -85,6 +93,10 @@ def parse_chatgpt_export(
     -------
     List[Dict[str, Path]]
         List of dictionaries describing output file paths per conversation.
+    Raises
+    ------
+    ValueError
+        If message extraction fails for a conversation.
     """
 
     export_path = Path(export_path)
@@ -103,7 +115,10 @@ def parse_chatgpt_export(
         prompt_file = prompt_dir / f"{idx:04d}_{slug}_prompts.txt"
         lines = []
         prompts = []
-        for role, text in _extract_messages(convo):
+        msgs = _extract_messages(convo)
+        if msgs is None:
+            raise ValueError("Failed to extract messages from conversation")
+        for role, text in msgs:
             clean = text.strip()
             if markdown:
                 lines.append(f"**{role.title()}:** {clean}")
