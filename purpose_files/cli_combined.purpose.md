@@ -39,6 +39,7 @@
 - Long-term direction may involve breaking commands into namespace groupings or supporting `--dry-run` and audit modes.
 - New sub-commands `search` and `agent` will expose FAISS retrieval and multi-agent RAG workflows.
 - `search` accepts a natural language query and returns document IDs ranked by semantic similarity.
+- `search file` looks up documents similar to the contents of a local text file.
 - `agent` orchestrates cooperative roles such as Synthesizer and Insight Aggregator while respecting a budget cap.
 - `chatgpt` parses personal ChatGPT exports into conversation and prompt files; `--markdown` saves transcripts as `.md`.
 - A `dedup` command consolidates prompt text files into a single deduplicated list.
