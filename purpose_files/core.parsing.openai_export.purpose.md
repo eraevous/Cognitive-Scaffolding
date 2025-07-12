@@ -3,7 +3,7 @@
 - @ai-source-file: openai_export.py
 - @ai-role: parser
 - @ai-intent: "Parse ChatGPT Data Export zip to extract conversation transcripts and user prompts with optional Markdown formatting."
-- @ai-version: 0.1.2
+- @ai-version: 0.1.3
 - @ai-generated: true
 - @ai-verified: false
 - @human-reviewed: false
@@ -43,6 +43,8 @@
   `conversations.json` within the archive.
 - Malformed mapping nodes are skipped; missing messages yield an "unknown" role
   when content exists.
+- Non-string parts within a message are ignored so image references do not
+  break parsing.
 
 ### 9 Pipeline Integration
 - **Coordination Mechanics:** Used by Typer command `chatgpt parse` to generate files on demand. Outputs may feed indexing or deduplication workflows.
