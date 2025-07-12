@@ -55,7 +55,10 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
     return reversed(path)
 
 
-def parse_chatgpt_export(export_path: Path, out_dir: Path) -> List[Dict[str, Path]]:
+def parse_chatgpt_export(
+    export_path: Path, out_dir: Path, *, markdown: bool = False
+) -> List[Dict[str, Path]]:
+
     """Parse conversations and write text + prompt files.
 
     Parameters
@@ -64,7 +67,8 @@ def parse_chatgpt_export(export_path: Path, out_dir: Path) -> List[Dict[str, Pat
         Path to the `.zip` export or the extracted folder.
     out_dir: Path
         Directory to write conversation and prompt files.
-
+    markdown: bool, optional
+        If True, save conversation transcripts as Markdown rather than plain text.
     Returns
     -------
     List[Dict[str, Path]]
@@ -79,17 +83,20 @@ def parse_chatgpt_export(export_path: Path, out_dir: Path) -> List[Dict[str, Pat
 
     conversations = _load_conversations(export_path)
     outputs: List[Dict[str, Path]] = []
+    ext = "md" if markdown else "txt"
     for idx, convo in enumerate(conversations):
         title = convo.get("title") or f"conversation_{idx}"
         slug = normalize_filename(title)[:32]
-        convo_file = out_dir / f"{idx:04d}_{slug}.txt"
+        convo_file = out_dir / f"{idx:04d}_{slug}.{ext}"
         prompt_file = prompt_dir / f"{idx:04d}_{slug}_prompts.txt"
-
         lines = []
         prompts = []
         for role, text in _extract_messages(convo):
             clean = text.strip()
-            lines.append(f"{role.upper()}: {clean}")
+            if markdown:
+                lines.append(f"**{role.title()}:** {clean}")
+            else:
+                lines.append(f"{role.upper()}: {clean}")
             if role == "user":
                 prompts.append(clean)
 

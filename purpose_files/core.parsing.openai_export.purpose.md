@@ -2,7 +2,7 @@
 - @ai-path: core.parsing.openai_export
 - @ai-source-file: openai_export.py
 - @ai-role: parser
-- @ai-intent: "Parse ChatGPT Data Export zip to extract conversation transcripts and user prompts."
+- @ai-intent: "Parse ChatGPT Data Export zip to extract conversation transcripts and user prompts with optional Markdown formatting."
 - @ai-version: 0.1.0
 - @ai-generated: true
 - @ai-verified: false
@@ -23,6 +23,7 @@
 |-----------|--------------|-----------------|-------------------|
 | 📥 In     | export_path  | Path            | Path to `.zip` export or extracted folder |
 | 📥 In     | out_dir      | Path            | Directory to write conversation and prompt files |
+| 📥 In     | markdown    | bool           | Save transcripts as `.md` when True |
 | 📤 Out    | conversation | Path            | File path for each conversation transcript |
 | 📤 Out    | prompts      | Path            | File path for user prompts only |
 | 📤 Out    | outputs      | List[Dict[str, Path]] | [{'conversation': Path, 'prompts': Path}] per chat |
@@ -36,6 +37,7 @@
 - Only linear path from `current_node` is reconstructed; branches are ignored.
 - File names are normalized and truncated to avoid OS issues.
 - Prompts are separated to help detect duplicate questions across chats.
+- Conversations may be written in Markdown when the `markdown` flag is enabled.
 
 ### 9 Pipeline Integration
 - **Coordination Mechanics:** Used by Typer command `chatgpt parse` to generate files on demand. Outputs may feed indexing or deduplication workflows.

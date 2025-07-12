@@ -61,3 +61,13 @@ def test_parse_export(tmp_path: Path):
     assert prompt_file.exists()
     assert "USER: Hello" in convo_file.read_text()
     assert prompt_file.read_text().strip() == "Hello"
+    
+def test_parse_export_markdown(tmp_path: Path):
+    export_zip = make_export_zip(tmp_path)
+    out_dir = tmp_path / "out_md"
+    results = parse_chatgpt_export(export_zip, out_dir, markdown=True)
+    assert len(results) == 1
+    convo_file = out_dir / "0000_test_chat.md"
+    assert convo_file.exists()
+    text = convo_file.read_text()
+    assert "**User:** Hello" in text or "**USER:** Hello" in text
