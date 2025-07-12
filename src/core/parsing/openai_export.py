@@ -4,7 +4,7 @@
 - @ai-source-file: openai_export.py
 - @ai-role: parser
 - @ai-intent: "Parse ChatGPT Data Export zip to extract conversation transcripts and user prompts."
-- @ai-version: 0.1.0
+- @ai-version: 0.1.1
 - @ai-generated: true
 - @ai-verified: false
 - @human-reviewed: false
@@ -85,6 +85,10 @@ def parse_chatgpt_export(
     -------
     List[Dict[str, Path]]
         List of dictionaries describing output file paths per conversation.
+    Raises
+    ------
+    ValueError
+        If message extraction fails for a conversation.
     """
 
     export_path = Path(export_path)
