@@ -50,6 +50,17 @@ def make_export_zip(tmp_path: Path) -> Path:
     return export_zip
 
 
+def make_nested_export_zip(tmp_path: Path) -> Path:
+    """Create a zip where conversations.json is under a folder."""
+    conversations = [{"title": "Nested", "current_node": None, "mapping": {}}]
+    export_zip = tmp_path / "nested.zip"
+    with zipfile.ZipFile(export_zip, "w") as zf:
+        zf.writestr(
+            "ChatGPT Export/conversations.json", json.dumps(conversations)
+        )
+    return export_zip
+
+
 def test_parse_export(tmp_path: Path):
     export_zip = make_export_zip(tmp_path)
     out_dir = tmp_path / "out"
@@ -71,3 +82,12 @@ def test_parse_export_markdown(tmp_path: Path):
     assert convo_file.exists()
     text = convo_file.read_text()
     assert "**User:** Hello" in text or "**USER:** Hello" in text
+
+
+def test_parse_export_nested_dir(tmp_path: Path):
+    export_zip = make_nested_export_zip(tmp_path)
+    out_dir = tmp_path / "out_nested"
+    results = parse_chatgpt_export(export_zip, out_dir)
+    assert len(results) == 1
+    convo_file = out_dir / "0000_nested.txt"
+    assert convo_file.exists()

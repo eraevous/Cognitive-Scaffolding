@@ -32,8 +32,20 @@ def _load_conversations(export_path: Path) -> List[Dict]:
         with conv_path.open("r", encoding="utf-8") as f:
             return json.load(f)
     with zipfile.ZipFile(export_path) as zf:
-        with zf.open("conversations.json") as f:
-            return json.load(f)
+        try:
+            # Standard export has files under a top-level directory. Look for the
+            # conversations file anywhere in the archive to support both
+            # flattened and nested zips.
+            name = next(
+                (n for n in zf.namelist() if n.endswith("conversations.json")),
+                "conversations.json",
+            )
+            with zf.open(name) as f:
+                return json.load(f)
+        except KeyError as exc:
+            raise FileNotFoundError(
+                "conversations.json not found in export"
+            ) from exc
 
 
 def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
