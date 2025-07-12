@@ -4,7 +4,7 @@
 - @ai-source-file: openai_export.py
 - @ai-role: parser
 - @ai-intent: "Parse ChatGPT Data Export zip to extract conversation transcripts and user prompts."
-- @ai-version: 0.1.2
+- @ai-version: 0.1.3
 - @ai-generated: true
 - @ai-verified: false
 - @human-reviewed: false
@@ -53,7 +53,9 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
 
     Malformed nodes are skipped so that parsing continues even if
     individual messages are missing or not structured as expected.
+    Non-string content parts are ignored to handle multimodal nodes.
     """
+    
     mapping = convo.get("mapping", {})
     node_id = convo.get("current_node")
     path: List[Tuple[str, str]] = []
@@ -68,8 +70,9 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
         if msg.get("author", {}).get("role") != "system":
             role = msg["author"].get("role", "unknown")
             parts = msg.get("content", {}).get("parts") or []
-            if parts:
-                text = "\n".join(parts)
+            text_parts = [p for p in parts if isinstance(p, str)]
+            if text_parts:
+                text = "\n".join(text_parts)
                 path.append((role, text))
         node_id = node.get("parent")
     return reversed(path)
