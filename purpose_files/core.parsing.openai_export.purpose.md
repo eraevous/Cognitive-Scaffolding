@@ -26,6 +26,7 @@
 | 📤 Out    | conversation | Path            | File path for each conversation transcript |
 | 📤 Out    | prompts      | Path            | File path for user prompts only |
 | 📤 Out    | outputs      | List[Dict[str, Path]] | [{'conversation': Path, 'prompts': Path}] per chat |
+=======
 
 ### 🔗 Dependencies
 - `zipfile`, `json`, `pathlib`

@@ -1,0 +1,14 @@
+{
+  "bucket_name": "zach-docs",
+  "lambda_name": "RAGSummarizer",
+  "region": "us-west-2",
+  "root": "test",
+  "openai_api_key": "your-openai-api-key",
+  "prefixes": {
+    "raw": "raw_test/",
+    "parsed": "parsed_test/",
+    "metadata": "metadata_test/",
+    "stub": "stub_test/",
+    "organized": "organized_test/"
+  }
+}
