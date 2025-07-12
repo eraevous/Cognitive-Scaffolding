@@ -8,6 +8,7 @@ import cli.pipeline as pipeline
 import cli.tokens as tokens
 import cli.search as search
 import cli.agent as agent
+import cli.chatgpt as chatgpt
 
 app = typer.Typer()
 
@@ -19,6 +20,7 @@ app.add_typer(pipeline.app, name="pipeline")
 app.add_typer(tokens.app, name="tokens")
 app.add_typer(search.app, name="search")
 app.add_typer(agent.app, name="agent")
+app.add_typer(chatgpt.app, name="chatgpt")
 
 if __name__ == "__main__":
     app()

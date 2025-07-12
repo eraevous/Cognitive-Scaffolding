@@ -144,6 +144,9 @@ python main.py search semantic "How did Lincoln justify suspension of habeas cor
 
 # Run a cooperative agent workflow
 python main.py agent run "Summarize recent policy shifts" --roles synthesizer,associative
+
+# Parse a ChatGPT data export archive
+python main.py chatgpt parse ~/Downloads/chatgpt_export.zip --out-dir chat_exports --markdown
 ```
 
 ---

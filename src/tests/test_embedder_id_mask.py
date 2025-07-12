@@ -6,6 +6,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 import pytest
 
+pytest.importorskip("faiss")
+
 from core.config.path_config import PathConfig
 from core.config import config_registry
 from core.embeddings import embedder
