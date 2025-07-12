@@ -3,7 +3,7 @@
 - @ai-source-file: openai_export.py
 - @ai-role: parser
 - @ai-intent: "Parse ChatGPT Data Export zip to extract conversation transcripts and user prompts with optional Markdown formatting."
-- @ai-version: 0.1.0
+- @ai-version: 0.1.1
 - @ai-generated: true
 - @ai-verified: false
 - @human-reviewed: false
@@ -27,6 +27,7 @@
 | 📤 Out    | conversation | Path            | File path for each conversation transcript |
 | 📤 Out    | prompts      | Path            | File path for user prompts only |
 | 📤 Out    | outputs      | List[Dict[str, Path]] | [{'conversation': Path, 'prompts': Path}] per chat |
+| ❗ Error   | ValueError   | N/A             | Raised when messages cannot be extracted |
 =======
 
 ### 🔗 Dependencies

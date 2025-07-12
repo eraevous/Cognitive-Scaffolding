@@ -103,7 +103,10 @@ def parse_chatgpt_export(
         prompt_file = prompt_dir / f"{idx:04d}_{slug}_prompts.txt"
         lines = []
         prompts = []
-        for role, text in _extract_messages(convo):
+        msgs = _extract_messages(convo)
+        if msgs is None:
+            raise ValueError("Failed to extract messages from conversation")
+        for role, text in msgs:
             clean = text.strip()
             if markdown:
                 lines.append(f"**{role.title()}:** {clean}")

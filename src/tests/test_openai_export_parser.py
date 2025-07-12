@@ -1,7 +1,9 @@
 import json
 import zipfile
 import sys
+import pytest
 from pathlib import Path
+from typing import Dict, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
@@ -52,7 +54,9 @@ def make_export_zip(tmp_path: Path) -> Path:
 
 def make_nested_export_zip(tmp_path: Path) -> Path:
     """Create a zip where conversations.json is under a folder."""
-    conversations = [{"title": "Nested", "current_node": None, "mapping": {}}]
+    conversations: List[Dict[str, object]] = [
+        {"title": "Nested", "current_node": None, "mapping": {}}
+    ]
     export_zip = tmp_path / "nested.zip"
     with zipfile.ZipFile(export_zip, "w") as zf:
         zf.writestr(
@@ -91,3 +95,17 @@ def test_parse_export_nested_dir(tmp_path: Path):
     assert len(results) == 1
     convo_file = out_dir / "0000_nested.txt"
     assert convo_file.exists()
+
+
+def test_parse_export_handles_missing_messages(tmp_path: Path, monkeypatch):
+    export_zip = make_export_zip(tmp_path)
+
+    def fake_extract_messages(_):
+        return None
+
+    monkeypatch.setattr(
+        "core.parsing.openai_export._extract_messages", fake_extract_messages
+    )
+    out_dir = tmp_path / "out_err"
+    with pytest.raises(ValueError):
+        parse_chatgpt_export(export_zip, out_dir)
