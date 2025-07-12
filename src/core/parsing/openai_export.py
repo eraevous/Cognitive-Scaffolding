@@ -55,6 +55,7 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
     individual messages are missing or not structured as expected.
     Non-string content parts are ignored to handle multimodal nodes.
     """
+    
     mapping = convo.get("mapping", {})
     node_id = convo.get("current_node")
     path: List[Tuple[str, str]] = []

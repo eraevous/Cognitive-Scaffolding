@@ -126,7 +126,6 @@ def test_extract_messages_skips_invalid_nodes(tmp_path: Path):
     text = convo_file.read_text().strip()
     assert text == "USER: Hello"
 
-
 def test_extract_messages_ignores_nonstring_parts(tmp_path: Path):
     export_zip = make_export_zip(tmp_path)
     # modify export to include a dict part representing an image
@@ -144,3 +143,4 @@ def test_extract_messages_ignores_nonstring_parts(tmp_path: Path):
     assert convo_file.exists()
     lines = [line.strip() for line in convo_file.read_text().splitlines()]
     assert lines[-1] == "ASSISTANT: Hi!"
+

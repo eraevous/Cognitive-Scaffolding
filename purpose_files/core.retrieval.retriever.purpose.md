@@ -24,6 +24,7 @@
 |-----------|------|------|-------------------|
 | 📥 In | text | str | Search query text (via ``query``) |
 | 📥 In | texts | Iterable[str] | Multiple search queries (``query_multi``) |
+| 📥 In | file | Path | Text file used as query (``query_file``) |
 | 📥 In | k | int | Number of results to return |
 | 📥 In | chunk_dir | Path (optional) | Directory holding text chunks for retrieval |
 | 📥 In | return_text | bool (optional) | Include chunk text when `chunk_dir` is configured |
@@ -43,6 +44,7 @@
 - Uses `id_map.json` to translate FAISS integer IDs back to document filenames.
 - When embeddings include chunk IDs (`doc_chunk01`), results may refer to those composite identifiers and `return_text` can load the chunk file if available.
 - `query_multi` merges scores across queries and can group chunks by their document prefix when `aggregate=True`.
+- `query_file` reads text from disk then delegates to `query`.
 
 ### 9 Pipeline Integration
 - @ai-pipeline-order: inverse
