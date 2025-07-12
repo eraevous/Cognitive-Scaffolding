@@ -38,6 +38,8 @@
 - File names are normalized and truncated to avoid OS issues.
 - Prompts are separated to help detect duplicate questions across chats.
 - Conversations may be written in Markdown when the `markdown` flag is enabled.
+- Zip archives with a top-level directory are supported by scanning for
+  `conversations.json` within the archive.
 
 ### 9 Pipeline Integration
 - **Coordination Mechanics:** Used by Typer command `chatgpt parse` to generate files on demand. Outputs may feed indexing or deduplication workflows.
