@@ -144,3 +144,47 @@ def test_extract_messages_ignores_nonstring_parts(tmp_path: Path):
     lines = [line.strip() for line in convo_file.read_text().splitlines()]
     assert lines[-1] == "ASSISTANT: Hi!"
 
+
+def test_parse_export_sanitizes_slashes(tmp_path: Path):
+    conversations = [
+        {
+            "title": "BS/AI Evaluation",
+            "current_node": "3",
+            "mapping": {
+                "1": {
+                    "id": "1",
+                    "parent": None,
+                    "children": ["2"],
+                    "message": {
+                        "author": {"role": "system"},
+                        "content": {"content_type": "text", "parts": ["You are ChatGPT"]},
+                    },
+                },
+                "2": {
+                    "id": "2",
+                    "parent": "1",
+                    "children": ["3"],
+                    "message": {
+                        "author": {"role": "user"},
+                        "content": {"content_type": "text", "parts": ["Test"]},
+                    },
+                },
+                "3": {
+                    "id": "3",
+                    "parent": "2",
+                    "children": [],
+                    "message": {
+                        "author": {"role": "assistant"},
+                        "content": {"content_type": "text", "parts": ["OK"]},
+                    },
+                },
+            },
+        }
+    ]
+    export_zip = tmp_path / "slash.zip"
+    with zipfile.ZipFile(export_zip, "w") as zf:
+        zf.writestr("conversations.json", json.dumps(conversations))
+    out_dir = tmp_path / "out_slash"
+    parse_chatgpt_export(export_zip, out_dir)
+    assert (out_dir / "0000_bs_ai_evaluation.txt").exists()
+
