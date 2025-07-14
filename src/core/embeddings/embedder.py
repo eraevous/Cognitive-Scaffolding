@@ -96,7 +96,8 @@ def generate_embeddings(
 
     chunk_dir = chunk_dir or (paths.vector / "chunks")
 
-    for file in sorted(source_dir.glob("*.txt" if method != "meta" else "*.meta.json")):
+    pattern = "*.meta.json" if method in {"summary", "meta"} else "*.txt"
+    for file in sorted(source_dir.glob(pattern)):
         doc_id = file.stem
 
         if method == "parsed":
