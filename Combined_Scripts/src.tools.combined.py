@@ -15,7 +15,7 @@ This CLI tool uses static analysis to parse Python source code and extract funct
 📦 Inputs:
 - source_dir (str): Directory to scan for `.py` files.
 - recursive (bool): Whether to include subdirectories in the search.
-- ignore_dirs (str): Comma-separated list of folders to exclude.
+- ignore_dirs (str): Comma-separated relative paths to exclude under ``source_dir``.
 - output (Path): Optional CSV file path to write results.
 - matrix (bool): Whether to export as an adjacency matrix instead of edge list.
 - config (Path): Optional path to a `.graphconfig.json` file.
@@ -62,7 +62,7 @@ This CLI tool uses static analysis to parse Python source code and extract funct
 📦 Inputs:
 - source_dir (str): Directory to scan for `.py` files.
 - recursive (bool): Whether to include subdirectories in the search.
-- ignore_dirs (str): Comma-separated list of folders to exclude.
+ - ignore_dirs (str): Comma-separated relative paths to exclude under ``source_dir``.
 - output (Path): Optional CSV file path to write results.
 - matrix (bool): Whether to export as an adjacency matrix instead of edge list.
 - config (Path): Optional path to a `.graphconfig.json` file.
@@ -188,19 +188,23 @@ def build_adjacency_matrix(edges: List[Tuple[str, str]]) -> pd.DataFrame:
     return matrix
 
 
-def should_ignore_dir(dir_name: str, ignore_dirs: List[str]) -> bool:
-    """Check if a directory should be ignored based on its name."""
-    return dir_name in ignore_dirs
+def should_ignore_dir(rel_dir: Path, ignore_dirs: List[str]) -> bool:
+    """Return True if ``rel_dir`` should be skipped based on ignore patterns."""
+    return any(rel_dir.as_posix().startswith(entry) for entry in ignore_dirs)
 
 
 def collect_py_files(root_dir: Path, ignore_dirs: List[str]):
     py_files = {}
     for dirpath, dirnames, filenames in os.walk(root_dir):
-        dirnames[:] = [d for d in dirnames if not should_ignore_dir(d, ignore_dirs)]
+        rel_dir = Path(dirpath).relative_to(root_dir)
+        dirnames[:] = [
+            d
+            for d in dirnames
+            if not should_ignore_dir(rel_dir / d, ignore_dirs)
+        ]
         files = [f for f in filenames if f.endswith(".py")]
         if files:
-            rel_path = Path(dirpath).relative_to(root_dir)
-            py_files[rel_path] = [Path(dirpath) / f for f in files]
+            py_files[rel_dir] = [Path(dirpath) / f for f in files]
     return py_files
 
 
@@ -215,7 +219,10 @@ def load_graph_config(path: Path) -> Dict:
 def analyze(
     source_dir: str = typer.Option(".", help="Directory to scan for Python files."),
     recursive: bool = typer.Option(True, help="Recursively scan subdirectories."),
-    ignore_dirs: str = typer.Option("venv,.git,.pytest_cache,Scratch,tests,env,Combined_Scripts", help="Comma-separated list of directories to ignore."),
+    ignore_dirs: str = typer.Option(
+        "venv,.git,.pytest_cache,Scratch,tests,env,Combined_Scripts",
+        help="Comma-separated relative paths to ignore under source_dir.",
+    ),
     output: Path = typer.Option(None, help="Optional CSV output file."),
     matrix: bool = typer.Option(False, help="Output as adjacency matrix instead of edge list."),
     config: Path = typer.Option(Path(".graphconfig.json"), help="Optional path to graph config JSON file.")
@@ -412,19 +419,23 @@ app = typer.Typer()
 SEPARATOR = "#" + "_" * 66 + "\n"
 
 
-def should_ignore_dir(dir_name: str, ignore_dirs: List[str]) -> bool:
-    """Check if a directory should be ignored based on its name."""
-    return dir_name in ignore_dirs
+def should_ignore_dir(rel_dir: Path, ignore_dirs: List[str]) -> bool:
+    """Return True if ``rel_dir`` should be skipped based on ignore patterns."""
+    return any(rel_dir.as_posix().startswith(entry) for entry in ignore_dirs)
 
 
 def collect_py_files(root_dir: Path, ignore_dirs: List[str]):
     py_files = {}
     for dirpath, dirnames, filenames in os.walk(root_dir):
-        dirnames[:] = [d for d in dirnames if not should_ignore_dir(d, ignore_dirs)]
+        rel_dir = Path(dirpath).relative_to(root_dir)
+        dirnames[:] = [
+            d
+            for d in dirnames
+            if not should_ignore_dir(rel_dir / d, ignore_dirs)
+        ]
         files = [f for f in filenames if f.endswith(".py")]
         if files:
-            rel_path = Path(dirpath).relative_to(root_dir)
-            py_files[rel_path] = [Path(dirpath) / f for f in files]
+            py_files[rel_dir] = [Path(dirpath) / f for f in files]
     return py_files
 
 

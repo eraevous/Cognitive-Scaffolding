@@ -18,7 +18,7 @@
 |-----------|------------|------|------------------|
 | 📥 In     | source_dir  | str  | Root folder for `.py` files |
 | 📥 In     | recursive   | bool | Traverse subdirectories |
-| 📥 In     | ignore_dirs | str  | Comma-separated directories to skip |
+| 📥 In     | ignore_dirs | str  | Comma-separated relative paths to skip |
 | 📥 In     | output      | Path | Optional CSV export path |
 | 📥 In     | matrix      | bool | Output adjacency matrix if true |
 | 📥 In     | config      | Path | `.graphconfig.json` override |
