@@ -100,6 +100,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
+import tokenize
 
 import networkx as nx
 import pandas as pd
@@ -117,12 +118,17 @@ class ASTDependencyExtractor:
     def process_file(self, filepath: str, module_name: str):
         self.current_module = module_name
         self.imports = {}  # reset for each file
-        with open(filepath, "r", encoding="utf-8") as f:
-            try:
-                tree = ast.parse(f.read(), filename=filepath)
-                self._walk_tree(tree)
-            except SyntaxError:
-                typer.echo(f"⚠️  Skipping {filepath} due to syntax error.")
+        try:
+            with tokenize.open(filepath) as f:
+                source = f.read()
+        except (SyntaxError, UnicodeDecodeError, LookupError) as exc:
+            typer.echo(f"⚠️  Skipping {filepath} due to decode error: {exc}")
+            return
+        try:
+            tree = ast.parse(source, filename=filepath)
+            self._walk_tree(tree)
+        except SyntaxError:
+            typer.echo(f"⚠️  Skipping {filepath} due to syntax error.")
 
     def _walk_tree(self, tree: ast.AST):
         class ImportResolver(ast.NodeVisitor):
