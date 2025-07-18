@@ -100,6 +100,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
+import tokenize
 
 import networkx as nx
 import pandas as pd
@@ -117,70 +118,59 @@ class ASTDependencyExtractor:
     def process_file(self, filepath: str, module_name: str):
         self.current_module = module_name
         self.imports = {}  # reset for each file
-        with open(filepath, "r", encoding="utf-8") as f:
-            try:
-                tree = ast.parse(f.read(), filename=filepath)
-                self._walk_tree(tree)
-            except SyntaxError:
-                typer.echo(f"⚠️  Skipping {filepath} due to syntax error.")
+        try:
+            with tokenize.open(filepath) as f:
+                source = f.read()
+        except (SyntaxError, UnicodeDecodeError, LookupError) as exc:
+            typer.echo(f"⚠️  Skipping {filepath} due to decode error: {exc}")
+            return
+        try:
+            tree = ast.parse(source, filename=filepath)
+            self._walk_tree(tree)
+        except SyntaxError:
+            typer.echo(f"⚠️  Skipping {filepath} due to syntax error.")
 
     def _walk_tree(self, tree: ast.AST):
-        class ImportResolver(ast.NodeVisitor):
-            def __init__(self, extractor):
-                self.extractor = extractor
-
-            def visit_Import(self, node):
+        """Iteratively process AST nodes to avoid deep recursion."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
                 for alias in node.names:
-                    self.extractor.imports[alias.asname or alias.name] = alias.name
-
-            def visit_ImportFrom(self, node):
+                    self.imports[alias.asname or alias.name] = alias.name
+            elif isinstance(node, ast.ImportFrom):
                 module = node.module
                 for alias in node.names:
                     name = alias.name
                     full_name = f"{module}.{name}" if module else name
-                    self.extractor.imports[alias.asname or name] = full_name
+                    self.imports[alias.asname or name] = full_name
 
-        class CallVisitor(ast.NodeVisitor):
-            def __init__(self, extractor):
-                self.extractor = extractor
-                self.current_func = None
-
-            def visit_FunctionDef(self, node: ast.FunctionDef):
-                full_name = f"{self.extractor.current_module}.{node.name}"
-                self.extractor.defined_functions[full_name] = (self.extractor.current_module, node.lineno)
-                self.current_func = full_name
-                self.generic_visit(node)
-                self.current_func = None
-
-            def visit_Call(self, node: ast.Call):
-                if self.current_func:
+        for func in [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]:
+            func_name = f"{self.current_module}.{func.name}"
+            self.defined_functions[func_name] = (self.current_module, func.lineno)
+            for node in ast.walk(func):
+                if isinstance(node, ast.Call):
                     callee_name = self._resolve_name(node.func)
                     if callee_name:
-                        self.extractor.edges.append((self.current_func, callee_name))
-                self.generic_visit(node)
+                        self.edges.append((func_name, callee_name))
 
-            def _resolve_name(self, node):
-                name = self._get_name(node)
-                if name is None:
-                    return None
-                root = name.split(".")[0]
-                if root in self.extractor.imports:
-                    resolved = self.extractor.imports[root]
-                    return name.replace(root, resolved, 1)
-                return f"{self.extractor.current_module}.{name}"
+    def _get_name(self, node):
+        if isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Attribute):
+            value = self._get_name(node.value)
+            return f"{value}.{node.attr}" if value else node.attr
+        elif isinstance(node, ast.Call):
+            return self._get_name(node.func)
+        return None
 
-            def _get_name(self, node):
-                if isinstance(node, ast.Name):
-                    return node.id
-                elif isinstance(node, ast.Attribute):
-                    value = self._get_name(node.value)
-                    return f"{value}.{node.attr}" if value else node.attr
-                elif isinstance(node, ast.Call):
-                    return self._get_name(node.func)
-                return None
-
-        ImportResolver(self).visit(tree)
-        CallVisitor(self).visit(tree)
+    def _resolve_name(self, node):
+        name = self._get_name(node)
+        if name is None:
+            return None
+        root = name.split(".")[0]
+        if root in self.imports:
+            resolved = self.imports[root]
+            return name.replace(root, resolved, 1)
+        return f"{self.current_module}.{name}"
 
     def get_function_edges(self) -> List[Tuple[str, str]]:
         return self.edges
