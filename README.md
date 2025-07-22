@@ -55,7 +55,7 @@ print(store.inject_memory(summary, ["intro"]))
 
 |Command|Purpose|
 |---|---|
-|`kairos parse`|Parse `.pdf`, `.docx`, or `.txt`|
+|`kairos parse`|Parse a file or directory into `.txt`|
 |`kairos classify`|Summarize & generate metadata|
 |`kairos embed all`|Generate document embeddings|
 |`kairos search`|Query the FAISS index|

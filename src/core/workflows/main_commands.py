@@ -49,12 +49,13 @@ from pathlib import Path
 from typing import Optional, Literal
 
 from core.config.config_registry import get_path_config, get_remote_config
+from core.config.path_config import PathConfig
 from core.llm.invoke import summarize_text
 from core.metadata.merge import merge_metadata_blocks
 from core.metadata.schema import validate_metadata
 from core.parsing.chunk_text import chunk_text
-from core.parsing.semantic_chunk import semantic_chunk_text
 from core.storage.upload_local import upload_file
+from core.parsing.topic_segmenter import segment_text
 
 MAX_CHARS = 16000
 
@@ -65,17 +66,17 @@ def get_parsed_text(name: str) -> str:
 
 def looks_like_chatlog(text: str) -> bool:
     lines = text.lower().splitlines()
-    return sum(1 for l in lines[:50] if any(k in l for k in ["user:", "assistant:", "you:", "chatgpt:"])) > 2
-
-from core.parsing.topic_segmenter import segment_text
+    return sum(1 for line in lines[:50] if any(k in line for k in ["user:", "assistant:", "you:", "chatgpt:"])) > 2
 
 
 def classify(
     name: str,
     chunked: bool = False,
     segmentation: Literal["semantic", "paragraph"] = "semantic",
+    paths: PathConfig | None = None,
 ) -> dict:
-    paths = get_path_config()
+    """Summarize a parsed document into metadata."""
+    paths = paths or get_path_config()
     parsed_path = paths.parsed / name
     text = parsed_path.read_text(encoding="utf-8")
 
@@ -108,21 +109,27 @@ def classify(
     return metadata
 
 def upload_metadata_to_s3(name: str, metadata: dict):
-    from core.config.remote_config import RemoteConfig
     from core.storage.s3_utils import save_metadata_s3
     remote = get_remote_config()
     key = f"{remote.prefixes['metadata']}{name}.meta.json"
     save_metadata_s3(remote.bucket_name, key, metadata)
 
-def upload_and_prepare(file_name: str, parsed_name: Optional[str] = None):
-    upload_file(file_name, parsed_name)
+def upload_and_prepare(
+    file_name: str,
+    parsed_name: Optional[str] = None,
+    paths: PathConfig | None = None,
+):
+    """Parse ``file_name`` and save stub metadata."""
+    upload_file(file_name, parsed_name, paths)
 
 def pipeline_from_upload(
     file_name: str,
     parsed_name: Optional[str] = None,
     segmentation: Literal["semantic", "paragraph"] = "semantic",
+    paths: PathConfig | None = None,
 ) -> dict:
-    upload_and_prepare(file_name, parsed_name)
+    """Upload, parse, and classify a single document."""
+    upload_and_prepare(file_name, parsed_name, paths)
     txt_name = parsed_name or Path(file_name).stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
-    metadata = classify(txt_name, segmentation=segmentation)
+    metadata = classify(txt_name, segmentation=segmentation, paths=paths)
     return metadata
