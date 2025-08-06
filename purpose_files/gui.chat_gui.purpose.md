@@ -35,12 +35,12 @@
 ### 🔗 Dependencies
 - `streamlit`
 - `openai`, `tiktoken`
-- `core.config.remote_config.RemoteConfig`
+- `core.config.config_registry.get_remote_config`
 - `core.utils.budget_tracker.get_budget_tracker`
 
 ### 🗣 Dialogic Notes
 - Launch with `streamlit run chat_gui.py`.
-- Requires `core/config/remote_config.json` containing `openai_api_key`.
+- Requires `src/core/config/remote_config.json` containing `openai_api_key`, loaded via `config_registry`.
 - Designed for quick experiments; no retrieval or memory injection yet.
 
 ### 9 Pipeline Integration

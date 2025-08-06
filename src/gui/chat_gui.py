@@ -8,7 +8,7 @@ import streamlit as st  # type: ignore
 import tiktoken
 from openai import OpenAI
 
-from core.config.remote_config import RemoteConfig  # type: ignore
+from core.config.config_registry import get_remote_config
 from core.llm.invoke import LLM_COMPLETION_COST_PER_1K, LLM_PROMPT_COST_PER_1K  # type: ignore
 from core.utils.budget_tracker import get_budget_tracker  # type: ignore
 
@@ -21,7 +21,8 @@ def run_openai_chat(
     api_key: str | None = None,
 ) -> str:
     """Send conversation history to OpenAI and return the assistant reply."""
-    client = OpenAI(api_key=api_key or RemoteConfig.from_file().openai_api_key)
+    remote = get_remote_config()
+    client = OpenAI(api_key=api_key or remote.openai_api_key)
     tracker = get_budget_tracker()
     if tracker:
         enc = tiktoken.encoding_for_model(model)
