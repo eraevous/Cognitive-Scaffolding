@@ -8,7 +8,7 @@ Role: Load remote service settings for AWS, OpenAI, and future integrations.
 - Keeps setup user-friendly for non-developers
 
 📦 Inputs:
-- remote_config.json
+- remote_config.json (located next to this module)
 
 📤 Outputs:
 - RemoteConfig object with properties like bucket, region, API keys
@@ -66,7 +66,7 @@ class RemoteConfig:
         )
 
     @classmethod
-    def from_file(cls, config_path: Union[str, Path] = Path("core/config/remote_config.json")):
+    def from_file(cls, config_path: Union[str, Path] = Path(__file__).parent / "remote_config.json"):
         """
         Load a RemoteConfig from a JSON file.
 
