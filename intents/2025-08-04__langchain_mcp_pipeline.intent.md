@@ -1,0 +1,4 @@
+- context: Adding planning scaffolds for insurance verification pipeline.
+- decision: Introduced `.purpose.md` stubs for LLM router, insurance parser, and workflow.
+- rationale: Need LangChain/MCP compatibility and support for local Mistral 7B and Bedrock models before implementing extraction logic.
+- open-questions: Define mapping doc schema; evaluate latency of local models; MCP tool invocation requirements.
