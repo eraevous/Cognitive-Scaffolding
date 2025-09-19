@@ -198,3 +198,5 @@ Combined_Scripts/
 !ast_deps.csv
 !metadata_schema.json
 !remote_config_example.json
+
+.DS_Store
