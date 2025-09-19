@@ -5,6 +5,7 @@ from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
 from core.parsing.extract_text import extract_text
 
+
 def prepare_document_for_processing(
     file_path: Path,
     parsed_name: str | None = None,
@@ -28,7 +29,10 @@ def prepare_document_for_processing(
     paths.metadata.mkdir(parents=True, exist_ok=True)
 
     original_name = file_path.name
-    parsed_name = parsed_name or file_path.stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
+    parsed_name = (
+        parsed_name
+        or file_path.stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
+    )
 
     # Copy raw file
     dest_raw = paths.raw / original_name
@@ -47,7 +51,7 @@ def prepare_document_for_processing(
     stub = {
         "source_file": str(dest_raw),
         "parsed_file": str(dest_parsed),
-        "source_ext": file_path.suffix.lower().lstrip(".")
+        "source_ext": file_path.suffix.lower().lstrip("."),
     }
 
     stub_file = paths.metadata / f"{parsed_name}.stub.json"

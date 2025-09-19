@@ -87,8 +87,9 @@ def merge_metadata_blocks(blocks: List[Dict]) -> Dict:
         "tone": most_common("tone"),
         "stage": most_common("stage"),
         "depth": most_common("depth"),
-        "category": most_common("category")
+        "category": most_common("category"),
     }
+
 
 def resolve_parsed_filename(raw_or_parsed: str, stub_dir: str = "metadata") -> str:
     """

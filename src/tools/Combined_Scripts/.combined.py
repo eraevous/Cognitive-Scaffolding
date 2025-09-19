@@ -1,4 +1,4 @@
-#__________________________________________________________________
+# __________________________________________________________________
 # File: ast_dependency_extractor.py
 """
 Module: tools/ast_dependency_cli.py
@@ -97,7 +97,6 @@ This CLI tool uses static analysis to parse Python source code and extract funct
 import ast
 import json
 import os
-from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -106,6 +105,7 @@ import pandas as pd
 import typer
 
 app = typer.Typer()
+
 
 class ASTDependencyExtractor:
     def __init__(self):
@@ -147,7 +147,10 @@ class ASTDependencyExtractor:
 
             def visit_FunctionDef(self, node: ast.FunctionDef):
                 full_name = f"{self.extractor.current_module}.{node.name}"
-                self.extractor.defined_functions[full_name] = (self.extractor.current_module, node.lineno)
+                self.extractor.defined_functions[full_name] = (
+                    self.extractor.current_module,
+                    node.lineno,
+                )
                 self.current_func = full_name
                 self.generic_visit(node)
                 self.current_func = None
@@ -225,10 +228,17 @@ def load_graph_config(path: Path) -> Dict:
 def analyze(
     source_dir: str = typer.Option(".", help="Directory to scan for Python files."),
     recursive: bool = typer.Option(True, help="Recursively scan subdirectories."),
-    ignore_dirs: str = typer.Option("venv,.git,.pytest_cache,Scratch,tests,env,Combined_Scripts", help="Comma-separated list of directories to ignore."),
+    ignore_dirs: str = typer.Option(
+        "venv,.git,.pytest_cache,Scratch,tests,env,Combined_Scripts",
+        help="Comma-separated list of directories to ignore.",
+    ),
     output: Path = typer.Option(None, help="Optional CSV output file."),
-    matrix: bool = typer.Option(False, help="Output as adjacency matrix instead of edge list."),
-    config: Path = typer.Option(Path(".graphconfig.json"), help="Optional path to graph config JSON file.")
+    matrix: bool = typer.Option(
+        False, help="Output as adjacency matrix instead of edge list."
+    ),
+    config: Path = typer.Option(
+        Path(".graphconfig.json"), help="Optional path to graph config JSON file."
+    ),
 ):
     """Extract function call dependencies from Python code."""
     config_data = load_graph_config(config)
@@ -239,7 +249,9 @@ def analyze(
     files = collect_py_files(source_path, ignore_dirs_list)
     for rel_path, py_paths in files.items():
         for file_path in py_paths:
-            mod_name = str(rel_path / file_path.name).replace("/", ".").replace(".py", "")
+            mod_name = (
+                str(rel_path / file_path.name).replace("/", ".").replace(".py", "")
+            )
             extractor.process_file(str(file_path), module_name=mod_name)
 
     edges = extractor.get_function_edges()
@@ -255,9 +267,10 @@ def analyze(
     else:
         typer.echo(df)
 
+
 if __name__ == "__main__":
     app()
-#__________________________________________________________________
+# __________________________________________________________________
 # File: combine_scripts.py
 """
 Module: tools/combine_scripts.py
@@ -351,7 +364,6 @@ This module provides a CLI tool for recursively scanning Python files under a sp
 
 
 import csv
-import os
 from pathlib import Path
 from typing import List
 
@@ -414,9 +426,15 @@ def combine_files(file_paths: List[Path]) -> (str, int):
 @app.command()
 def combine_scripts(
     root: Path = typer.Argument(..., help="Root directory to search"),
-    ignore_dirs: str = typer.Option("env", help="Comma-separated list of directory names to ignore"),
-    output_dir: str = typer.Option("Combined_Scripts", help="Output directory for combined files"),
-    log_csv: str = typer.Option("combined_log.csv", help="CSV file to store summary log")
+    ignore_dirs: str = typer.Option(
+        "env", help="Comma-separated list of directory names to ignore"
+    ),
+    output_dir: str = typer.Option(
+        "Combined_Scripts", help="Output directory for combined files"
+    ),
+    log_csv: str = typer.Option(
+        "combined_log.csv", help="CSV file to store summary log"
+    ),
 ):
     """
     Combine all Python files in subdirectories of ROOT into one script per subdirectory.
@@ -449,7 +467,7 @@ def combine_scripts(
 
 
 if __name__ == "__main__":
-    app()#__________________________________________________________________
+    app()  # __________________________________________________________________
 # File: method_graph.py
 # No docstring found
 
@@ -457,19 +475,20 @@ from pathlib import Path
 from typing import List, Optional
 
 import matplotlib.pyplot as plt
-import networkx as nx
 import pandas as pd
 import typer
 
 app = typer.Typer()
 
+
 def collapse_to_modules(edge_list: List[tuple[str, str]]) -> List[tuple[str, str]]:
     return [(src.split(".")[0], tgt.split(".")[0]) for src, tgt in edge_list]
+
 
 def build_method_graph(
     edge_list: List[tuple[str, str]],
     ignore_prefixes: Optional[List[str]] = None,
-    collapse_modules: bool = False
+    collapse_modules: bool = False,
 ) -> nx.DiGraph:
     if collapse_modules:
         edge_list = collapse_to_modules(edge_list)
@@ -477,25 +496,31 @@ def build_method_graph(
     G = nx.DiGraph()
     for source, target in edge_list:
         if ignore_prefixes:
-            if any(source.startswith(p) or target.startswith(p) for p in ignore_prefixes):
+            if any(
+                source.startswith(p) or target.startswith(p) for p in ignore_prefixes
+            ):
                 continue
         G.add_edge(source, target)
     return G
 
-def plot_method_graph(G: nx.DiGraph, title: str = "Method Call Graph", save_path: Optional[Path] = None):
+
+def plot_method_graph(
+    G: nx.DiGraph, title: str = "Method Call Graph", save_path: Optional[Path] = None
+):
     plt.figure(figsize=(20, 16), dpi=120)
     pos = nx.circular_layout(G)
     nx.draw_networkx_nodes(G, pos, node_size=1100, edgecolors="black")
     nx.draw_networkx_labels(G, pos, font_size=8, font_weight="bold")
     nx.draw_networkx_edges(
-        G, pos,
+        G,
+        pos,
         arrowstyle="->",
         arrowsize=35,
         width=2.5,
-        connectionstyle="arc3,rad=0.25"
+        connectionstyle="arc3,rad=0.25",
     )
     plt.title(title, fontsize=18, pad=25)
-    plt.axis('off')
+    plt.axis("off")
     plt.tight_layout()
     if save_path:
         plt.savefig(save_path)
@@ -503,14 +528,25 @@ def plot_method_graph(G: nx.DiGraph, title: str = "Method Call Graph", save_path
     else:
         plt.show()
 
+
 @app.command()
 def visualize(
-    input_csv: Path = typer.Argument(..., help="Path to edge list or adjacency matrix CSV file."),
-    use_matrix: bool = typer.Option(False, help="Treat input as adjacency matrix instead of edge list."),
-    ignore_modules: Optional[str] = typer.Option(None, help="Comma-separated list of module prefixes to ignore."),
-    collapse_modules: bool = typer.Option(False, help="Collapse to module-level nodes instead of functions."),
+    input_csv: Path = typer.Argument(
+        ..., help="Path to edge list or adjacency matrix CSV file."
+    ),
+    use_matrix: bool = typer.Option(
+        False, help="Treat input as adjacency matrix instead of edge list."
+    ),
+    ignore_modules: Optional[str] = typer.Option(
+        None, help="Comma-separated list of module prefixes to ignore."
+    ),
+    collapse_modules: bool = typer.Option(
+        False, help="Collapse to module-level nodes instead of functions."
+    ),
     graph_title: str = typer.Option("Method Call Graph", help="Title of the plot."),
-    save_path: Optional[Path] = typer.Option(None, help="Optional path to save the plotted graph image.")
+    save_path: Optional[Path] = typer.Option(
+        None, help="Optional path to save the plotted graph image."
+    ),
 ):
     """
     Visualize a method or module call graph from edge list or adjacency matrix.
@@ -524,19 +560,25 @@ def visualize(
     else:
         df = pd.read_csv(input_csv)
         edge_list = list(df.itertuples(index=False, name=None))
-        
+
     if collapse_modules:
-        edge_list = [(src.split('.')[0], tgt.split('.')[0]) for src, tgt in edge_list]
-        edge_list = [(src, tgt) for src, tgt in edge_list if src != tgt]  # 🔥 remove self-loops
+        edge_list = [(src.split(".")[0], tgt.split(".")[0]) for src, tgt in edge_list]
+        edge_list = [
+            (src, tgt) for src, tgt in edge_list if src != tgt
+        ]  # 🔥 remove self-loops
 
-
-    ignore_prefixes = [x.strip() for x in ignore_modules.split(",")] if ignore_modules else []
-    G = build_method_graph(edge_list, ignore_prefixes, collapse_modules=collapse_modules)
+    ignore_prefixes = (
+        [x.strip() for x in ignore_modules.split(",")] if ignore_modules else []
+    )
+    G = build_method_graph(
+        edge_list, ignore_prefixes, collapse_modules=collapse_modules
+    )
     plot_method_graph(G, graph_title, save_path)
+
 
 if __name__ == "__main__":
     app()
-#__________________________________________________________________
+# __________________________________________________________________
 # File: variable_graph.py
 """
 Module: tools/variable_graph.py
@@ -618,7 +660,6 @@ Provides tools to create and visualize directed graphs based on shared variable 
 @notes: 
 """
 
-import matplotlib.pyplot as plt
 import networkx as nx
 
 
@@ -635,13 +676,9 @@ def plot_variable_graph(G: nx.DiGraph, title: str = "Shared Variable Graph"):
     nx.draw_networkx_nodes(G, pos, node_size=1000, edgecolors="black")
     nx.draw_networkx_labels(G, pos, font_size=8, font_weight="bold")
     nx.draw_networkx_edges(
-        G, pos,
-        arrowstyle="->",
-        arrowsize=30,
-        width=2,
-        connectionstyle="arc3,rad=0.15"
+        G, pos, arrowstyle="->", arrowsize=30, width=2, connectionstyle="arc3,rad=0.15"
     )
     plt.title(title, fontsize=16, pad=20)
-    plt.axis('off')
+    plt.axis("off")
     plt.tight_layout()
     plt.show()

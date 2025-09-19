@@ -1,10 +1,10 @@
 from typing import Any, Dict, List, Sequence
 
+import hdbscan
 import numpy as np
 import tiktoken
 import umap
 from sklearn.cluster import SpectralClustering
-import hdbscan
 
 from core.embeddings.embedder import embed_text
 from core.utils.logger import get_logger
@@ -12,7 +12,9 @@ from core.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def _cluster_embeddings(embeddings: Sequence[Sequence[float]], method: str) -> List[int]:
+def _cluster_embeddings(
+    embeddings: Sequence[Sequence[float]], method: str
+) -> List[int]:
     """Cluster embeddings using UMAP + Spectral Clustering or HDBSCAN."""
     X = np.asarray(embeddings, dtype="float32")
     reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
@@ -97,7 +99,7 @@ def semantic_chunk(
             current_start = starts[idx]
             current_label = labels[idx]
 
-    seg_text = enc.decode(tokens[current_start: len(tokens)])
+    seg_text = enc.decode(tokens[current_start : len(tokens)])
     segments.append(
         {
             "text": seg_text,

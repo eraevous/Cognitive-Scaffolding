@@ -46,7 +46,7 @@ This module contains two core functions to classify documents. `classify()` supp
 
 import json
 from pathlib import Path
-from typing import Optional, Literal
+from typing import Literal, Optional
 
 from core.config.config_registry import get_path_config, get_remote_config
 from core.config.path_config import PathConfig
@@ -54,19 +54,28 @@ from core.llm.invoke import summarize_text
 from core.metadata.merge import merge_metadata_blocks
 from core.metadata.schema import validate_metadata
 from core.parsing.chunk_text import chunk_text
-from core.storage.upload_local import upload_file
 from core.parsing.topic_segmenter import segment_text
+from core.storage.upload_local import upload_file
 
 MAX_CHARS = 16000
+
 
 def get_parsed_text(name: str) -> str:
     paths = get_path_config()
     parsed_path = paths.parsed / name
     return parsed_path.read_text(encoding="utf-8")
 
+
 def looks_like_chatlog(text: str) -> bool:
     lines = text.lower().splitlines()
-    return sum(1 for line in lines[:50] if any(k in line for k in ["user:", "assistant:", "you:", "chatgpt:"])) > 2
+    return (
+        sum(
+            1
+            for line in lines[:50]
+            if any(k in line for k in ["user:", "assistant:", "you:", "chatgpt:"])
+        )
+        > 2
+    )
 
 
 def classify(
@@ -92,7 +101,9 @@ def classify(
         else:
             raw_chunks = chunk_text(text)
         block_results = [
-            summarize_text(chunk, doc_type=doc_type) for chunk in raw_chunks if chunk.strip()
+            summarize_text(chunk, doc_type=doc_type)
+            for chunk in raw_chunks
+            if chunk.strip()
         ]
         metadata = merge_metadata_blocks(block_results)
 
@@ -108,11 +119,14 @@ def classify(
     out_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return metadata
 
+
 def upload_metadata_to_s3(name: str, metadata: dict):
     from core.storage.s3_utils import save_metadata_s3
+
     remote = get_remote_config()
     key = f"{remote.prefixes['metadata']}{name}.meta.json"
     save_metadata_s3(remote.bucket_name, key, metadata)
+
 
 def upload_and_prepare(
     file_name: str,
@@ -122,6 +136,7 @@ def upload_and_prepare(
     """Parse ``file_name`` and save stub metadata."""
     upload_file(file_name, parsed_name, paths)
 
+
 def pipeline_from_upload(
     file_name: str,
     parsed_name: Optional[str] = None,
@@ -130,6 +145,9 @@ def pipeline_from_upload(
 ) -> dict:
     """Upload, parse, and classify a single document."""
     upload_and_prepare(file_name, parsed_name, paths)
-    txt_name = parsed_name or Path(file_name).stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
+    txt_name = (
+        parsed_name
+        or Path(file_name).stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
+    )
     metadata = classify(txt_name, segmentation=segmentation, paths=paths)
     return metadata

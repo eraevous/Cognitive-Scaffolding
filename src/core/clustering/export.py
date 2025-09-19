@@ -67,7 +67,7 @@ def export_cluster_data(
     labels: List[int],
     label_map: Dict[str, str],
     out_dir: Path,
-    metadata_dir: Path = None
+    metadata_dir: Path = None,
 ):
     """
     Export cluster plot, labeled assignment map, and cluster CSV.
@@ -85,7 +85,10 @@ def export_cluster_data(
     df = pd.DataFrame(coords, columns=["x", "y"])
     df["doc"] = doc_ids
     df["cluster_id"] = labels
-    df["cluster_label"] = [label_map.get(f"cluster_{label}", "Unlabeled") if label != -1 else "Noise" for label in labels]
+    df["cluster_label"] = [
+        label_map.get(f"cluster_{label}", "Unlabeled") if label != -1 else "Noise"
+        for label in labels
+    ]
 
     # Save cluster JSONs
     cluster_map = {}
@@ -114,14 +117,16 @@ def export_cluster_data(
                 meta = json.loads(meta_path.read_text("utf-8"))
             except Exception:
                 continue
-            records.append({
-                "doc": row.doc,
-                "summary": meta.get("summary", "")[:180],
-                "topics": ", ".join(meta.get("topics", [])),
-                "tags": ", ".join(meta.get("tags", [])),
-                "themes": ", ".join(meta.get("themes", [])),
-                "label": row.cluster_label
-            })
+            records.append(
+                {
+                    "doc": row.doc,
+                    "summary": meta.get("summary", "")[:180],
+                    "topics": ", ".join(meta.get("topics", [])),
+                    "tags": ", ".join(meta.get("tags", [])),
+                    "themes": ", ".join(meta.get("themes", [])),
+                    "label": row.cluster_label,
+                }
+            )
         pd.DataFrame(records).to_csv(out_dir / "cluster_summary.csv", index=False)
 
     # Save PNG

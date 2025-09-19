@@ -20,7 +20,7 @@ spite_verses = [
     "Although never is often better than *right* now — unless you're handling NoneType.",
     "If the implementation is hard to explain, call it Pythonic and write a blog post.",
     "If the implementation is easy to explain, rename it three times and ship it in a hidden package.",
-    "The only real way to write Python is to give up and do what the linter tells you."
+    "The only real way to write Python is to give up and do what the linter tells you.",
 ]
 
 

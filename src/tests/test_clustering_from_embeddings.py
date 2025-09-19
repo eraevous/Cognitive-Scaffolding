@@ -1,18 +1,14 @@
 # tests/test_clustering_from_embeddings.py
-from pathlib import Path
 import pytest
 
 pytest.skip("Skipping heavy clustering test", allow_module_level=True)
 
+from core.clustering.clustering_steps import (run_clustering,
+                                              run_dimensionality_reduction,
+                                              run_export, run_labeling)
 from core.config.config_registry import get_path_config
-from core.clustering.clustering_steps import (
-    run_clustering,
-    run_dimensionality_reduction,
-    run_export,
-    run_labeling,
-)
-from core.workflows.main_commands import classify
 from core.config.path_config import PathConfig
+from core.workflows.main_commands import classify
 
 
 def test_clustering_from_embeddings(tmp_path, monkeypatch):
@@ -45,9 +41,7 @@ def test_clustering_from_embeddings(tmp_path, monkeypatch):
     sample_file = pc.parsed / "sample.txt"
     sample_file.write_text("Cats purr. " * 20 + "Dogs bark. " * 20)
 
-    monkeypatch.setattr(
-        "core.config.config_registry.get_path_config", lambda: pc
-    )
+    monkeypatch.setattr("core.config.config_registry.get_path_config", lambda: pc)
     monkeypatch.setattr(
         "core.parsing.semantic_chunk.embed_text",
         lambda text, model="text-embedding-3-small": [0.0],

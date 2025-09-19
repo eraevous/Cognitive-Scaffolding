@@ -62,8 +62,6 @@ import openai
 import pandas as pd
 import umap
 from sklearn.cluster import SpectralClustering
-from sklearn.metrics.pairwise import cosine_similarity
-from tqdm import tqdm
 
 # 📂 CONFIG
 embedding_path = Path("rich_doc_embeddings.json")
@@ -91,8 +89,11 @@ labels_hdb = hdb.labels_
 
 # 🔗 Spectral clustering
 n_clusters = 24  # tweakable
-spec = SpectralClustering(n_clusters=n_clusters, affinity="nearest_neighbors", assign_labels="kmeans").fit(X)
+spec = SpectralClustering(
+    n_clusters=n_clusters, affinity="nearest_neighbors", assign_labels="kmeans"
+).fit(X)
 labels_spec = spec.labels_
+
 
 # 🔁 Utility: cluster to dict
 def cluster_dict(labels):
@@ -103,8 +104,10 @@ def cluster_dict(labels):
         out.setdefault(f"cluster_{label}", []).append(doc)
     return out
 
+
 clusters_hdb = cluster_dict(labels_hdb)
 clusters_spec = cluster_dict(labels_spec)
+
 
 # 💬 Smart GPT labels
 def label_clusters_with_gpt(clusters, model="gpt-4", preview=True):
@@ -119,9 +122,7 @@ These are document topics:
 Provide a short (2–6 words) high-level label for this cluster:"""
 
         response = openai.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.4
+            model=model, messages=[{"role": "user", "content": prompt}], temperature=0.4
         )
 
         label = response.choices[0].message.content.strip()
@@ -130,8 +131,10 @@ Provide a short (2–6 words) high-level label for this cluster:"""
             print(f"{cluster_id}: {label}")
     return smart_labels
 
+
 smart_labels_hdb = label_clusters_with_gpt(clusters_hdb)
 smart_labels_spec = label_clusters_with_gpt(clusters_spec)
+
 
 # 🧠 Doc-level assignment
 def flatten_cluster_map(cluster_map, label_map):
@@ -141,6 +144,7 @@ def flatten_cluster_map(cluster_map, label_map):
         for doc in docs:
             flat[doc.lower()] = label
     return flat
+
 
 assignments_hdb = flatten_cluster_map(clusters_hdb, smart_labels_hdb)
 assignments_spec = flatten_cluster_map(clusters_spec, smart_labels_spec)
@@ -161,7 +165,10 @@ print("✅ Cluster maps saved.")
 
 # 📊 Label UMAP data
 umap_df["cluster_hdb"] = [assignments_hdb.get(doc.lower(), "Noise") for doc in doc_ids]
-umap_df["cluster_spec"] = [assignments_spec.get(doc.lower(), "Unknown") for doc in doc_ids]
+umap_df["cluster_spec"] = [
+    assignments_spec.get(doc.lower(), "Unknown") for doc in doc_ids
+]
+
 
 # 📈 UMAP plot with labels
 def plot_umap_clusters(df, label_col, title, out_file):
@@ -171,16 +178,31 @@ def plot_umap_clusters(df, label_col, title, out_file):
 
     for i, label in enumerate(labels):
         sub = df[df[label_col] == label]
-        plt.scatter(sub["x"], sub["y"], label=label, alpha=0.7, s=50, color=colors[i % len(colors)])
+        plt.scatter(
+            sub["x"],
+            sub["y"],
+            label=label,
+            alpha=0.7,
+            s=50,
+            color=colors[i % len(colors)],
+        )
 
-    plt.legend(loc='best', fontsize=9)
+    plt.legend(loc="best", fontsize=9)
     plt.title(title)
     plt.tight_layout()
     plt.savefig(out_file)
     plt.show()
 
-plot_umap_clusters(umap_df, "cluster_hdb", "UMAP - HDBSCAN Smart Clusters", "output/umap_hdbscan.png")
-plot_umap_clusters(umap_df, "cluster_spec", "UMAP - Spectral Smart Clusters", "output/umap_spectral.png")
+
+plot_umap_clusters(
+    umap_df, "cluster_hdb", "UMAP - HDBSCAN Smart Clusters", "output/umap_hdbscan.png"
+)
+plot_umap_clusters(
+    umap_df,
+    "cluster_spec",
+    "UMAP - Spectral Smart Clusters",
+    "output/umap_spectral.png",
+)
 
 # 📋 Export metadata + cluster label to CSV
 records = []
@@ -193,16 +215,18 @@ for doc in doc_ids:
             meta = json.load(f)
         except:
             continue
-    records.append({
-        "doc": doc,
-        "category": meta.get("category"),
-        "summary": meta.get("summary", "")[:180],
-        "topics": ", ".join(meta.get("topics", [])),
-        "tags": ", ".join(meta.get("tags", [])),
-        "themes": ", ".join(meta.get("themes", [])),
-        "cluster_hdb": assignments_hdb.get(doc.lower(), "Noise"),
-        "cluster_spec": assignments_spec.get(doc.lower(), "Unknown"),
-    })
+    records.append(
+        {
+            "doc": doc,
+            "category": meta.get("category"),
+            "summary": meta.get("summary", "")[:180],
+            "topics": ", ".join(meta.get("topics", [])),
+            "tags": ", ".join(meta.get("tags", [])),
+            "themes": ", ".join(meta.get("themes", [])),
+            "cluster_hdb": assignments_hdb.get(doc.lower(), "Noise"),
+            "cluster_spec": assignments_spec.get(doc.lower(), "Unknown"),
+        }
+    )
 
 pd.DataFrame(records).to_csv("output/cluster_summary.csv", index=False)
 print("📋 cluster_summary.csv saved.")

@@ -48,13 +48,18 @@ from core.config.config_registry import get_path_config
 
 app = typer.Typer()
 
+
 @app.command()
 def run_all(
-    embedding_path: Path = typer.Option(None, help="Path to the rich_doc_embeddings.json file"),
-    metadata_dir: Path = typer.Option(None, help="Path to directory with .meta.json files"),
+    embedding_path: Path = typer.Option(
+        None, help="Path to the rich_doc_embeddings.json file"
+    ),
+    metadata_dir: Path = typer.Option(
+        None, help="Path to directory with .meta.json files"
+    ),
     out_dir: Path = typer.Option(None, help="Directory to save outputs"),
     method: str = "hdbscan",
-    model: str = "gpt-4"
+    model: str = "gpt-4",
 ):
     """
     Run full clustering pipeline from existing embeddings.
@@ -69,5 +74,5 @@ def run_all(
         metadata_dir=metadata_dir,
         out_dir=out_dir,
         method=method,
-        model=model
+        model=model,
     )

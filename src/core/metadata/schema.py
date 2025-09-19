@@ -41,14 +41,13 @@ disk and validates metadata dictionaries against it using `jsonschema`, raising 
 
 import json
 from pathlib import Path
-from typing import Union
 
-from jsonschema import ValidationError, validate
+from jsonschema import validate
 
 from core.config.config_registry import get_path_config
-from core.config.path_config import PathConfig
 
 paths = get_path_config()
+
 
 def validate_metadata(metadata: dict) -> None:
     """

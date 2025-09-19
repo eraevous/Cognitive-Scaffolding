@@ -48,7 +48,6 @@ Organizes files into categorized folders based on metadata or provided clusterin
 """
 
 
-import json
 import shutil
 from pathlib import Path
 from typing import Dict
@@ -56,11 +55,14 @@ from typing import Dict
 from core.metadata.io import load_metadata
 
 
-def organize_file(name: str, cluster_map: Dict[str, str] = {}, 
-                  meta_dir: Path = Path("metadata"),
-                  parsed_dir: Path = Path("parsed"),
-                  raw_dir: Path = Path("raw"),
-                  out_dir: Path = Path("organized")) -> None:
+def organize_file(
+    name: str,
+    cluster_map: Dict[str, str] = {},
+    meta_dir: Path = Path("metadata"),
+    parsed_dir: Path = Path("parsed"),
+    raw_dir: Path = Path("raw"),
+    out_dir: Path = Path("organized"),
+) -> None:
     """
     Organize a file into a folder based on its metadata or clustering label.
 

@@ -55,13 +55,9 @@ def plot_variable_graph(G: nx.DiGraph, title: str = "Shared Variable Graph"):
     nx.draw_networkx_nodes(G, pos, node_size=1000, edgecolors="black")
     nx.draw_networkx_labels(G, pos, font_size=8, font_weight="bold")
     nx.draw_networkx_edges(
-        G, pos,
-        arrowstyle="->",
-        arrowsize=30,
-        width=2,
-        connectionstyle="arc3,rad=0.15"
+        G, pos, arrowstyle="->", arrowsize=30, width=2, connectionstyle="arc3,rad=0.15"
     )
     plt.title(title, fontsize=16, pad=20)
-    plt.axis('off')
+    plt.axis("off")
     plt.tight_layout()
     plt.show()

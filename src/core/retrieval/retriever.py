@@ -1,13 +1,13 @@
-from typing import Iterable, List, Tuple, cast
-from pathlib import Path
 import json
+from pathlib import Path
+from typing import Iterable, List, Tuple, cast
 
 import numpy as np
 
-from core.embeddings.embedder import MODEL_DIMS, get_model_for_dim, embed_text
 from core.config.config_registry import get_path_config
-from core.vectorstore.faiss_store import FaissStore
+from core.embeddings.embedder import MODEL_DIMS, embed_text, get_model_for_dim
 from core.utils.logger import get_logger
+from core.vectorstore.faiss_store import FaissStore
 
 
 class Retriever:
@@ -31,10 +31,14 @@ class Retriever:
         self.dim = self.store.index.d
         id_map_path = paths.vector / "id_map.json"
         if id_map_path.exists():
-            self.id_map = {int(k): v for k, v in json.loads(id_map_path.read_text()).items()}
+            self.id_map = {
+                int(k): v for k, v in json.loads(id_map_path.read_text()).items()
+            }
         else:
             self.id_map = {}
-        self.chunk_dir = chunk_dir or (paths.vector / "chunks" if (paths.vector / "chunks").exists() else None)
+        self.chunk_dir = chunk_dir or (
+            paths.vector / "chunks" if (paths.vector / "chunks").exists() else None
+        )
         if model is None and self.dim != dim:
             inferred = get_model_for_dim(self.dim)
             self.logger.info(
@@ -74,7 +78,9 @@ class Retriever:
             Combine chunks belonging to the same document.
         """
 
-        vectors = [np.asarray(embed_text(t, model=self.model), dtype="float32") for t in texts]
+        vectors = [
+            np.asarray(embed_text(t, model=self.model), dtype="float32") for t in texts
+        ]
 
         score_map: dict[str, List[float]] = {}
         for vec in vectors:

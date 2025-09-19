@@ -41,12 +41,12 @@ It is intended for fast integration into scalable document processing pipelines.
 """
 
 
-
 import typer
 
 from core.workflows.main_commands import classify
 
 app = typer.Typer()
+
 
 @app.command()
 def classify_one(

@@ -1,17 +1,19 @@
 # core/cadence/cadence_controller.py
 
-from enum import Enum
-from datetime import datetime
 import logging
+from datetime import datetime
+from enum import Enum
 
 CadenceTriggerKeywords = {
     "run": ["fix", "debug", "proceed", "continue", "implement", "optimize"],
     "drift": ["explore", "compare", "reflect", "design", "refactor", "ask"],
 }
 
+
 class CadenceMode(Enum):
     RUN = "run"
     DRIFT = "drift"
+
 
 class CadenceController:
     def __init__(self):
@@ -53,4 +55,3 @@ class CadenceController:
             return "Focus on code execution, completeness, and logic. Minimize commentary unless `.intent.md` trails are needed."
         else:
             return "Reflect on design intent, surface integration points, validate `.purpose.md`, and annotate reasoning."
-

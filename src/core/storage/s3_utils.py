@@ -43,9 +43,7 @@ Designed to support workflows needing reliable cloud storage and retrieval pipel
 """
 
 
-
 import json
-from pathlib import Path
 
 from core.config.remote_config import RemoteConfig
 from core.metadata.schema import validate_metadata
@@ -65,9 +63,7 @@ def save_metadata_s3(bucket: str, key: str, metadata: dict, s3=None) -> None:
     validate_metadata(metadata)
     s3 = s3 or get_s3_client()
     s3.put_object(
-        Bucket=bucket,
-        Key=key,
-        Body=json.dumps(metadata, indent=2).encode("utf-8")
+        Bucket=bucket, Key=key, Body=json.dumps(metadata, indent=2).encode("utf-8")
     )
 
 
@@ -93,7 +89,9 @@ def load_metadata_s3(bucket: str, key: str, s3=None) -> dict:
         raise FileNotFoundError(f"S3 key not found: {key}") from e
 
 
-def download_file_from_s3(s3_filename: str, local_path: str, prefix: str = "raw/") -> str:
+def download_file_from_s3(
+    s3_filename: str, local_path: str, prefix: str = "raw/"
+) -> str:
     """
     Download a file from an S3 prefix to a local path.
 

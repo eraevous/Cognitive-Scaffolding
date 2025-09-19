@@ -46,7 +46,10 @@ from core_lib.config.remote_config import RemoteConfig
 from core_lib.parsing.extract_text import extract_text
 from core_lib.storage.s3_utils import get_s3_client
 
-remote = RemoteConfig.from_file(Path(__file__).parent.parent / "config" / "remote_config.json")
+remote = RemoteConfig.from_file(
+    Path(__file__).parent.parent / "config" / "remote_config.json"
+)
+
 
 def get_parsed_text(name: str) -> str:
     parsed_path = Path(remote.prefixes["parsed"]) / name
@@ -70,5 +73,9 @@ def get_parsed_text(name: str) -> str:
 
     print(f"⬇️ Downloading parsed file from S3: {name}")
     s3 = get_s3_client()
-    s3.download_file(Bucket=remote.bucket_name, Key=f"{remote.prefixes['parsed']}{name}", Filename=str(parsed_path))
+    s3.download_file(
+        Bucket=remote.bucket_name,
+        Key=f"{remote.prefixes['parsed']}{name}",
+        Filename=str(parsed_path),
+    )
     return parsed_path.read_text(encoding="utf-8")

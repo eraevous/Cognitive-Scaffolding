@@ -56,7 +56,7 @@ from sklearn.cluster import SpectralClustering
 def cluster_embeddings(
     X: np.ndarray,
     umap_config: dict = {"random_state": 42},
-    n_spectral_clusters: int = 24
+    n_spectral_clusters: int = 24,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Apply UMAP, HDBSCAN, and Spectral clustering to embedding vectors.
@@ -79,7 +79,7 @@ def cluster_embeddings(
         n_clusters=n_spectral_clusters,
         affinity="nearest_neighbors",
         assign_labels="kmeans",
-        random_state=42
+        random_state=42,
     ).fit(X)
     labels_spec = spec.labels_
 

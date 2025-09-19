@@ -108,9 +108,15 @@ def combine_files(file_paths: List[Path]) -> (str, int):
 @app.command()
 def combine_scripts(
     root: Path = typer.Argument(..., help="Root directory to search"),
-    ignore_dirs: str = typer.Option("env", help="Comma-separated list of directory names to ignore"),
-    output_dir: str = typer.Option("Combined_Scripts", help="Output directory for combined files"),
-    log_csv: str = typer.Option("combined_log.csv", help="CSV file to store summary log")
+    ignore_dirs: str = typer.Option(
+        "env", help="Comma-separated list of directory names to ignore"
+    ),
+    output_dir: str = typer.Option(
+        "Combined_Scripts", help="Output directory for combined files"
+    ),
+    log_csv: str = typer.Option(
+        "combined_log.csv", help="CSV file to store summary log"
+    ),
 ):
     """
     Combine all Python files in subdirectories of ROOT into one script per subdirectory.

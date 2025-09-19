@@ -1,23 +1,25 @@
+import json
 import re
 import sys
-import json
 from pathlib import Path
 
 
 def clean_trace_line(line: str) -> str:
     if line.strip().startswith("```") or not line.strip():
         return ""
-    root_match = re.search(r'root@[^:\s]+[:#]', line)
+    root_match = re.search(r"root@[^:\s]+[:#]", line)
     if root_match:
-        return line[:root_match.start()].rstrip()
+        return line[: root_match.start()].rstrip()
     return line.strip()
 
 
-def truncate_to_sentences(text: str, max_sentences: int = 6, max_chars: int = 200) -> str:
-    text = re.sub(r'\s+', ' ', text).strip()
+def truncate_to_sentences(
+    text: str, max_sentences: int = 6, max_chars: int = 200
+) -> str:
+    text = re.sub(r"\s+", " ", text).strip()
 
     # Try to split into sentences with punctuation or code-structure
-    sentences = re.split(r'(?<=[.!?])\s+|(?<=[:;])\s+|(?<=\))\s+', text)
+    sentences = re.split(r"(?<=[.!?])\s+|(?<=[:;])\s+|(?<=\))\s+", text)
     truncated = " ".join(sentences[:max_sentences]).strip()
 
     # Hard truncate regardless of sentence structure
@@ -30,7 +32,10 @@ def truncate_to_sentences(text: str, max_sentences: int = 6, max_chars: int = 20
 
     return truncated
 
-def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Path = None):
+
+def extract_codex_reasoning(
+    input_path: Path, output_md: Path, output_jsonl: Path = None
+):
     try:
         lines = input_path.read_text(encoding="utf-8").splitlines()
     except UnicodeDecodeError:
@@ -58,10 +63,9 @@ def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Pat
         if step_start.match(line):
             if current_step_lines:
                 combined = " ".join(current_step_lines).strip()
-                reasoning_steps.append({
-                    "step": step_id,
-                    "text": truncate_to_sentences(combined)
-                })
+                reasoning_steps.append(
+                    {"step": step_id, "text": truncate_to_sentences(combined)}
+                )
                 step_id += 1
                 current_step_lines = []
             current_step_lines.append(line)
@@ -70,10 +74,9 @@ def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Pat
 
     if current_step_lines:
         combined = " ".join(current_step_lines).strip()
-        reasoning_steps.append({
-            "step": step_id,
-            "text": truncate_to_sentences(combined)
-        })
+        reasoning_steps.append(
+            {"step": step_id, "text": truncate_to_sentences(combined)}
+        )
 
     # Save Markdown
     output_md.parent.mkdir(parents=True, exist_ok=True)
@@ -97,7 +100,11 @@ def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Pat
 
 
 def bulk_process_dir(input_dir: Path, output_dir: Path):
-    trace_files = list(input_dir.rglob("*.trace.txt")) + list(input_dir.rglob("*.trace.md")) + list(input_dir.rglob("*.trace.jsonl"))
+    trace_files = (
+        list(input_dir.rglob("*.trace.txt"))
+        + list(input_dir.rglob("*.trace.md"))
+        + list(input_dir.rglob("*.trace.jsonl"))
+    )
     for trace in trace_files:
         rel_path = trace.relative_to(input_dir)
         out_md = output_dir / rel_path.with_suffix(".cleaned.md")
@@ -108,7 +115,9 @@ def bulk_process_dir(input_dir: Path, output_dir: Path):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  Single file : python clean_trace.py <input_file> <output_md> [<output_jsonl>]")
+        print(
+            "  Single file : python clean_trace.py <input_file> <output_md> [<output_jsonl>]"
+        )
         print("  Bulk mode   : python clean_trace.py <input_dir> <output_dir>")
         sys.exit(1)
 
@@ -121,5 +130,5 @@ if __name__ == "__main__":
         extract_codex_reasoning(
             input_path=input_path,
             output_md=output_path,
-            output_jsonl=Path(sys.argv[3]) if len(sys.argv) > 3 else None
+            output_jsonl=Path(sys.argv[3]) if len(sys.argv) > 3 else None,
         )

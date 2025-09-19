@@ -8,8 +8,8 @@ import pytest
 
 pytest.importorskip("faiss")
 
-from core.config.path_config import PathConfig
 from core.config import config_registry
+from core.config.path_config import PathConfig
 from core.embeddings import embedder
 
 
@@ -29,7 +29,9 @@ def test_generate_embeddings_no_overflow(tmp_path, monkeypatch):
     (paths.parsed / "example.txt").write_text("hello world", encoding="utf-8")
 
     # patch configuration and embedding function
-    monkeypatch.setattr(config_registry, "get_path_config", lambda force_reload=False: paths)
+    monkeypatch.setattr(
+        config_registry, "get_path_config", lambda force_reload=False: paths
+    )
     monkeypatch.setattr(embedder, "get_path_config", lambda force_reload=False: paths)
     monkeypatch.setattr(
         embedder,
@@ -43,7 +45,7 @@ def test_generate_embeddings_no_overflow(tmp_path, monkeypatch):
     assert id_map_path.exists()
     id_map = json.loads(id_map_path.read_text())
     for hashed in id_map.keys():
-        assert int(hashed) < 2 ** 63
+        assert int(hashed) < 2**63
 
 
 def test_generate_embeddings_with_segments(tmp_path, monkeypatch):
@@ -54,7 +56,9 @@ def test_generate_embeddings_with_segments(tmp_path, monkeypatch):
     paths.vector.mkdir()
     (paths.parsed / "example.txt").write_text("hello world", encoding="utf-8")
 
-    monkeypatch.setattr(config_registry, "get_path_config", lambda force_reload=False: paths)
+    monkeypatch.setattr(
+        config_registry, "get_path_config", lambda force_reload=False: paths
+    )
     monkeypatch.setattr(embedder, "get_path_config", lambda force_reload=False: paths)
 
     dummy_chunk = {
@@ -66,8 +70,13 @@ def test_generate_embeddings_with_segments(tmp_path, monkeypatch):
         "cluster_id": 0,
     }
     import importlib
+
     sc_module = importlib.import_module("core.parsing.semantic_chunk")
-    monkeypatch.setattr(sc_module, "semantic_chunk", lambda text, model="text-embedding-3-large", **k: [dummy_chunk])
+    monkeypatch.setattr(
+        sc_module,
+        "semantic_chunk",
+        lambda text, model="text-embedding-3-large", **k: [dummy_chunk],
+    )
 
     embedder.generate_embeddings(model="text-embedding-3-large", segment_mode=True)
 

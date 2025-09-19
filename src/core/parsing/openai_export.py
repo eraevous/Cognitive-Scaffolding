@@ -18,9 +18,9 @@ for quick prompt reuse or duplicate detection.
 from __future__ import annotations
 
 import json
+import zipfile
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
-import zipfile
 
 from .normalize import normalize_filename
 
@@ -43,9 +43,7 @@ def _load_conversations(export_path: Path) -> List[Dict]:
             with zf.open(name) as f:
                 return json.load(f)
         except KeyError as exc:
-            raise FileNotFoundError(
-                "conversations.json not found in export"
-            ) from exc
+            raise FileNotFoundError("conversations.json not found in export") from exc
 
 
 def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
@@ -55,7 +53,7 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
     individual messages are missing or not structured as expected.
     Non-string content parts are ignored to handle multimodal nodes.
     """
-    
+
     mapping = convo.get("mapping", {})
     node_id = convo.get("current_node")
     path: List[Tuple[str, str]] = []
@@ -81,7 +79,6 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
 def parse_chatgpt_export(
     export_path: Path, out_dir: Path, *, markdown: bool = False
 ) -> List[Dict[str, Path]]:
-
     """Parse conversations and write text + prompt files.
 
     Parameters

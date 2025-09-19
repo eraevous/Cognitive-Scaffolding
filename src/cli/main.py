@@ -1,17 +1,17 @@
 import typer
 
+import cli.agent as agent
 import cli.batch_ops as batch_ops
+import cli.chatgpt as chatgpt
 import cli.classify as classify
 import cli.cluster as cluster
-import cli.embed as embed
-import cli.pipeline as pipeline
-import cli.parse as parse
-import cli.tokens as tokens
-import cli.search as search
-import cli.agent as agent
-import cli.chatgpt as chatgpt
 import cli.dedup as dedup
+import cli.embed as embed
 import cli.export as export
+import cli.parse as parse
+import cli.pipeline as pipeline
+import cli.search as search
+import cli.tokens as tokens
 
 app = typer.Typer()
 

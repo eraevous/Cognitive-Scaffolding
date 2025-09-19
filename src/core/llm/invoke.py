@@ -53,9 +53,8 @@ import json
 from pathlib import Path
 from typing import Literal, Optional
 
-import openai
-from openai import OpenAI
 import tiktoken
+from openai import OpenAI
 
 from core.config.remote_config import RemoteConfig
 from core.utils.budget_tracker import get_budget_tracker
@@ -84,7 +83,7 @@ def run_openai_completion(
     model: str = "gpt-4",
     temperature: float = 0.4,
     max_tokens: int = 700,
-    api_key: Optional[str] = None
+    api_key: Optional[str] = None,
 ) -> str:
     client = OpenAI(api_key=api_key or RemoteConfig.from_file().openai_api_key)
     tracker = get_budget_tracker()
@@ -92,10 +91,9 @@ def run_openai_completion(
     if tracker:
         enc = tiktoken.encoding_for_model(model)
         prompt_tokens = len(enc.encode(prompt, disallowed_special=()))
-        est_cost = (
-            prompt_tokens / 1000 * LLM_PROMPT_COST_PER_1K.get(model, 0)
-            + max_tokens / 1000 * LLM_COMPLETION_COST_PER_1K.get(model, 0)
-        )
+        est_cost = prompt_tokens / 1000 * LLM_PROMPT_COST_PER_1K.get(
+            model, 0
+        ) + max_tokens / 1000 * LLM_COMPLETION_COST_PER_1K.get(model, 0)
         if not tracker.check(est_cost):
             raise RuntimeError("Budget exceeded for completion request")
 
@@ -103,7 +101,7 @@ def run_openai_completion(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=temperature,
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
     return response.choices[0].message.content.strip()
 
@@ -113,7 +111,7 @@ def summarize_text(
     doc_type: Literal["standard", "chatlog"] = "standard",
     model: str = "gpt-4",
     prompt_override: Optional[str] = None,
-    config: Optional[RemoteConfig] = None
+    config: Optional[RemoteConfig] = None,
 ) -> dict:
     config = config or RemoteConfig.from_file()
 
@@ -125,19 +123,19 @@ def summarize_text(
         prompt = base_prompt.format(text=text)
 
     raw_response = run_openai_completion(
-        prompt=prompt,
-        model=model,
-        temperature=0.4,
-        api_key=config.openai_api_key
+        prompt=prompt, model=model, temperature=0.4, api_key=config.openai_api_key
     )
 
     try:
         return json.loads(raw_response)
     except json.JSONDecodeError as e:
-        raise ValueError(f"Could not parse OpenAI response as JSON:\n{raw_response}") from e
+        raise ValueError(
+            f"Could not parse OpenAI response as JSON:\n{raw_response}"
+        ) from e
 
 
 # test_core_llm_invoke.py
+
 
 def test_summarize_text_standard():
     example_text = """

@@ -4,19 +4,13 @@ import pytest
 
 pytest.skip("Demo script not meant for pytest", allow_module_level=True)
 
-from core.config.config_registry import get_path_config, get_remote_config
-from core.embeddings.embedder import generate_embeddings
-from core.workflows.main_commands import pipeline_from_upload
-from scripts.pipeline import run_full_pipeline
+from core.clustering.clustering_steps import (run_clustering,
+                                              run_dimensionality_reduction,
+                                              run_export, run_labeling)
 from core.config.config_registry import get_path_config
-from core.clustering.clustering_steps import (
-    run_dimensionality_reduction,
-    run_clustering,
-    run_labeling,
-    run_export,
-)
+from scripts.pipeline import run_full_pipeline
 
-#pipeline_from_upload("mydoc.pdf")
+# pipeline_from_upload("mydoc.pdf")
 
 # generate_embeddings(
 #     #source_dir=Path("metadata"),

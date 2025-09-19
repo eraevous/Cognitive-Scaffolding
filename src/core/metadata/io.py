@@ -47,7 +47,9 @@ from core.metadata.schema import validate_metadata
 from core.storage.local import load_json, save_json
 
 
-def save_metadata(filename: str, metadata: dict, meta_dir: Path = Path("metadata")) -> str:
+def save_metadata(
+    filename: str, metadata: dict, meta_dir: Path = Path("metadata")
+) -> str:
     """
     Validates and saves metadata to disk as a .meta.json file.
 

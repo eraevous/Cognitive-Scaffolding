@@ -47,7 +47,7 @@ class RemoteConfig:
         region: str,
         root: Union[str, Path],
         openai_api_key: str,
-        prefixes: dict
+        prefixes: dict,
     ):
         self.root = Path(root).expanduser().resolve()
         self.bucket_name = bucket_name
@@ -66,7 +66,10 @@ class RemoteConfig:
         )
 
     @classmethod
-    def from_file(cls, config_path: Union[str, Path] = Path(__file__).parent / "remote_config.json"):
+    def from_file(
+        cls,
+        config_path: Union[str, Path] = Path(__file__).parent / "remote_config.json",
+    ):
         """
         Load a RemoteConfig from a JSON file.
 
@@ -92,7 +95,14 @@ class RemoteConfig:
         with open(config_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        required_keys = ["bucket_name", "lambda_name", "region", "root", "openai_api_key", "prefixes"]
+        required_keys = [
+            "bucket_name",
+            "lambda_name",
+            "region",
+            "root",
+            "openai_api_key",
+            "prefixes",
+        ]
         missing = [k for k in required_keys if k not in data]
         if missing:
             raise KeyError(f"Missing required remote config fields: {missing}")
@@ -103,5 +113,5 @@ class RemoteConfig:
             region=data["region"],
             root=data["root"],
             openai_api_key=data["openai_api_key"],
-            prefixes=data["prefixes"]
+            prefixes=data["prefixes"],
         )

@@ -45,7 +45,6 @@ It includes retry logic, structured result unpacking, and error handling for mal
 import json
 import random
 import time
-from pathlib import Path
 
 from config.remote_config import RemoteConfig
 
@@ -73,7 +72,7 @@ def invoke_summary(s3_filename: str, override_text: str = None) -> str:
                 FunctionName=remote.lambda_name,
                 InvocationType="RequestResponse",
                 Payload=json.dumps(payload).encode("utf-8"),
-                LogType="Tail"
+                LogType="Tail",
             )
             return response["Payload"].read().decode("utf-8")
         except Exception as e:
@@ -88,7 +87,9 @@ def invoke_chatlog_summary(s3_filename: str) -> str:
     s3 = get_s3_client()
     key = f"{PARSED_PREFIX}{s3_filename}"
 
-    prompt_text = s3.get_object(Bucket=remote.bucket_name, Key=key)['Body'].read().decode('utf-8')
+    prompt_text = (
+        s3.get_object(Bucket=remote.bucket_name, Key=key)["Body"].read().decode("utf-8")
+    )
 
     body = {
         "messages": [
@@ -111,19 +112,19 @@ Return JSON with:
 Text:
 
 {prompt_text}
-"""
+""",
             }
         ],
         "max_tokens": 700,
         "temperature": 0.4,
-        "anthropic_version": "bedrock-2023-05-31"
+        "anthropic_version": "bedrock-2023-05-31",
     }
 
     response = lambda_client.invoke(
         FunctionName=LAMBDA_NAME,
         InvocationType="RequestResponse",
         Payload=json.dumps({"bucket": BUCKET_NAME, "key": key}).encode("utf-8"),
-        LogType="Tail"
+        LogType="Tail",
     )
     return response["Payload"].read().decode("utf-8")
 
@@ -132,7 +133,11 @@ def unpack_lambda_claude_result(raw_payload: str):
     try:
         parsed = json.loads(raw_payload)
 
-        if isinstance(parsed, dict) and "body" in parsed and isinstance(parsed["body"], str):
+        if (
+            isinstance(parsed, dict)
+            and "body" in parsed
+            and isinstance(parsed["body"], str)
+        ):
             try:
                 return json.loads(parsed["body"])
             except json.JSONDecodeError as e:

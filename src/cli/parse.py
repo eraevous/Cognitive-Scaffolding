@@ -1,5 +1,7 @@
-import typer
 from pathlib import Path
+
+import typer
+
 from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
 from core.storage.upload_local import prepare_document_for_processing
@@ -7,7 +9,9 @@ from core.storage.upload_local import prepare_document_for_processing
 app = typer.Typer(help="Parse documents into text with optional path overrides")
 
 
-def _resolve_paths(root: Path | None, raw: Path | None, parsed: Path | None, metadata: Path | None) -> PathConfig:
+def _resolve_paths(
+    root: Path | None, raw: Path | None, parsed: Path | None, metadata: Path | None
+) -> PathConfig:
     base = get_path_config()
     return PathConfig(
         root=root or base.root,
@@ -37,7 +41,9 @@ def run(
         for file in sorted(input_path.glob("*")):
             prepare_document_for_processing(file, paths=paths)
     else:
-        prepare_document_for_processing(input_path, parsed_name=parsed_name, paths=paths)
+        prepare_document_for_processing(
+            input_path, parsed_name=parsed_name, paths=paths
+        )
 
 
 if __name__ == "__main__":

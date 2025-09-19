@@ -1,6 +1,6 @@
+import json
 from pathlib import Path
 from typing import Optional
-import json
 
 from core.config.config_registry import get_path_config
 

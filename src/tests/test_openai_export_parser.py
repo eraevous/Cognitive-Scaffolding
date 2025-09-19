@@ -1,9 +1,10 @@
 import json
-import zipfile
 import sys
-import pytest
+import zipfile
 from pathlib import Path
 from typing import Dict, List
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
@@ -22,7 +23,10 @@ def make_export_zip(tmp_path: Path) -> Path:
                     "children": ["2"],
                     "message": {
                         "author": {"role": "system"},
-                        "content": {"content_type": "text", "parts": ["You are ChatGPT"]},
+                        "content": {
+                            "content_type": "text",
+                            "parts": ["You are ChatGPT"],
+                        },
                     },
                 },
                 "2": {
@@ -59,9 +63,7 @@ def make_nested_export_zip(tmp_path: Path) -> Path:
     ]
     export_zip = tmp_path / "nested.zip"
     with zipfile.ZipFile(export_zip, "w") as zf:
-        zf.writestr(
-            "ChatGPT Export/conversations.json", json.dumps(conversations)
-        )
+        zf.writestr("ChatGPT Export/conversations.json", json.dumps(conversations))
     return export_zip
 
 
@@ -76,7 +78,8 @@ def test_parse_export(tmp_path: Path):
     assert prompt_file.exists()
     assert "USER: Hello" in convo_file.read_text()
     assert prompt_file.read_text().strip() == "Hello"
-    
+
+
 def test_parse_export_markdown(tmp_path: Path):
     export_zip = make_export_zip(tmp_path)
     out_dir = tmp_path / "out_md"
@@ -126,6 +129,7 @@ def test_extract_messages_skips_invalid_nodes(tmp_path: Path):
     text = convo_file.read_text().strip()
     assert text == "USER: Hello"
 
+
 def test_extract_messages_ignores_nonstring_parts(tmp_path: Path):
     export_zip = make_export_zip(tmp_path)
     # modify export to include a dict part representing an image
@@ -157,7 +161,10 @@ def test_parse_export_sanitizes_slashes(tmp_path: Path):
                     "children": ["2"],
                     "message": {
                         "author": {"role": "system"},
-                        "content": {"content_type": "text", "parts": ["You are ChatGPT"]},
+                        "content": {
+                            "content_type": "text",
+                            "parts": ["You are ChatGPT"],
+                        },
                     },
                 },
                 "2": {
@@ -187,4 +194,3 @@ def test_parse_export_sanitizes_slashes(tmp_path: Path):
     out_dir = tmp_path / "out_slash"
     parse_chatgpt_export(export_zip, out_dir)
     assert (out_dir / "0000_bs_ai_evaluation.txt").exists()
-

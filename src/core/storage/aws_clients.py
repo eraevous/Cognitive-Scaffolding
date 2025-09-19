@@ -46,7 +46,9 @@ from typing import Optional
 import boto3
 
 
-def get_s3_client(profile: Optional[str] = None, region: str = "us-east-1") -> boto3.client:
+def get_s3_client(
+    profile: Optional[str] = None, region: str = "us-east-1"
+) -> boto3.client:
     """
     Create and return a boto3 S3 client.
 
@@ -65,7 +67,9 @@ def get_s3_client(profile: Optional[str] = None, region: str = "us-east-1") -> b
     return session.client("s3")
 
 
-def get_lambda_client(profile: Optional[str] = None, region: str = "us-east-1") -> boto3.client:
+def get_lambda_client(
+    profile: Optional[str] = None, region: str = "us-east-1"
+) -> boto3.client:
     """
     Create and return a boto3 Lambda client.
 

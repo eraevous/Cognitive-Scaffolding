@@ -58,6 +58,7 @@ from core.workflows.main_commands import (classify, pipeline_from_upload,
 
 app = typer.Typer()
 
+
 @app.command()
 def classify_all(
     chunked: bool = False,

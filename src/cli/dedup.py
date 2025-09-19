@@ -1,10 +1,12 @@
 from pathlib import Path
+
 import typer
 
 from core.config.config_registry import get_path_config
 from core.utils.dedup import dedup_lines_in_folder
 
 app = typer.Typer()
+
 
 @app.command()
 def dedup_prompts(
@@ -19,4 +21,3 @@ def dedup_prompts(
         out_file = Path("dedup.txt")
     dedup_lines_in_folder(prompt_dir, out_file)
     typer.echo(f"✅ Wrote deduped lines to {out_file}")
-

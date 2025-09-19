@@ -1,11 +1,11 @@
+import hashlib
 from pathlib import Path
 from typing import Iterable, List, Tuple
-import hashlib
-
-from core.utils.logger import get_logger
 
 import faiss
 import numpy as np
+
+from core.utils.logger import get_logger
 
 
 class FaissStore:

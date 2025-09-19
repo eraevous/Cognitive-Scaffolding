@@ -13,12 +13,14 @@ import numpy as np
 import tiktoken
 import umap
 
-from .semantic_chunk import semantic_chunk_text
 from core.embeddings.embedder import embed_text
 from core.utils.logger import get_logger
+
 from .chunk_text import chunk_text
+from .semantic_chunk import semantic_chunk_text
 
 logger = get_logger(__name__)
+
 
 def topic_segmenter(text: str, model: str = "text-embedding-3-small") -> List[str]:
     """Segment text by topic using semantic chunking with a fallback."""
@@ -27,9 +29,11 @@ def topic_segmenter(text: str, model: str = "text-embedding-3-small") -> List[st
         return chunk_text(text)
     return chunks
 
+
 def segment_text(text: str) -> List[str]:
     """Return semantic segments of ``text`` using :func:`semantic_chunk_text`."""
     return semantic_chunk_text(text)
+
 
 def segment_topics(
     text: str,
@@ -70,19 +74,14 @@ def segment_topics(
 
     X = np.asarray(windows, dtype="float32")
     reducer = umap.UMAP(
-        **(
-            umap_config
-            or {"n_neighbors": 15, "min_dist": 0.1, "random_state": 42}
-        )
+        **(umap_config or {"n_neighbors": 15, "min_dist": 0.1, "random_state": 42})
     )
     X_red = reducer.fit_transform(X)
 
     if cluster_method != "hdbscan":
         logger.warning("Unsupported cluster_method %s; using hdbscan", cluster_method)
 
-    clusterer = hdbscan.HDBSCAN(
-        **(hdbscan_config or {"min_cluster_size": 2})
-    )
+    clusterer = hdbscan.HDBSCAN(**(hdbscan_config or {"min_cluster_size": 2}))
     labels = clusterer.fit_predict(X_red)
 
     logger.info(
@@ -107,7 +106,7 @@ def segment_topics(
 
     segments.append(
         {
-            "text": enc.decode(tokens[current_start: len(tokens)]),
+            "text": enc.decode(tokens[current_start : len(tokens)]),
             "start": current_start,
             "end": len(tokens),
             "cluster_id": current_label,

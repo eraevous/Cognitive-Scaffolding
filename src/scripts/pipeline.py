@@ -20,7 +20,7 @@ def run_full_pipeline(
     1. Upload + parse
     2. Classify
     3. Generate embeddings
-    
+
     Args:
         input_dir (Path): Folder containing source documents
         chunked (bool): Use chunking for classification

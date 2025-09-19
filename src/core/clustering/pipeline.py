@@ -85,7 +85,7 @@ def cluster_dict(labels, doc_ids):
 def run_clustering_pipeline(
     embedding_path: Path = Path("rich_doc_embeddings.json"),
     metadata_dir: Path = Path("metadata"),
-    out_dir: Path = Path("output")
+    out_dir: Path = Path("output"),
 ):
     doc_ids, X = load_embeddings(embedding_path)
     X_umap, labels_hdb, labels_spec = cluster_embeddings(X)
@@ -102,16 +102,30 @@ def run_clustering_pipeline(
     # Build shared UMAP dataframe
     umap_df = pd.DataFrame(X_umap, columns=["x", "y"])
     umap_df["doc"] = doc_ids
-    umap_df["cluster_hdb"] = [assignments_hdb.get(doc.lower(), "Noise") for doc in doc_ids]
-    umap_df["cluster_spec"] = [assignments_spec.get(doc.lower(), "Unknown") for doc in doc_ids]
+    umap_df["cluster_hdb"] = [
+        assignments_hdb.get(doc.lower(), "Noise") for doc in doc_ids
+    ]
+    umap_df["cluster_spec"] = [
+        assignments_spec.get(doc.lower(), "Unknown") for doc in doc_ids
+    ]
 
-    plot_umap_clusters(umap_df, "cluster_hdb", "UMAP - HDBSCAN Clusters", str(out_dir / "umap_hdbscan.png"))
-    plot_umap_clusters(umap_df, "cluster_spec", "UMAP - Spectral Clusters", str(out_dir / "umap_spectral.png"))
+    plot_umap_clusters(
+        umap_df,
+        "cluster_hdb",
+        "UMAP - HDBSCAN Clusters",
+        str(out_dir / "umap_hdbscan.png"),
+    )
+    plot_umap_clusters(
+        umap_df,
+        "cluster_spec",
+        "UMAP - Spectral Clusters",
+        str(out_dir / "umap_spectral.png"),
+    )
 
     export_clusters_and_summary(
         cluster_maps={"hdbscan": clusters_hdb, "spectral": clusters_spec},
         assignments=assignments_hdb,
         umap_df=umap_df,
         metadata_dir=metadata_dir,
-        out_dir=out_dir
+        out_dir=out_dir,
     )

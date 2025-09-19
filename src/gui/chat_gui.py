@@ -9,7 +9,8 @@ import tiktoken
 from openai import OpenAI
 
 from core.config.config_registry import get_remote_config
-from core.llm.invoke import LLM_COMPLETION_COST_PER_1K, LLM_PROMPT_COST_PER_1K  # type: ignore
+from core.llm.invoke import LLM_COMPLETION_COST_PER_1K  # type: ignore
+from core.llm.invoke import LLM_PROMPT_COST_PER_1K
 from core.utils.budget_tracker import get_budget_tracker  # type: ignore
 
 
@@ -28,10 +29,9 @@ def run_openai_chat(
         enc = tiktoken.encoding_for_model(model)
         joined = "".join(m["content"] for m in messages)
         prompt_tokens = len(enc.encode(joined, disallowed_special=()))
-        est_cost = (
-            prompt_tokens / 1000 * LLM_PROMPT_COST_PER_1K.get(model, 0)
-            + max_tokens / 1000 * LLM_COMPLETION_COST_PER_1K.get(model, 0)
-        )
+        est_cost = prompt_tokens / 1000 * LLM_PROMPT_COST_PER_1K.get(
+            model, 0
+        ) + max_tokens / 1000 * LLM_COMPLETION_COST_PER_1K.get(model, 0)
         if not tracker.check(est_cost):
             raise RuntimeError("Budget exceeded for chat request")
 

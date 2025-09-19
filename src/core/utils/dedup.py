@@ -18,4 +18,3 @@ def dedup_lines_in_folder(folder: Path, output_file: Path) -> None:
     with output_file.open("w", encoding="utf-8") as out:
         for line in sorted(unique):
             out.write(line + "\n")
-

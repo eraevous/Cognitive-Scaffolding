@@ -48,16 +48,15 @@ This CLI tool uses static analysis to parse Python source code and extract funct
 import ast
 import json
 import os
-from collections import defaultdict
+import tokenize
 from pathlib import Path
 from typing import Dict, List, Tuple
-import tokenize
 
-import networkx as nx
 import pandas as pd
 import typer
 
 app = typer.Typer()
+
 
 class ASTDependencyExtractor:
     def __init__(self):
@@ -149,9 +148,7 @@ def collect_py_files(root_dir: Path, ignore_dirs: List[str]):
     for dirpath, dirnames, filenames in os.walk(root_dir):
         rel_dir = Path(dirpath).relative_to(root_dir)
         dirnames[:] = [
-            d
-            for d in dirnames
-            if not should_ignore_dir(rel_dir / d, ignore_dirs)
+            d for d in dirnames if not should_ignore_dir(rel_dir / d, ignore_dirs)
         ]
         files = [f for f in filenames if f.endswith(".py")]
         if files:
@@ -175,8 +172,12 @@ def analyze(
         help="Comma-separated relative paths to ignore under source_dir.",
     ),
     output: Path = typer.Option(None, help="Optional CSV output file."),
-    matrix: bool = typer.Option(False, help="Output as adjacency matrix instead of edge list."),
-    config: Path = typer.Option(Path(".graphconfig.json"), help="Optional path to graph config JSON file.")
+    matrix: bool = typer.Option(
+        False, help="Output as adjacency matrix instead of edge list."
+    ),
+    config: Path = typer.Option(
+        Path(".graphconfig.json"), help="Optional path to graph config JSON file."
+    ),
 ):
     """Extract function call dependencies from Python code."""
     config_data = load_graph_config(config)
@@ -187,7 +188,9 @@ def analyze(
     files = collect_py_files(source_path, ignore_dirs_list)
     for rel_path, py_paths in files.items():
         for file_path in py_paths:
-            mod_name = str(rel_path / file_path.name).replace("/", ".").replace(".py", "")
+            mod_name = (
+                str(rel_path / file_path.name).replace("/", ".").replace(".py", "")
+            )
             extractor.process_file(str(file_path), module_name=mod_name)
 
     edges = extractor.get_function_edges()
@@ -202,6 +205,7 @@ def analyze(
         typer.echo(f"✅ Output written to {output}")
     else:
         typer.echo(df)
+
 
 if __name__ == "__main__":
     app()

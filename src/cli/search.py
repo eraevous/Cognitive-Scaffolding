@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import typer
 
 from core.retrieval.retriever import Retriever

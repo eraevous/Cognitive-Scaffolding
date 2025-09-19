@@ -50,14 +50,16 @@ from core.parsing.extract_text import extract_text
 from core.storage.aws_clients import get_s3_client
 
 
-def save_upload_stub(source_file: str, parsed_file: str, ext: str, paths: PathConfig, remote: RemoteConfig):
+def save_upload_stub(
+    source_file: str,
+    parsed_file: str,
+    ext: str,
+    paths: PathConfig,
+    remote: RemoteConfig,
+):
     s3 = get_s3_client(region=remote.region)
 
-    stub = {
-        "source_file": source_file,
-        "parsed_file": parsed_file,
-        "source_ext": ext
-    }
+    stub = {"source_file": source_file, "parsed_file": parsed_file, "source_ext": ext}
 
     stub_filename = Path(parsed_file).name + ".stub.json"
     local_path = paths.metadata / stub_filename
@@ -68,25 +70,43 @@ def save_upload_stub(source_file: str, parsed_file: str, ext: str, paths: PathCo
     s3.put_object(
         Bucket=remote.bucket_name,
         Key=f"{remote.prefixes['stub']}{stub_filename}",
-        Body=json.dumps(stub, indent=2).encode("utf-8")
+        Body=json.dumps(stub, indent=2).encode("utf-8"),
     )
-    print(f"📤 Uploaded stub to: s3://{remote.bucket_name}/{remote.prefixes['stub']}{stub_filename}")
+    print(
+        f"📤 Uploaded stub to: s3://{remote.bucket_name}/{remote.prefixes['stub']}{stub_filename}"
+    )
 
     return stub
 
 
-def upload_file(file_name: str, parsed_name: str = None, paths: PathConfig = None, remote: RemoteConfig = None):
-    remote = remote or RemoteConfig.from_file(Path(__file__).parent.parent / "config" / "remote_config.json")
-    paths = paths or PathConfig.from_file(Path(__file__).parent.parent / "config" / "path_config.json")
+def upload_file(
+    file_name: str,
+    parsed_name: str = None,
+    paths: PathConfig = None,
+    remote: RemoteConfig = None,
+):
+    remote = remote or RemoteConfig.from_file(
+        Path(__file__).parent.parent / "config" / "remote_config.json"
+    )
+    paths = paths or PathConfig.from_file(
+        Path(__file__).parent.parent / "config" / "path_config.json"
+    )
     s3 = get_s3_client(region=remote.region)
 
     file_path = paths.raw / file_name
     original_name = file_path.name
-    parsed_name = parsed_name or file_path.stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
+    parsed_name = (
+        parsed_name
+        or file_path.stem.replace(" ", "_").replace("-", "_").lower() + ".txt"
+    )
 
     # Upload original to raw/
-    s3.upload_file(str(file_path), remote.bucket_name, f"{remote.prefixes['raw']}{original_name}")
-    print(f"📤 Uploaded original to: s3://{remote.bucket_name}/{remote.prefixes['raw']}{original_name}")
+    s3.upload_file(
+        str(file_path), remote.bucket_name, f"{remote.prefixes['raw']}{original_name}"
+    )
+    print(
+        f"📤 Uploaded original to: s3://{remote.bucket_name}/{remote.prefixes['raw']}{original_name}"
+    )
 
     try:
         text = extract_text(str(file_path))
@@ -97,14 +117,16 @@ def upload_file(file_name: str, parsed_name: str = None, paths: PathConfig = Non
     s3.put_object(
         Bucket=remote.bucket_name,
         Key=f"{remote.prefixes['parsed']}{parsed_name}",
-        Body=text.encode("utf-8")
+        Body=text.encode("utf-8"),
     )
-    print(f"📤 Uploaded parsed version to: s3://{remote.bucket_name}/{remote.prefixes['parsed']}{parsed_name}")
+    print(
+        f"📤 Uploaded parsed version to: s3://{remote.bucket_name}/{remote.prefixes['parsed']}{parsed_name}"
+    )
 
     return save_upload_stub(
         source_file=f"{remote.prefixes['raw']}{original_name}",
         parsed_file=f"{remote.prefixes['parsed']}{parsed_name}",
         ext=file_path.suffix.lower().lstrip("."),
         paths=paths,
-        remote=remote
+        remote=remote,
     )

@@ -1,19 +1,17 @@
 # core/embeddings/embedder.py
+import hashlib
 import json
 from pathlib import Path
 from typing import Dict, List, Literal
-import hashlib
 
-from openai import OpenAI
 import numpy as np
 import tiktoken
-
-from core.utils.budget_tracker import get_budget_tracker
+from openai import OpenAI
 
 from core.config.config_registry import get_path_config, get_remote_config
-from core.vectorstore.faiss_store import FaissStore
+from core.utils.budget_tracker import get_budget_tracker
 from core.utils.logger import get_logger
-
+from core.vectorstore.faiss_store import FaissStore
 
 MAX_EMBED_TOKENS = 8191
 MODEL_DIMS = {
@@ -30,6 +28,7 @@ EMBED_COST_PER_1K = {
 def get_model_for_dim(dim: int) -> str:
     """Return embedding model name corresponding to FAISS index dimension."""
     return MODEL_BY_DIM.get(dim, "text-embedding-3-small")
+
 
 logger = get_logger(__name__)
 
@@ -121,9 +120,11 @@ def generate_embeddings(
         try:
             if segment_mode:
                 from core.parsing.semantic_chunk import semantic_chunk
+
                 segments = semantic_chunk(text, model=model)
             else:
                 from core.parsing.chunk_text import chunk_text
+
                 segments = [
                     {"text": t, "embedding": embed_text(t, model=model)}
                     for t in chunk_text(text)
@@ -132,10 +133,13 @@ def generate_embeddings(
             if len(segments) == 1 and not segment_mode:
                 vector = segments[0]["embedding"]
                 embeddings[doc_id] = vector
-                hashed_id = int.from_bytes(
-                    hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
-                    "big",
-                ) & 0x7FFF_FFFF_FFFF_FFFF
+                hashed_id = (
+                    int.from_bytes(
+                        hashlib.blake2b(doc_id.encode("utf-8"), digest_size=8).digest(),
+                        "big",
+                    )
+                    & 0x7FFF_FFFF_FFFF_FFFF
+                )
                 store.add([hashed_id], [vector])
                 id_map[str(hashed_id)] = doc_id
             else:

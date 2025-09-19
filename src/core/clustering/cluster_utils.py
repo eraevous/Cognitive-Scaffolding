@@ -61,8 +61,7 @@ def cluster_dict(labels: List[int], doc_ids: List[str]) -> Dict[str, List[str]]:
 
 
 def flatten_cluster_map(
-    cluster_map: Dict[str, List[str]],
-    label_map: Dict[str, str]
+    cluster_map: Dict[str, List[str]], label_map: Dict[str, str]
 ) -> Dict[str, str]:
     """
     Flatten cluster ID mappings and attach labels per document.
@@ -75,12 +74,7 @@ def flatten_cluster_map(
     return flat
 
 
-def plot_umap_clusters(
-    df: pd.DataFrame,
-    label_col: str,
-    title: str,
-    out_file: Path
-):
+def plot_umap_clusters(df: pd.DataFrame, label_col: str, title: str, out_file: Path):
     """
     Generate and save a UMAP cluster plot.
     """
@@ -90,9 +84,16 @@ def plot_umap_clusters(
 
     for i, label in enumerate(labels):
         sub = df[df[label_col] == label]
-        plt.scatter(sub["x"], sub["y"], label=label, alpha=0.7, s=50, color=colors[i % len(colors)])
+        plt.scatter(
+            sub["x"],
+            sub["y"],
+            label=label,
+            alpha=0.7,
+            s=50,
+            color=colors[i % len(colors)],
+        )
 
-    plt.legend(loc='best', fontsize=9)
+    plt.legend(loc="best", fontsize=9)
     plt.title(title)
     plt.tight_layout()
     plt.savefig(out_file)

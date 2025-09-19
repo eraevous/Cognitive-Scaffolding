@@ -70,7 +70,9 @@ def chunk_text(text: str, max_chars: int = 14000) -> List[str]:
             if current.strip():
                 chunks.append(current.strip())
                 current = ""
-            sub_chunks = [para[i:i+max_chars] for i in range(0, len(para), max_chars)]
+            sub_chunks = [
+                para[i : i + max_chars] for i in range(0, len(para), max_chars)
+            ]
             chunks.extend(sub_chunks)
             continue
 

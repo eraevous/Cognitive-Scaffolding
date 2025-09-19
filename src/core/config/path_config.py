@@ -60,10 +60,14 @@ class PathConfig:
         self.root = Path(root).expanduser().resolve() if root else Path(".").resolve()
         self.raw = self._resolve_path_relative_to_root(raw, default="raw")
         self.parsed = self._resolve_path_relative_to_root(parsed, default="parsed")
-        self.metadata = self._resolve_path_relative_to_root(metadata, default="metadata")
+        self.metadata = self._resolve_path_relative_to_root(
+            metadata, default="metadata"
+        )
         self.output = self._resolve_path_relative_to_root(output, default="output")
         self.vector = self._resolve_path_relative_to_root(vector, default="vector")
-        self.schema = self._resolve_path_relative_to_root(schema, default="config/metadata_schema.json")
+        self.schema = self._resolve_path_relative_to_root(
+            schema, default="config/metadata_schema.json"
+        )
         self.semantic_chunking = bool(semantic_chunking)
 
     def __repr__(self):
@@ -83,10 +87,14 @@ class PathConfig:
             path = Path(path_value or default)
             return path if path.is_absolute() else (self.root / path).resolve()
         except Exception as e:
-            raise ValueError(f"Failed to resolve path relative to root: {path_value}\n{e}")
+            raise ValueError(
+                f"Failed to resolve path relative to root: {path_value}\n{e}"
+            )
 
     @classmethod
-    def from_file(cls, config_path: Union[str, Path] = Path("core/config/path_config.json")):
+    def from_file(
+        cls, config_path: Union[str, Path] = Path("core/config/path_config.json")
+    ):
         """
         Load a PathConfig from a JSON file.
 
@@ -116,5 +124,5 @@ class PathConfig:
             output=config.get("output"),
             vector=config.get("vector"),
             schema=config.get("schema"),
-            semantic_chunking=config.get("semantic_chunking", False)
+            semantic_chunking=config.get("semantic_chunking", False),
         )

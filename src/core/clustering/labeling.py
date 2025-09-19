@@ -60,7 +60,7 @@ def label_clusters(
     labels: List[int],
     metadata_dir,
     model: str = "gpt-4",
-    preview: bool = True
+    preview: bool = True,
 ) -> Dict[str, str]:
     """
     Generate GPT labels for each cluster.
@@ -105,7 +105,7 @@ def label_clusters(
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.4
+                temperature=0.4,
             )
             label = response.choices[0].message.content.strip()
         except Exception as e:

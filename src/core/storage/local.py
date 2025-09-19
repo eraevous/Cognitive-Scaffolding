@@ -41,7 +41,6 @@ intermediate storage in local environments.
 """
 
 
-
 import json
 from pathlib import Path
 from typing import Union

@@ -30,6 +30,7 @@ def _resolve_paths(
         semantic_chunking=base.semantic_chunking,
     )
 
+
 @app.command()
 def run_all(
     input_dir: Path = typer.Option(..., help="Directory with raw input documents"),
