@@ -1,6 +1,10 @@
 from typing import Iterable
 
+from core.logger import get_logger
 from core.retrieval.retriever import Retriever
+
+
+logger = get_logger(__name__)
 
 
 class AgentSession:
@@ -21,4 +25,4 @@ def run_agents(prompt: str, roles: Iterable[str]) -> None:
     sessions = [AgentSession(role, retriever) for role in roles]
     for session in sessions:
         result = session.step(prompt)
-        print(session.role, result)
+        logger.info("%s %s", session.role, result)

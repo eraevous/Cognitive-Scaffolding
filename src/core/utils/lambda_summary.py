@@ -4,6 +4,7 @@ import time
 
 from config.remote_config import RemoteConfig
 
+from core.logger import get_logger
 from core.storage.aws_clients import get_lambda_client, get_s3_client
 
 """
@@ -52,6 +53,7 @@ It includes retry logic, structured result unpacking, and error handling for mal
 remote = RemoteConfig.from_file()
 
 lambda_client = get_lambda_client(region=remote.region)
+logger = get_logger(__name__)
 
 
 def invoke_summary(s3_filename: str, override_text: str = None) -> str:
@@ -76,7 +78,7 @@ def invoke_summary(s3_filename: str, override_text: str = None) -> str:
             return response["Payload"].read().decode("utf-8")
         except Exception as e:
             wait = 2 + random.random() * 2
-            print(f"[red]Retrying ({attempt+1}/5) after error: {e}[/red]")
+            logger.warning("Retrying (%d/5) after error: %s", attempt + 1, e)
             time.sleep(wait)
 
     return json.dumps({"error": "Exceeded retries", "key": key})

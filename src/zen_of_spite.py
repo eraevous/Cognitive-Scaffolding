@@ -1,8 +1,7 @@
 # zen_of_spite.py
-"""
-The Zen of Spite — a manifesto for the fed-up, the betrayed, and the battle-scarred.
-A direct response to 'import this' and the sanctimony of 'Pythonic' dogma.
-"""
+"""The Zen of Spite manifesto output helper."""
+
+from core.logger import get_logger
 
 spite_verses = [
     "There are fifteen inconsistent ways to do anything, and all of them are half-documented.",
@@ -25,6 +24,7 @@ spite_verses = [
 
 
 if __name__ == "__main__":
-    print("\nThe Zen of Spite — Dedicated to everyone who saw through the bullshit:\n")
+    logger = get_logger(__name__)
+    logger.info("The Zen of Spite — Dedicated to everyone who saw through the bullshit:")
     for line in spite_verses:
-        print(f"• {line}")
+        logger.info("• %s", line)

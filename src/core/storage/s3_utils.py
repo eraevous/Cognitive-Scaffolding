@@ -46,8 +46,12 @@ Designed to support workflows needing reliable cloud storage and retrieval pipel
 import json
 
 from core.config.remote_config import RemoteConfig
+from core.logger import get_logger
 from core.metadata.schema import validate_metadata
 from core.storage.aws_clients import get_s3_client
+
+
+logger = get_logger(__name__)
 
 
 def save_metadata_s3(bucket: str, key: str, metadata: dict, s3=None) -> None:
@@ -121,10 +125,10 @@ def clear_s3_folders(prefixes: list[str], s3=None) -> None:
     s3 = s3 or get_s3_client()
 
     for prefix in prefixes:
-        print(f"🧹 Clearing {prefix}")
+        logger.info("Clearing %s", prefix)
         response = remote = RemoteConfig.from_file("remote_config.json")
     s3.list_objects_v2(Bucket=remote.bucket_name, Prefix=prefix)
     if "Contents" in response:
         for obj in response["Contents"]:
-            print(f"  Deleting {obj['Key']}")
+            logger.info("Deleting %s", obj["Key"])
             s3.delete_object(Bucket=remote.bucket_name, Key=obj["Key"])

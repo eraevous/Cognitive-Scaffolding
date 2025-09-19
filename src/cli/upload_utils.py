@@ -46,8 +46,12 @@ from pathlib import Path
 
 from core.config.path_config import PathConfig
 from core.config.remote_config import RemoteConfig
+from core.logger import get_logger
 from core.parsing.extract_text import extract_text
 from core.storage.aws_clients import get_s3_client
+
+
+logger = get_logger(__name__)
 
 
 def save_upload_stub(
@@ -65,15 +69,18 @@ def save_upload_stub(
     local_path = paths.metadata / stub_filename
     local_path.parent.mkdir(parents=True, exist_ok=True)
     local_path.write_text(json.dumps(stub, indent=2), encoding="utf-8")
-    print(f"💾 Saved stub locally: {local_path}")
+    logger.info("Saved stub locally: %s", local_path)
 
     s3.put_object(
         Bucket=remote.bucket_name,
         Key=f"{remote.prefixes['stub']}{stub_filename}",
         Body=json.dumps(stub, indent=2).encode("utf-8"),
     )
-    print(
-        f"📤 Uploaded stub to: s3://{remote.bucket_name}/{remote.prefixes['stub']}{stub_filename}"
+    logger.info(
+        "Uploaded stub to: s3://%s/%s%s",
+        remote.bucket_name,
+        remote.prefixes["stub"],
+        stub_filename,
     )
 
     return stub
@@ -104,14 +111,17 @@ def upload_file(
     s3.upload_file(
         str(file_path), remote.bucket_name, f"{remote.prefixes['raw']}{original_name}"
     )
-    print(
-        f"📤 Uploaded original to: s3://{remote.bucket_name}/{remote.prefixes['raw']}{original_name}"
+    logger.info(
+        "Uploaded original to: s3://%s/%s%s",
+        remote.bucket_name,
+        remote.prefixes["raw"],
+        original_name,
     )
 
     try:
         text = extract_text(str(file_path))
     except Exception as e:
-        print(f"❌ Failed to parse file {original_name}: {e}")
+        logger.error("Failed to parse file %s: %s", original_name, e)
         return
 
     s3.put_object(
@@ -119,8 +129,11 @@ def upload_file(
         Key=f"{remote.prefixes['parsed']}{parsed_name}",
         Body=text.encode("utf-8"),
     )
-    print(
-        f"📤 Uploaded parsed version to: s3://{remote.bucket_name}/{remote.prefixes['parsed']}{parsed_name}"
+    logger.info(
+        "Uploaded parsed version to: s3://%s/%s%s",
+        remote.bucket_name,
+        remote.prefixes["parsed"],
+        parsed_name,
     )
 
     return save_upload_stub(

@@ -6,7 +6,7 @@ import numpy as np
 
 from core.config.config_registry import get_path_config
 from core.embeddings.embedder import MODEL_DIMS, embed_text, get_model_for_dim
-from core.utils.logger import get_logger
+from core.logger import get_logger
 from core.vectorstore.faiss_store import FaissStore
 
 

@@ -1,16 +1,22 @@
 import pytest
 
-from core.clustering.clustering_steps import (run_clustering,
-                                              run_dimensionality_reduction,
-                                              run_export, run_labeling)
+from core.clustering.clustering_steps import (
+    run_clustering,
+    run_dimensionality_reduction,
+    run_export,
+    run_labeling,
+)
 from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
+from core.logger import get_logger
 from core.workflows.main_commands import classify
+
+logger = get_logger(__name__)
 
 pytest.skip("Skipping heavy clustering test", allow_module_level=True)
 
 def test_clustering_from_embeddings(tmp_path, monkeypatch):
-    print("🧪 Testing clustering from existing embeddings...")
+    logger.info("Testing clustering from existing embeddings...")
     paths = get_path_config()
     embedding_path = paths.root / "rich_doc_embeddings.json"
     metadata_dir = paths.metadata
@@ -19,8 +25,8 @@ def test_clustering_from_embeddings(tmp_path, monkeypatch):
     if not embedding_path.exists() or embedding_path.stat().st_size == 0:
         pytest.skip("embedding file missing")
 
-    print(f"Using {embedding_path} for testing.")
-    print(f"Using {metadata_dir} for testing.")
+    logger.info("Using %s for testing.", embedding_path)
+    logger.info("Using %s for testing.", metadata_dir)
     paths = get_path_config()
     embedding_path = paths.root / "rich_doc_embeddings.json"
     metadata_dir = paths.metadata
@@ -67,7 +73,7 @@ def test_clustering_from_embeddings(tmp_path, monkeypatch):
     assert out_dir.joinpath("cluster_assignments.csv").exists()
     assert out_dir.joinpath("cluster_summary.csv").exists()
     assert out_dir.joinpath("umap_plot.png").exists()
-    print("✅ Clustering from existing embeddings succeeded.")
+    logger.info("Clustering from existing embeddings succeeded.")
 
 
 if __name__ == "__main__":

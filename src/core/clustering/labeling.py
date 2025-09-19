@@ -53,6 +53,10 @@ from typing import Dict, List
 from openai import OpenAI
 
 from core.config.config_registry import get_remote_config
+from core.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 def label_clusters(
@@ -70,7 +74,7 @@ def label_clusters(
         labels: Cluster assignments (same order as doc_ids)
         metadata_dir: Path to .meta.json files
         model: OpenAI model
-        preview: Whether to print live output
+        preview: Whether to emit live output via logger
 
     Returns:
         cluster_id → label
@@ -110,9 +114,9 @@ def label_clusters(
             label = response.choices[0].message.content.strip()
         except Exception as e:
             label = "Unlabeled"
-            print(f"❌ {cluster_id}: {e}")
+            logger.error("%s labeling failed: %s", cluster_id, e)
         label_map[cluster_id] = label
         if preview:
-            print(f"{cluster_id}: {label}")
+            logger.info("%s: %s", cluster_id, label)
 
     return label_map

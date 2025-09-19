@@ -10,7 +10,7 @@ from openai import OpenAI
 
 from core.config.config_registry import get_path_config, get_remote_config
 from core.utils.budget_tracker import get_budget_tracker
-from core.utils.logger import get_logger
+from core.logger import get_logger
 from core.vectorstore.faiss_store import FaissStore
 
 MAX_EMBED_TOKENS = 8191

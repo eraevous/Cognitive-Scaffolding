@@ -9,6 +9,11 @@ import pandas as pd
 import umap
 from sklearn.cluster import SpectralClustering
 
+from core.logger import get_logger
+
+
+logger = get_logger(__name__)
+
 """
 Module: core_lib.clustering.cluster_helpers
 - @ai-path: core_lib.clustering.cluster_helpers
@@ -126,7 +131,7 @@ Provide a short (2–6 words) high-level label for this cluster:"""
         label = response.choices[0].message.content.strip()
         smart_labels[cluster_id] = label
         if preview:
-            print(f"{cluster_id}: {label}")
+            logger.info("%s: %s", cluster_id, label)
     return smart_labels
 
 
@@ -159,7 +164,7 @@ with open("output/cluster_assignments_hdb.json", "w") as f:
 with open("output/cluster_assignments_spectral.json", "w") as f:
     json.dump(assignments_spec, f, indent=2)
 
-print("✅ Cluster maps saved.")
+logger.info("Cluster maps saved.")
 
 # 📊 Label UMAP data
 umap_df["cluster_hdb"] = [assignments_hdb.get(doc.lower(), "Noise") for doc in doc_ids]
@@ -212,7 +217,7 @@ for doc in doc_ids:
         try:
             meta = json.load(f)
         except json.JSONDecodeError:
-            print(f"⚠️ Skipping malformed JSON: {meta_path}")
+            logger.warning("Skipping malformed JSON: %s", meta_path)
             continue
     records.append(
         {
@@ -228,4 +233,4 @@ for doc in doc_ids:
     )
 
 pd.DataFrame(records).to_csv("output/cluster_summary.csv", index=False)
-print("📋 cluster_summary.csv saved.")
+logger.info("cluster_summary.csv saved.")

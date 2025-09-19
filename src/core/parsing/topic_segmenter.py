@@ -14,7 +14,7 @@ import tiktoken
 import umap
 
 from core.embeddings.embedder import embed_text
-from core.utils.logger import get_logger
+from core.logger import get_logger
 
 from .chunk_text import chunk_text
 from .semantic_chunk import semantic_chunk_text

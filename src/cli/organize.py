@@ -52,7 +52,11 @@ import shutil
 from pathlib import Path
 from typing import Dict
 
+from core.logger import get_logger
 from core.metadata.io import load_metadata
+
+
+logger = get_logger(__name__)
 
 
 def organize_file(
@@ -76,7 +80,7 @@ def organize_file(
     """
     meta_path = meta_dir / f"{name}.meta.json"
     if not meta_path.exists():
-        print(f"[red]No metadata found for {name}[/red]")
+        logger.error("[red]No metadata found for %s[/red]", name)
         return
 
     meta = load_metadata(name, meta_dir)
@@ -94,9 +98,9 @@ def organize_file(
     parsed_dst = organized_path / parsed_file
     if parsed_src.exists():
         parsed_src.replace(parsed_dst)
-        print(f"[green]Moved parsed file to {parsed_dst}[/green]")
+        logger.info("[green]Moved parsed file to %s[/green]", parsed_dst)
     else:
-        print(f"[yellow]Parsed file missing: {parsed_src}[/yellow]")
+        logger.warning("[yellow]Parsed file missing: %s[/yellow]", parsed_src)
 
     source_file = meta.get("source_file")
     if source_file:
@@ -105,9 +109,9 @@ def organize_file(
         source_dst = organized_path / source_name
         if source_src.exists():
             source_src.replace(source_dst)
-            print(f"[cyan]Moved source file to {source_dst}[/cyan]")
+            logger.info("[cyan]Moved source file to %s[/cyan]", source_dst)
         else:
-            print(f"[yellow]Source file missing: {source_src}[/yellow]")
+            logger.warning("[yellow]Source file missing: %s[/yellow]", source_src)
 
     shutil.copy(meta_path, organized_path / meta_path.name)
-    print(f"[blue]Copied metadata to {organized_path / meta_path.name}[/blue]")
+    logger.info("[blue]Copied metadata to %s[/blue]", organized_path / meta_path.name)

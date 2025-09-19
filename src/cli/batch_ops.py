@@ -53,10 +53,15 @@ from pathlib import Path
 import typer
 
 from core.config.config_registry import get_path_config
-from core.workflows.main_commands import (classify, pipeline_from_upload,
-                                          upload_and_prepare)
+from core.logger import get_logger
+from core.workflows.main_commands import (
+    classify,
+    pipeline_from_upload,
+    upload_and_prepare,
+)
 
 app = typer.Typer()
+logger = get_logger(__name__)
 
 
 @app.command()
@@ -72,15 +77,15 @@ def classify_all(
         meta_path = paths.metadata / f"{name}.meta.json"
 
         if meta_path.exists() and not overwrite:
-            print(f"🟡 Skipping {name} (already classified)")
+            logger.info("Skipping %s (already classified)", name)
             continue
 
         try:
-            print(f"🔍 Classifying {name}...")
+            logger.info("Classifying %s...", name)
             classify(name, chunked=chunked, segmentation=segmentation)
-            print(f"✅ Done: {name}")
+            logger.info("Done: %s", name)
         except Exception as e:
-            print(f"❌ Error: {name} — {e}")
+            logger.error("Error: %s — %s", name, e)
 
 
 @app.command()
@@ -88,10 +93,10 @@ def upload_all(directory: Path):
     """Upload and parse all files in the given local directory."""
     for file in sorted(directory.glob("*")):
         try:
-            print(f"📤 Uploading {file.name}...")
+            logger.info("Uploading %s...", file.name)
             upload_and_prepare(file)
         except Exception as e:
-            print(f"❌ Failed on {file.name}: {e}")
+            logger.error("Failed on %s: %s", file.name, e)
 
 
 @app.command()
@@ -103,13 +108,13 @@ def ingest_all(
     """Full pipeline: upload, parse, classify for all files in directory."""
     for file in sorted(directory.glob("*")):
         try:
-            print(f"🚀 Ingesting {file.name}...")
+            logger.info("Ingesting %s...", file.name)
             parsed_name = None  # Optional override name
             result = pipeline_from_upload(
                 file,
                 parsed_name=parsed_name,
                 segmentation=segmentation,
             )
-            print(f"✅ Metadata: {result.get('summary', '')[:100]}...")
+            logger.info("Metadata: %s...", result.get("summary", "")[:100])
         except Exception as e:
-            print(f"❌ Error during ingestion of {file.name}: {e}")
+            logger.error("Error during ingestion of %s: %s", file.name, e)

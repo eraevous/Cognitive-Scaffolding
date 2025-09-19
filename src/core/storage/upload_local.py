@@ -3,7 +3,11 @@ from pathlib import Path
 
 from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
+from core.logger import get_logger
 from core.parsing.extract_text import extract_text
+
+
+logger = get_logger(__name__)
 
 
 def prepare_document_for_processing(
@@ -57,8 +61,8 @@ def prepare_document_for_processing(
     stub_file = paths.metadata / f"{parsed_name}.stub.json"
     stub_file.write_text(json.dumps(stub, indent=2), encoding="utf-8")
 
-    print(f"Saved stub locally: {stub_file}")
-    print(f"Uploaded parsed version to: {dest_parsed}")
+    logger.info("Saved stub locally: %s", stub_file)
+    logger.info("Uploaded parsed version to: %s", dest_parsed)
 
     return stub
 

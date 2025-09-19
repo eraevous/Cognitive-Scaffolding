@@ -4,7 +4,11 @@ from pathlib import Path
 from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
 from core.embeddings.embedder import generate_embeddings
+from core.logger import get_logger
 from core.workflows.main_commands import classify, upload_and_prepare
+
+
+logger = get_logger(__name__)
 
 
 def run_full_pipeline(
@@ -29,31 +33,31 @@ def run_full_pipeline(
     """
     paths = paths or get_path_config()
 
-    print("📤 Uploading and parsing raw files...")
+    logger.info("Uploading and parsing raw files...")
     for file in sorted(input_dir.glob("*")):
         try:
             upload_and_prepare(file, paths=paths)
         except Exception as e:
-            print(f"❌ Upload failed: {file.name} — {e}")
+            logger.error("Upload failed: %s — %s", file.name, e)
 
-    print("🧠 Classifying parsed documents...")
+    logger.info("Classifying parsed documents...")
     for file in sorted(paths.parsed.glob("*.txt")):
         name = file.name
         meta_path = paths.metadata / f"{name}.meta.json"
         if meta_path.exists() and not overwrite:
-            print(f"⏭️ Skipping {name} (already classified)")
+            logger.info("Skipping %s (already classified)", name)
             continue
         try:
             classify(name, chunked=chunked, segmentation=segmentation, paths=paths)
-            print(f"✅ {name} classified")
+            logger.info("%s classified", name)
         except Exception as e:
-            print(f"❌ Classification failed: {name} — {e}")
+            logger.error("Classification failed: %s — %s", name, e)
 
-    print("📊 Generating embeddings and updating vector index...")
+    logger.info("Generating embeddings and updating vector index...")
     generate_embeddings(
         source_dir=paths.parsed if method != "raw" else paths.raw,
         method=method,
         out_path=paths.root / "rich_doc_embeddings.json",
         segment_mode=paths.semantic_chunking,
     )
-    print("✅ Pipeline complete.")
+    logger.info("Pipeline complete.")
