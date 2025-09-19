@@ -45,8 +45,10 @@ from pathlib import Path
 from jsonschema import validate
 
 from core.config.config_registry import get_path_config
+from core.logger import get_logger
 
 paths = get_path_config()
+logger = get_logger(__name__)
 
 
 def validate_metadata(metadata: dict) -> None:
@@ -62,7 +64,7 @@ def validate_metadata(metadata: dict) -> None:
         FileNotFoundError: If schema path is missing or invalid.
     """
     schema_path = Path(paths.schema)
-    print(f"[schema.py] Using schema path: {schema_path}")
+    logger.info("Using schema path: %s", schema_path)
 
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found at: {schema_path}")

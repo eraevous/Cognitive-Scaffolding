@@ -7,7 +7,7 @@ import umap
 from sklearn.cluster import SpectralClustering
 
 from core.embeddings.embedder import embed_text
-from core.utils.logger import get_logger
+from core.logger import get_logger
 
 logger = get_logger(__name__)
 

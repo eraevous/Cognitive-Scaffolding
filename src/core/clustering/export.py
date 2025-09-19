@@ -59,6 +59,10 @@ from typing import Dict, List
 import pandas as pd
 
 from core.clustering.cluster_utils import plot_umap_clusters
+from core.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 def export_cluster_data(
@@ -131,4 +135,4 @@ def export_cluster_data(
 
     # Save PNG
     plot_umap_clusters(df, "cluster_label", "UMAP Clusters", out_dir / "umap_plot.png")
-    print("✅ Cluster results exported.")
+    logger.info("Cluster results exported.")

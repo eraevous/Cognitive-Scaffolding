@@ -3,6 +3,11 @@ import re
 import sys
 from pathlib import Path
 
+from core.logger import get_logger
+
+
+logger = get_logger(__name__)
+
 
 def clean_trace_line(line: str) -> str:
     if line.strip().startswith("```") or not line.strip():
@@ -93,10 +98,10 @@ def extract_codex_reasoning(
             for step in reasoning_steps:
                 jf.write(json.dumps(step) + "\n")
 
-    print(f"✅ Extracted {len(reasoning_steps)} reasoning steps")
-    print(f"📝 Markdown: {output_md.name}")
+    logger.info("Extracted %d reasoning steps", len(reasoning_steps))
+    logger.info("Markdown: %s", output_md.name)
     if output_jsonl:
-        print(f"📦 JSONL: {output_jsonl.name}")
+        logger.info("JSONL: %s", output_jsonl.name)
 
 
 def bulk_process_dir(input_dir: Path, output_dir: Path):
@@ -114,11 +119,11 @@ def bulk_process_dir(input_dir: Path, output_dir: Path):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage:")
-        print(
+        logger.error("Usage:")
+        logger.error(
             "  Single file : python clean_trace.py <input_file> <output_md> [<output_jsonl>]"
         )
-        print("  Bulk mode   : python clean_trace.py <input_dir> <output_dir>")
+        logger.error("  Bulk mode   : python clean_trace.py <input_dir> <output_dir>")
         sys.exit(1)
 
     input_path = Path(sys.argv[1])

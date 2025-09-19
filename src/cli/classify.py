@@ -43,9 +43,11 @@ It is intended for fast integration into scalable document processing pipelines.
 
 import typer
 
+from core.logger import get_logger
 from core.workflows.main_commands import classify
 
 app = typer.Typer()
+logger = get_logger(__name__)
 
 
 @app.command()
@@ -56,5 +58,5 @@ def classify_one(
 ):
     """Classify a single document (optionally in chunked mode)."""
     result = classify(name, chunked=chunked, segmentation=segmentation)
-    print("✅ Metadata saved.")
-    print(result)
+    logger.info("Metadata saved.")
+    logger.info("%s", result)

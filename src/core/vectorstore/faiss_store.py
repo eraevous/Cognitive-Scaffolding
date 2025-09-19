@@ -5,7 +5,7 @@ from typing import Iterable, List, Tuple
 import faiss
 import numpy as np
 
-from core.utils.logger import get_logger
+from core.logger import get_logger
 
 
 class FaissStore:

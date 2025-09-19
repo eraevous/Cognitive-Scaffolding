@@ -2,6 +2,8 @@ import argparse
 import json
 from pathlib import Path
 
+from core.logger import get_logger
+
 
 def extract_and_parse_text(json_path):
     path = Path(json_path)
@@ -17,6 +19,7 @@ def extract_and_parse_text(json_path):
 
 
 def main():
+    logger = get_logger(__name__)
     parser = argparse.ArgumentParser(
         description="Extract and print the 'text' field from a JSON file."
     )
@@ -25,9 +28,9 @@ def main():
 
     try:
         parsed_text = extract_and_parse_text(args.file)
-        print(parsed_text)
+        logger.info("%s", parsed_text)
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error("Error: %s", e)
 
 
 if __name__ == "__main__":

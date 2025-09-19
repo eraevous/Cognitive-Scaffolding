@@ -4,11 +4,14 @@ Quick token-count and distribution helper for Mosaic files.
 Usage (from code):
 
     from core.analysis.token_stats import TokenStats
+    from core.logger import get_logger
+
     stats = TokenStats.from_glob(
         path_pattern="parsed/**/*.txt",
         tokenizer="tiktoken:gpt-4o-mini"
     )
-    print(stats.describe())
+    logger = get_logger(__name__)
+    logger.info(stats.describe())
 
 The same logic powers the `mosaic tokens` CLI command.
 """
@@ -20,6 +23,11 @@ from statistics import mean, median, quantiles
 from typing import Callable, Dict, List
 
 from transformers import AutoTokenizer
+
+from core.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 # --------------------------------------------------------------------------- #
 #  Registry of tokenizers
@@ -78,7 +86,7 @@ class TokenStats:
             try:
                 counts.append(tk(p.read_text()))
             except Exception as e:
-                print(f"[warn] skipping {p}: {e}")
+                logger.warning("skipping %s: %s", p, e)
 
         return cls(counts=counts, file_paths=paths)
 
@@ -118,5 +126,5 @@ class TokenStats:
             try:
                 counts.append(tk(p.read_text()))
             except Exception as e:
-                print(f"[warn] skipping {p}: {e}")
+                logger.warning("skipping %s: %s", p, e)
         return cls(counts=counts, file_paths=paths)

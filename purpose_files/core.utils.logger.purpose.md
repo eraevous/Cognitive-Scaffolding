@@ -5,11 +5,11 @@
 # @ai-role: utility
 # @ai-intent: "Provide a thin wrapper for consistent, environment-aware logging across modules."
 
-> Provide a simple helper to configure and retrieve Python loggers with a common format.
+> Provide a compatibility shim that re-exports the central logging helpers.
 
 ### 🎯 Intent & Responsibility
-- Ensure consistent log formatting across modules.
-- Respect `LOG_LEVEL` environment variable for verbosity control.
+- Maintain backwards compatibility for modules still importing `core.utils.logger`.
+- Proxy calls to `core.logger` so configuration logic stays centralized.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name        | Type            | Brief Description |
@@ -19,7 +19,7 @@
 | 📤 Out    | logger      | logging.Logger  | Configured logger object |
 
 ### 🔗 Dependencies
-- `logging`, `os`
+- `core.logger` for actual setup and retrieval
 
 ### 🗣 Dialogic Notes
 - Called by `core.embeddings.embedder` for detailed error reporting.

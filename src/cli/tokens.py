@@ -4,11 +4,13 @@ from pathlib import Path
 import typer
 
 from core.analysis.token_stats import TokenStats
+from core.logger import get_logger
 
 # 👇  absolute path to the repo-local default
 DEFAULT_CFG = Path(__file__).parent.parent / "core" / "config" / "path_config.json"
 
 app = typer.Typer(help="Token-count utilities")
+logger = get_logger(__name__)
 
 
 @app.command("summary")
@@ -49,4 +51,5 @@ def summary(
 def recite():
     from zen_of_spite import spite_verses
 
-    print("\n".join(f"• {v}" for v in spite_verses))
+    verses = "\n".join(f"• {v}" for v in spite_verses)
+    logger.info("%s", verses)

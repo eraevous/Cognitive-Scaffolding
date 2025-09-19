@@ -42,6 +42,7 @@ downloads if necessary. This ensures robust handling of missing or incomplete pa
 import json
 from pathlib import Path
 
+from core.logger import get_logger
 from core_lib.config.remote_config import RemoteConfig
 from core_lib.parsing.extract_text import extract_text
 from core_lib.storage.s3_utils import get_s3_client
@@ -49,6 +50,8 @@ from core_lib.storage.s3_utils import get_s3_client
 remote = RemoteConfig.from_file(
     Path(__file__).parent.parent / "config" / "remote_config.json"
 )
+
+logger = get_logger(__name__)
 
 
 def get_parsed_text(name: str) -> str:
@@ -66,12 +69,12 @@ def get_parsed_text(name: str) -> str:
         raw_path = Path(remote.prefixes["raw"]) / raw_file
 
         if raw_path.exists():
-            print(f"♻️ Re-parsing from raw file: {raw_file}")
+            logger.info("Re-parsing from raw file: %s", raw_file)
             text = extract_text(str(raw_path))
             parsed_path.write_text(text, encoding="utf-8")
             return text
 
-    print(f"⬇️ Downloading parsed file from S3: {name}")
+    logger.info("Downloading parsed file from S3: %s", name)
     s3 = get_s3_client()
     s3.download_file(
         Bucket=remote.bucket_name,
