@@ -2,15 +2,15 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-
 import pytest
-
-pytest.importorskip("faiss")
 
 from core.config import config_registry
 from core.config.path_config import PathConfig
 from core.embeddings import embedder
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+
+pytest.importorskip("faiss")
 
 
 def test_generate_embeddings_no_overflow(tmp_path, monkeypatch):

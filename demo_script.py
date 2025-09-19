@@ -1,14 +1,12 @@
 from pathlib import Path
-
 import pytest
-
-pytest.skip("Demo script not meant for pytest", allow_module_level=True)
-
-from core.clustering.clustering_steps import (run_clustering,
+from src.core.clustering.clustering_steps import (run_clustering,
                                               run_dimensionality_reduction,
                                               run_export, run_labeling)
-from core.config.config_registry import get_path_config
-from scripts.pipeline import run_full_pipeline
+from src.core.config.config_registry import get_path_config
+from src.scripts.pipeline import run_full_pipeline
+
+pytest.skip("Demo script not meant for pytest", allow_module_level=True)
 
 # pipeline_from_upload("mydoc.pdf")
 

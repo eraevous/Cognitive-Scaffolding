@@ -1,3 +1,11 @@
+import json
+import random
+import time
+
+from config.remote_config import RemoteConfig
+
+from core.storage.aws_clients import get_lambda_client, get_s3_client
+
 """
 📦 Module: core_lib.utils.lambda_summary
 - @ai-path: core_lib.utils.lambda_summary
@@ -41,15 +49,6 @@ It includes retry logic, structured result unpacking, and error handling for mal
     - Future Hints: Add circuit-breaker logic after repeated Lambda failures to prevent downstream corruption.
 """
 
-
-import json
-import random
-import time
-
-from config.remote_config import RemoteConfig
-
-from core.storage.aws_clients import get_lambda_client, get_s3_client
-
 remote = RemoteConfig.from_file()
 
 lambda_client = get_lambda_client(region=remote.region)
@@ -85,7 +84,7 @@ def invoke_summary(s3_filename: str, override_text: str = None) -> str:
 
 def invoke_chatlog_summary(s3_filename: str) -> str:
     s3 = get_s3_client()
-    key = f"{PARSED_PREFIX}{s3_filename}"
+    key = f"{s3_filename}"
 
     prompt_text = (
         s3.get_object(Bucket=remote.bucket_name, Key=key)["Body"].read().decode("utf-8")
@@ -96,23 +95,23 @@ def invoke_chatlog_summary(s3_filename: str) -> str:
             {
                 "role": "user",
                 "content": f"""
-This is a conversation between a user and ChatGPT. Summarize the overall interaction.
+                This is a conversation between a user and ChatGPT. Summarize the overall interaction.
 
-Return JSON with:
-- summary
-- topics (list of covered topics)
-- category (should be \"chatlog\")
-- tags (list)
-- themes (list of emotional, intellectual, or philosophical topics)
-- priority (0–5, with 5 being the most important and 0 showing no imperatives or required actions in the conversation)  
-- tone (reflective / playful / analytical / etc.)
-- depth (personal / technical / philosophical)
-- stage (e.g., question, exploration, resolution)
+                Return JSON with:
+                - summary
+                - topics (list of covered topics)
+                - category (should be \"chatlog\")
+                - tags (list)
+                - themes (list of emotional, intellectual, or philosophical topics)
+                - priority (0–5, with 5 being the most important and 0 showing no imperatives or required actions in the conversation)  
+                - tone (reflective / playful / analytical / etc.)
+                - depth (personal / technical / philosophical)
+                - stage (e.g., question, exploration, resolution)
 
-Text:
+                Text:
 
-{prompt_text}
-""",
+                {prompt_text}
+                """,
             }
         ],
         "max_tokens": 700,
@@ -121,11 +120,12 @@ Text:
     }
 
     response = lambda_client.invoke(
-        FunctionName=LAMBDA_NAME,
+        FunctionName="remote.lambda_name",
         InvocationType="RequestResponse",
-        Payload=json.dumps({"bucket": BUCKET_NAME, "key": key}).encode("utf-8"),
+        Payload=json.dumps({"bucket": remote.bucket_name, "key": key}).encode("utf-8"),
         LogType="Tail",
     )
+
     return response["Payload"].read().decode("utf-8")
 
 

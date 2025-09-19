@@ -1,6 +1,9 @@
 import sys
 from pathlib import Path
 
+from core.retrieval import retriever as retriever_mod
+from core.synthesis import summarize_documents
+
 
 class DummyIndex:
     def __init__(self, *a, **k):
@@ -14,9 +17,6 @@ class DummyFaiss:
 sys.modules["faiss"] = DummyFaiss()
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-
-from core.retrieval import retriever as retriever_mod
-from core.synthesis import summarize_documents
 
 
 def test_summarize_documents(monkeypatch):

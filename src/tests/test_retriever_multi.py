@@ -1,9 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-
 from core.retrieval import retriever as retriever_mod
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 
 class DummyStore:

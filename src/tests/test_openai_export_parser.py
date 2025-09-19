@@ -6,9 +6,9 @@ from typing import Dict, List
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-
 from core.parsing.openai_export import parse_chatgpt_export
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 
 def make_export_zip(tmp_path: Path) -> Path:

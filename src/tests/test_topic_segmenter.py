@@ -4,6 +4,10 @@ import sys
 import types
 from pathlib import Path
 
+import tiktoken
+
+from core.parsing.semantic_chunk import semantic_chunk
+
 sys.modules.setdefault(
     "faiss",
     types.SimpleNamespace(
@@ -14,9 +18,6 @@ sys.modules.setdefault(
     ),
 )
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import tiktoken
-
-from core.parsing.semantic_chunk import semantic_chunk
 
 
 def stub_embed_text(text: str, model: str = "text-embedding-3-small"):

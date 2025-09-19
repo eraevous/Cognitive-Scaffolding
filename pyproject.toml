@@ -13,7 +13,7 @@ dependencies = [
     "boto3",
     "markdown",
     "python-docx",
-    "pymupdf",          # PyPI name for fitz
+    "pymupdf", # PyPI name for fitz
     "numpy",
     "pandas",
     "scikit-learn",
@@ -27,7 +27,7 @@ dependencies = [
     "fastapi",
     "pytest",
     "ruff",
-    "mypy"
+    "mypy",
 ]
 
 [project.scripts]

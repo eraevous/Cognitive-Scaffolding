@@ -39,9 +39,13 @@ class FaissStore:
         return hashed
 
     def search(self, vec: np.ndarray, k: int = 5) -> List[Tuple[int, float]]:
-        vec = np.asarray(vec, dtype="float32").reshape(1, -1)
-        D, I = self.index.search(vec, k)
-        return [(int(i), float(d)) for i, d in zip(I[0], D[0]) if i != -1]
+        query_vec = np.asarray(vec, dtype="float32").reshape(1, -1)
+        distances, indices = self.index.search(query_vec, k)
+        return [
+            (int(idx), float(dist))
+            for idx, dist in zip(indices[0], distances[0])
+            if idx != -1
+        ]
 
     def persist(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)

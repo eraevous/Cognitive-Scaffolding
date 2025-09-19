@@ -1,3 +1,14 @@
+import json
+from pathlib import Path
+
+import hdbscan
+import matplotlib.pyplot as plt
+import numpy as np
+import openai
+import pandas as pd
+import umap
+from sklearn.cluster import SpectralClustering
+
 """
 Module: core_lib.clustering.cluster_helpers
 - @ai-path: core_lib.clustering.cluster_helpers
@@ -52,21 +63,8 @@ This module provides helper functions for the clustering pipeline:
 - @notes: 
 """
 
-import json
-from pathlib import Path
-
-import hdbscan
-import matplotlib.pyplot as plt
-import numpy as np
-import openai
-import pandas as pd
-import umap
-from sklearn.cluster import SpectralClustering
-
 # 📂 CONFIG
 embedding_path = Path("rich_doc_embeddings.json")
-metadata_dir = META_PREFIX
-openai.api_key = OPENAI_API_KEY
 
 # 🧠 Load embeddings
 with open(embedding_path, "r", encoding="utf-8") as f:
@@ -207,13 +205,14 @@ plot_umap_clusters(
 # 📋 Export metadata + cluster label to CSV
 records = []
 for doc in doc_ids:
-    meta_path = metadata_dir / f"{doc}.meta.json"
+    meta_path = f"{doc}.meta.json"
     if not meta_path.exists():
         continue
     with open(meta_path, "r", encoding="utf-8") as f:
         try:
             meta = json.load(f)
-        except:
+        except json.JSONDecodeError:
+            print(f"⚠️ Skipping malformed JSON: {meta_path}")
             continue
     records.append(
         {

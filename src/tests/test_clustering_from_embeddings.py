@@ -1,7 +1,4 @@
-# tests/test_clustering_from_embeddings.py
 import pytest
-
-pytest.skip("Skipping heavy clustering test", allow_module_level=True)
 
 from core.clustering.clustering_steps import (run_clustering,
                                               run_dimensionality_reduction,
@@ -10,6 +7,7 @@ from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
 from core.workflows.main_commands import classify
 
+pytest.skip("Skipping heavy clustering test", allow_module_level=True)
 
 def test_clustering_from_embeddings(tmp_path, monkeypatch):
     print("🧪 Testing clustering from existing embeddings...")
