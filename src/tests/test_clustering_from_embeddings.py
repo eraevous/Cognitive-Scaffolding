@@ -1,11 +1,8 @@
 import pytest
 
-from core.clustering.clustering_steps import (
-    run_clustering,
-    run_dimensionality_reduction,
-    run_export,
-    run_labeling,
-)
+from core.clustering.clustering_steps import (run_clustering,
+                                              run_dimensionality_reduction,
+                                              run_export, run_labeling)
 from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
 from core.logger import get_logger
@@ -14,6 +11,7 @@ from core.workflows.main_commands import classify
 logger = get_logger(__name__)
 
 pytest.skip("Skipping heavy clustering test", allow_module_level=True)
+
 
 def test_clustering_from_embeddings(tmp_path, monkeypatch):
     logger.info("Testing clustering from existing embeddings...")

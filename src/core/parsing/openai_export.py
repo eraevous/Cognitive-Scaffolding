@@ -22,10 +22,8 @@ import zipfile
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
-from core.constants import (
-    ERROR_CONVERSATION_EXTRACTION_FAILED,
-    ERROR_CONVERSATIONS_EXPORT_MISSING,
-)
+from core.constants import (ERROR_CONVERSATION_EXTRACTION_FAILED,
+                            ERROR_CONVERSATIONS_EXPORT_MISSING)
 
 from .normalize import normalize_filename
 
@@ -48,9 +46,7 @@ def _load_conversations(export_path: Path) -> List[Dict]:
             with zf.open(name) as f:
                 return json.load(f)
         except KeyError as exc:
-            raise FileNotFoundError(
-                ERROR_CONVERSATIONS_EXPORT_MISSING
-            ) from exc
+            raise FileNotFoundError(ERROR_CONVERSATIONS_EXPORT_MISSING) from exc
 
 
 def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:

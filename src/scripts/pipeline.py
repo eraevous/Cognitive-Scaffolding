@@ -7,7 +7,6 @@ from core.embeddings.embedder import generate_embeddings
 from core.logger import get_logger
 from core.workflows.main_commands import classify, upload_and_prepare
 
-
 logger = get_logger(__name__)
 
 

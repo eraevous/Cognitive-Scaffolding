@@ -68,9 +68,7 @@ def validate_metadata(metadata: dict) -> None:
     logger.info("Using schema path: %s", schema_path)
 
     if not schema_path.exists():
-        raise FileNotFoundError(
-            ERROR_SCHEMA_FILE_NOT_FOUND.format(path=schema_path)
-        )
+        raise FileNotFoundError(ERROR_SCHEMA_FILE_NOT_FOUND.format(path=schema_path))
 
     with open(schema_path, "r", encoding="utf-8") as f:
         schema = json.load(f)

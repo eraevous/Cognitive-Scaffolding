@@ -43,11 +43,9 @@ import json
 from pathlib import Path
 from typing import Union
 
-from core.constants import (
-    DEFAULT_METADATA_SCHEMA_PATH,
-    ERROR_PATH_CONFIG_NOT_FOUND,
-    ERROR_PATH_RESOLVE_FAILURE,
-)
+from core.constants import (DEFAULT_METADATA_SCHEMA_PATH,
+                            ERROR_PATH_CONFIG_NOT_FOUND,
+                            ERROR_PATH_RESOLVE_FAILURE)
 
 
 class PathConfig:
@@ -99,7 +97,8 @@ class PathConfig:
 
     @classmethod
     def from_file(
-        cls, config_path: Union[str, Path] = Path(__file__).with_name("path_config.json")
+        cls,
+        config_path: Union[str, Path] = Path(__file__).with_name("path_config.json"),
     ):
         """
         Load a PathConfig from a JSON file.

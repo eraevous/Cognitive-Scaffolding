@@ -25,6 +25,8 @@ spite_verses = [
 
 if __name__ == "__main__":
     logger = get_logger(__name__)
-    logger.info("The Zen of Spite — Dedicated to everyone who saw through the bullshit:")
+    logger.info(
+        "The Zen of Spite — Dedicated to everyone who saw through the bullshit:"
+    )
     for line in spite_verses:
         logger.info("• %s", line)

@@ -3,7 +3,6 @@ from typing import Iterable
 from core.logger import get_logger
 from core.retrieval.retriever import Retriever
 
-
 logger = get_logger(__name__)
 
 

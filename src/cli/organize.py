@@ -52,15 +52,10 @@ import shutil
 from pathlib import Path
 from typing import Dict
 
-from core.config import (
-    LOCAL_METADATA_DIR,
-    LOCAL_ORGANIZED_DIR,
-    LOCAL_PARSED_DIR,
-    LOCAL_RAW_DIR,
-)
+from core.config import (LOCAL_METADATA_DIR, LOCAL_ORGANIZED_DIR,
+                         LOCAL_PARSED_DIR, LOCAL_RAW_DIR)
 from core.logger import get_logger
 from core.metadata.io import load_metadata
-
 
 logger = get_logger(__name__)
 

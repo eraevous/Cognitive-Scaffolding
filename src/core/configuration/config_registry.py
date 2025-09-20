@@ -16,7 +16,9 @@ remote_config: Optional[Path] = Path(__file__).with_name("remote_config.json")
 
 
 def configure(
-    *, path_config_path: Optional[Path] = None, remote_config_path: Optional[Path] = None
+    *,
+    path_config_path: Optional[Path] = None,
+    remote_config_path: Optional[Path] = None,
 ) -> None:
     """Override the filesystem locations for configuration files."""
 

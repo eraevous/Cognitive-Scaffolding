@@ -51,7 +51,6 @@ from core.logger import get_logger
 from core.metadata.schema import validate_metadata
 from core.storage.aws_clients import get_s3_client
 
-
 logger = get_logger(__name__)
 
 
@@ -128,9 +127,7 @@ def clear_s3_folders(prefixes: list[str], s3=None) -> None:
 
     for prefix in prefixes:
         logger.info("Clearing %s", prefix)
-        response = s3.list_objects_v2(
-            Bucket=remote.bucket_name, Prefix=prefix
-        )
+        response = s3.list_objects_v2(Bucket=remote.bucket_name, Prefix=prefix)
         if "Contents" not in response:
             continue
         for obj in response["Contents"]:

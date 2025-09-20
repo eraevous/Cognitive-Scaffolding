@@ -38,10 +38,8 @@ import json
 from pathlib import Path
 from typing import Union
 
-from core.constants import (
-    ERROR_REMOTE_CONFIG_MISSING_FIELDS,
-    ERROR_REMOTE_CONFIG_NOT_FOUND,
-)
+from core.constants import (ERROR_REMOTE_CONFIG_MISSING_FIELDS,
+                            ERROR_REMOTE_CONFIG_NOT_FOUND)
 
 
 class RemoteConfig:
@@ -112,9 +110,7 @@ class RemoteConfig:
         ]
         missing = [k for k in required_keys if k not in data]
         if missing:
-            raise KeyError(
-                ERROR_REMOTE_CONFIG_MISSING_FIELDS.format(fields=missing)
-            )
+            raise KeyError(ERROR_REMOTE_CONFIG_MISSING_FIELDS.format(fields=missing))
 
         return cls(
             bucket_name=data["bucket_name"],

@@ -57,11 +57,9 @@ import tiktoken
 from openai import OpenAI
 
 from core.config.remote_config import RemoteConfig
-from core.constants import (
-    ERROR_BUDGET_EXCEEDED,
-    ERROR_OPENAI_RESPONSE_NOT_JSON,
-    ERROR_PROMPT_FILE_NOT_FOUND,
-)
+from core.constants import (ERROR_BUDGET_EXCEEDED,
+                            ERROR_OPENAI_RESPONSE_NOT_JSON,
+                            ERROR_PROMPT_FILE_NOT_FOUND)
 from core.utils.budget_tracker import get_budget_tracker
 
 PROMPT_DIR = Path(__file__).parent / "prompts"
@@ -79,9 +77,7 @@ LLM_COMPLETION_COST_PER_1K = {
 def load_prompt(prompt_name: str) -> str:
     path = PROMPT_DIR / f"{prompt_name}.txt"
     if not path.exists():
-        raise FileNotFoundError(
-            ERROR_PROMPT_FILE_NOT_FOUND.format(path=path)
-        )
+        raise FileNotFoundError(ERROR_PROMPT_FILE_NOT_FOUND.format(path=path))
     return path.read_text(encoding="utf-8")
 
 

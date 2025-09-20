@@ -6,7 +6,6 @@ from core.config.path_config import PathConfig
 from core.logger import get_logger
 from core.parsing.extract_text import extract_text
 
-
 logger = get_logger(__name__)
 
 

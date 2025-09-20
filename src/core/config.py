@@ -26,9 +26,11 @@ def _resolve_path_setting(env_name: str, default: Path) -> Path:
     return (default.parent / candidate).resolve()
 
 
-BASE_DIR = Path(
-    os.getenv("PROJECT_ROOT", Path(__file__).resolve().parents[1])
-).expanduser().resolve()
+BASE_DIR = (
+    Path(os.getenv("PROJECT_ROOT", Path(__file__).resolve().parents[1]))
+    .expanduser()
+    .resolve()
+)
 CONFIG_DIR = _resolve_path_setting("CONFIG_DIR", BASE_DIR / "config")
 REMOTE_CONFIG_PATH = _resolve_path_setting(
     "REMOTE_CONFIG_PATH", CONFIG_DIR / "remote_config.json"
@@ -58,15 +60,11 @@ _LOCAL_DEFAULTS = {
     "ORGANIZED": BASE_DIR / "organized",
 }
 LOCAL_RAW_DIR = _resolve_path_setting("LOCAL_RAW_DIR", _LOCAL_DEFAULTS["RAW"])
-LOCAL_PARSED_DIR = _resolve_path_setting(
-    "LOCAL_PARSED_DIR", _LOCAL_DEFAULTS["PARSED"]
-)
+LOCAL_PARSED_DIR = _resolve_path_setting("LOCAL_PARSED_DIR", _LOCAL_DEFAULTS["PARSED"])
 LOCAL_METADATA_DIR = _resolve_path_setting(
     "LOCAL_METADATA_DIR", _LOCAL_DEFAULTS["METADATA"]
 )
-LOCAL_OUTPUT_DIR = _resolve_path_setting(
-    "LOCAL_OUTPUT_DIR", _LOCAL_DEFAULTS["OUTPUT"]
-)
+LOCAL_OUTPUT_DIR = _resolve_path_setting("LOCAL_OUTPUT_DIR", _LOCAL_DEFAULTS["OUTPUT"])
 LOCAL_ORGANIZED_DIR = _resolve_path_setting(
     "LOCAL_ORGANIZED_DIR", _LOCAL_DEFAULTS["ORGANIZED"]
 )

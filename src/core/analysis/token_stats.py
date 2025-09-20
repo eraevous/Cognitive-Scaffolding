@@ -27,7 +27,6 @@ from transformers import AutoTokenizer
 from core.constants import ERROR_TOKENIZER_NOT_FOUND
 from core.logger import get_logger
 
-
 logger = get_logger(__name__)
 
 # --------------------------------------------------------------------------- #

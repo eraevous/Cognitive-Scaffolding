@@ -2,15 +2,14 @@
 
 import json
 import os
+# Stub optional heavy dependencies before importing the pipeline module.
+import sys
 import tempfile
 from pathlib import Path
 from types import ModuleType
 from unittest.mock import patch
 
 import pytest
-
-# Stub optional heavy dependencies before importing the pipeline module.
-import sys
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault("PROJECT_ROOT", str(PROJECT_ROOT))
@@ -66,6 +65,7 @@ tiktoken_stub = ModuleType("tiktoken")
 tiktoken_stub.encoding_for_model = lambda _model: _DummyEncoder()
 sys.modules.setdefault("tiktoken", tiktoken_stub)
 
+
 class _DummyFlatIP:
     def __init__(self, dim: int) -> None:
         self.d = dim
@@ -89,6 +89,7 @@ faiss_stub.IndexIDMap = _DummyIndexIDMap  # type: ignore[attr-defined]
 faiss_stub.write_index = lambda *_args, **_kwargs: None
 faiss_stub.read_index = lambda *_args, **_kwargs: _DummyIndexIDMap(_DummyFlatIP(0))
 sys.modules.setdefault("faiss", faiss_stub)
+
 
 class _DummyEmbeddings:
     @staticmethod

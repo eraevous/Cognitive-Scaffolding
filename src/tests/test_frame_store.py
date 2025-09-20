@@ -1,10 +1,10 @@
 import sys
 from pathlib import Path
 
-
 from core.memory import FrameStore
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+
 
 def test_save_and_load(tmp_path):
     store = FrameStore(path=tmp_path)

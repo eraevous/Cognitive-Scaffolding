@@ -64,7 +64,6 @@ This function orchestrates the entire document clustering pipeline:
 
 from pathlib import Path
 
-from core.config import LOCAL_METADATA_DIR, LOCAL_OUTPUT_DIR
 import pandas as pd
 from clustering.algorithms import cluster_embeddings
 from clustering.assignments import flatten_cluster_map
@@ -72,6 +71,8 @@ from clustering.embedding import load_embeddings
 from clustering.export import export_clusters_and_summary
 from clustering.labeling import label_clusters_with_gpt
 from clustering.plotting import plot_umap_clusters
+
+from core.config import LOCAL_METADATA_DIR, LOCAL_OUTPUT_DIR
 
 
 def cluster_dict(labels, doc_ids):
