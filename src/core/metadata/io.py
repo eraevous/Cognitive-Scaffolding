@@ -43,12 +43,13 @@ ensure reliable storage and retrieval of metadata objects.
 
 from pathlib import Path
 
+from core.config import LOCAL_METADATA_DIR
 from core.metadata.schema import validate_metadata
 from core.storage.local import load_json, save_json
 
 
 def save_metadata(
-    filename: str, metadata: dict, meta_dir: Path = Path("metadata")
+    filename: str, metadata: dict, meta_dir: Path = LOCAL_METADATA_DIR
 ) -> str:
     """
     Validates and saves metadata to disk as a .meta.json file.
@@ -71,7 +72,7 @@ def save_metadata(
     return str(path)
 
 
-def load_metadata(filename: str, meta_dir: Path = Path("metadata")) -> dict:
+def load_metadata(filename: str, meta_dir: Path = LOCAL_METADATA_DIR) -> dict:
     """
     Loads and validates metadata from a .meta.json file.
 

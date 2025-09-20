@@ -64,6 +64,7 @@ This function orchestrates the entire document clustering pipeline:
 
 from pathlib import Path
 
+from core.config import LOCAL_METADATA_DIR, LOCAL_OUTPUT_DIR
 import pandas as pd
 from clustering.algorithms import cluster_embeddings
 from clustering.assignments import flatten_cluster_map
@@ -84,8 +85,8 @@ def cluster_dict(labels, doc_ids):
 
 def run_clustering_pipeline(
     embedding_path: Path = Path("rich_doc_embeddings.json"),
-    metadata_dir: Path = Path("metadata"),
-    out_dir: Path = Path("output"),
+    metadata_dir: Path = LOCAL_METADATA_DIR,
+    out_dir: Path = LOCAL_OUTPUT_DIR,
 ):
     doc_ids, X = load_embeddings(embedding_path)
     X_umap, labels_hdb, labels_spec = cluster_embeddings(X)

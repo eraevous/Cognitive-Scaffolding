@@ -2,7 +2,7 @@ import json
 import random
 import time
 
-from config.remote_config import RemoteConfig
+from core.config import REMOTE_CONFIG_PATH, RemoteConfig
 
 from core.logger import get_logger
 from core.storage.aws_clients import get_lambda_client, get_s3_client
@@ -50,7 +50,7 @@ It includes retry logic, structured result unpacking, and error handling for mal
     - Future Hints: Add circuit-breaker logic after repeated Lambda failures to prevent downstream corruption.
 """
 
-remote = RemoteConfig.from_file()
+remote = RemoteConfig.from_file(REMOTE_CONFIG_PATH)
 
 lambda_client = get_lambda_client(region=remote.region)
 logger = get_logger(__name__)

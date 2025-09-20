@@ -45,7 +45,7 @@ Designed to support workflows needing reliable cloud storage and retrieval pipel
 
 import json
 
-from core.config.remote_config import RemoteConfig
+from core.config import REMOTE_CONFIG_PATH, S3_DOWNLOAD_PREFIX, RemoteConfig
 from core.logger import get_logger
 from core.metadata.schema import validate_metadata
 from core.storage.aws_clients import get_s3_client
@@ -94,7 +94,7 @@ def load_metadata_s3(bucket: str, key: str, s3=None) -> dict:
 
 
 def download_file_from_s3(
-    s3_filename: str, local_path: str, prefix: str = "raw/"
+    s3_filename: str, local_path: str, prefix: str = S3_DOWNLOAD_PREFIX
 ) -> str:
     """
     Download a file from an S3 prefix to a local path.
@@ -109,7 +109,7 @@ def download_file_from_s3(
     """
     s3 = get_s3_client()
     full_key = f"{prefix}{s3_filename}"
-    remote = RemoteConfig.from_file("remote_config.json")
+    remote = RemoteConfig.from_file(REMOTE_CONFIG_PATH)
     s3.download_file(Bucket=remote.bucket_name, Key=full_key, Filename=local_path)
     return f"Downloaded to {local_path}"
 
@@ -123,12 +123,15 @@ def clear_s3_folders(prefixes: list[str], s3=None) -> None:
         s3: Optional boto3 S3 client
     """
     s3 = s3 or get_s3_client()
+    remote = RemoteConfig.from_file(REMOTE_CONFIG_PATH)
 
     for prefix in prefixes:
         logger.info("Clearing %s", prefix)
-        response = remote = RemoteConfig.from_file("remote_config.json")
-    s3.list_objects_v2(Bucket=remote.bucket_name, Prefix=prefix)
-    if "Contents" in response:
+        response = s3.list_objects_v2(
+            Bucket=remote.bucket_name, Prefix=prefix
+        )
+        if "Contents" not in response:
+            continue
         for obj in response["Contents"]:
             logger.info("Deleting %s", obj["Key"])
             s3.delete_object(Bucket=remote.bucket_name, Key=obj["Key"])

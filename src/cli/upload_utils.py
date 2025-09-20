@@ -44,8 +44,7 @@ Resilient against parse errors and supports configurable local/remote paths.
 import json
 from pathlib import Path
 
-from core.config.path_config import PathConfig
-from core.config.remote_config import RemoteConfig
+from core.config import PATH_CONFIG_PATH, REMOTE_CONFIG_PATH, PathConfig, RemoteConfig
 from core.logger import get_logger
 from core.parsing.extract_text import extract_text
 from core.storage.aws_clients import get_s3_client
@@ -92,12 +91,8 @@ def upload_file(
     paths: PathConfig = None,
     remote: RemoteConfig = None,
 ):
-    remote = remote or RemoteConfig.from_file(
-        Path(__file__).parent.parent / "config" / "remote_config.json"
-    )
-    paths = paths or PathConfig.from_file(
-        Path(__file__).parent.parent / "config" / "path_config.json"
-    )
+    remote = remote or RemoteConfig.from_file(REMOTE_CONFIG_PATH)
+    paths = paths or PathConfig.from_file(PATH_CONFIG_PATH)
     s3 = get_s3_client(region=remote.region)
 
     file_path = paths.raw / file_name

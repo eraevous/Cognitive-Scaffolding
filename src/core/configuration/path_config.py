@@ -93,7 +93,7 @@ class PathConfig:
 
     @classmethod
     def from_file(
-        cls, config_path: Union[str, Path] = Path("core/config/path_config.json")
+        cls, config_path: Union[str, Path] = Path(__file__).with_name("path_config.json")
     ):
         """
         Load a PathConfig from a JSON file.

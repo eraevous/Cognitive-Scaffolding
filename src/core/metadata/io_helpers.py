@@ -42,14 +42,12 @@ downloads if necessary. This ensures robust handling of missing or incomplete pa
 import json
 from pathlib import Path
 
+from core.config import REMOTE_CONFIG_PATH, RemoteConfig
 from core.logger import get_logger
-from core_lib.config.remote_config import RemoteConfig
-from core_lib.parsing.extract_text import extract_text
-from core_lib.storage.s3_utils import get_s3_client
+from core.parsing.extract_text import extract_text
+from core.storage.aws_clients import get_s3_client
 
-remote = RemoteConfig.from_file(
-    Path(__file__).parent.parent / "config" / "remote_config.json"
-)
+remote = RemoteConfig.from_file(REMOTE_CONFIG_PATH)
 
 logger = get_logger(__name__)
 
