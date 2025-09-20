@@ -22,8 +22,10 @@ import zipfile
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
-from core.constants import (ERROR_CONVERSATION_EXTRACTION_FAILED,
-                            ERROR_CONVERSATIONS_EXPORT_MISSING)
+from core.constants import (
+    ERROR_CONVERSATION_EXTRACTION_FAILED,
+    ERROR_CONVERSATIONS_EXPORT_MISSING,
+)
 
 from .normalize import normalize_filename
 

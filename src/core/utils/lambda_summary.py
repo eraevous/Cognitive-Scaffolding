@@ -120,6 +120,8 @@ def invoke_chatlog_summary(s3_filename: str) -> str:
         "anthropic_version": "bedrock-2023-05-31",
     }
 
+    logger.info("Payload: %s", body)
+
     response = lambda_client.invoke(
         FunctionName="remote.lambda_name",
         InvocationType="RequestResponse",

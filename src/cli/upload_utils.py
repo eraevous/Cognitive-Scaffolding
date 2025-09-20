@@ -44,8 +44,7 @@ Resilient against parse errors and supports configurable local/remote paths.
 import json
 from pathlib import Path
 
-from core.config import (PATH_CONFIG_PATH, REMOTE_CONFIG_PATH, PathConfig,
-                         RemoteConfig)
+from core.config import PATH_CONFIG_PATH, REMOTE_CONFIG_PATH, PathConfig, RemoteConfig
 from core.logger import get_logger
 from core.parsing.extract_text import extract_text
 from core.storage.aws_clients import get_s3_client

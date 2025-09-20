@@ -1,8 +1,5 @@
-"""Tests for the pipeline orchestration entrypoint."""
-
 import json
 import os
-# Stub optional heavy dependencies before importing the pipeline module.
 import sys
 import tempfile
 from pathlib import Path
@@ -10,6 +7,9 @@ from types import ModuleType
 from unittest.mock import patch
 
 import pytest
+
+from core.configuration.path_config import PathConfig
+from scripts import pipeline
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault("PROJECT_ROOT", str(PROJECT_ROOT))
@@ -105,9 +105,6 @@ class _DummyOpenAI:
 openai_stub = ModuleType("openai")
 openai_stub.OpenAI = _DummyOpenAI  # type: ignore[attr-defined]
 sys.modules.setdefault("openai", openai_stub)
-
-from core.configuration.path_config import PathConfig
-from scripts import pipeline
 
 
 @pytest.fixture()

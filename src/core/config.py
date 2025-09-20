@@ -1,5 +1,3 @@
-"""Central configuration module loaded from environment variables."""
-
 from __future__ import annotations
 
 import os
@@ -10,9 +8,12 @@ from typing import Dict
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
+from core.configuration import config_registry as _config_registry
+from core.configuration.path_config import PathConfig
+from core.configuration.remote_config import RemoteConfig
 from core.constants import DEFAULT_S3_DOWNLOAD_PREFIX, DEFAULT_S3_PREFIXES
+
+load_dotenv()
 
 
 def _resolve_path_setting(env_name: str, default: Path) -> Path:
@@ -68,10 +69,6 @@ LOCAL_OUTPUT_DIR = _resolve_path_setting("LOCAL_OUTPUT_DIR", _LOCAL_DEFAULTS["OU
 LOCAL_ORGANIZED_DIR = _resolve_path_setting(
     "LOCAL_ORGANIZED_DIR", _LOCAL_DEFAULTS["ORGANIZED"]
 )
-
-from core.configuration import config_registry as _config_registry
-from core.configuration.path_config import PathConfig
-from core.configuration.remote_config import RemoteConfig
 
 _config_registry.configure(
     path_config_path=PATH_CONFIG_PATH,

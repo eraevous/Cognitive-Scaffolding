@@ -43,9 +43,11 @@ import json
 from pathlib import Path
 from typing import Union
 
-from core.constants import (DEFAULT_METADATA_SCHEMA_PATH,
-                            ERROR_PATH_CONFIG_NOT_FOUND,
-                            ERROR_PATH_RESOLVE_FAILURE)
+from core.constants import (
+    DEFAULT_METADATA_SCHEMA_PATH,
+    ERROR_PATH_CONFIG_NOT_FOUND,
+    ERROR_PATH_RESOLVE_FAILURE,
+)
 
 
 class PathConfig:

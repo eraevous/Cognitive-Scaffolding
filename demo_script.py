@@ -2,9 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from src.core.clustering.clustering_steps import (run_clustering,
-                                                  run_dimensionality_reduction,
-                                                  run_export, run_labeling)
+from src.core.clustering.clustering_steps import (
+    run_clustering,
+    run_dimensionality_reduction,
+    run_export,
+    run_labeling,
+)
 from src.core.config.config_registry import get_path_config
 from src.scripts.pipeline import run_full_pipeline
 

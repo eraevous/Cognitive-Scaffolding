@@ -1,8 +1,11 @@
 import pytest
 
-from core.clustering.clustering_steps import (run_clustering,
-                                              run_dimensionality_reduction,
-                                              run_export, run_labeling)
+from core.clustering.clustering_steps import (
+    run_clustering,
+    run_dimensionality_reduction,
+    run_export,
+    run_labeling,
+)
 from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
 from core.logger import get_logger

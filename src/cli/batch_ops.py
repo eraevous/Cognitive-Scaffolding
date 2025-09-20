@@ -54,8 +54,11 @@ import typer
 
 from core.config.config_registry import get_path_config
 from core.logger import get_logger
-from core.workflows.main_commands import (classify, pipeline_from_upload,
-                                          upload_and_prepare)
+from core.workflows.main_commands import (
+    classify,
+    pipeline_from_upload,
+    upload_and_prepare,
+)
 
 app = typer.Typer()
 logger = get_logger(__name__)
