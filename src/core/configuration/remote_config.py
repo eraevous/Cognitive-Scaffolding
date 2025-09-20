@@ -68,7 +68,7 @@ class RemoteConfig:
     @classmethod
     def from_file(
         cls,
-        config_path: Union[str, Path] = Path(__file__).parent / "remote_config.json",
+        config_path: Union[str, Path] = Path(__file__).with_name("remote_config.json"),
     ):
         """
         Load a RemoteConfig from a JSON file.

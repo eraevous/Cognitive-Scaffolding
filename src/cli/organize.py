@@ -52,6 +52,12 @@ import shutil
 from pathlib import Path
 from typing import Dict
 
+from core.config import (
+    LOCAL_METADATA_DIR,
+    LOCAL_ORGANIZED_DIR,
+    LOCAL_PARSED_DIR,
+    LOCAL_RAW_DIR,
+)
 from core.logger import get_logger
 from core.metadata.io import load_metadata
 
@@ -62,10 +68,10 @@ logger = get_logger(__name__)
 def organize_file(
     name: str,
     cluster_map: Dict[str, str] = {},
-    meta_dir: Path = Path("metadata"),
-    parsed_dir: Path = Path("parsed"),
-    raw_dir: Path = Path("raw"),
-    out_dir: Path = Path("organized"),
+    meta_dir: Path = LOCAL_METADATA_DIR,
+    parsed_dir: Path = LOCAL_PARSED_DIR,
+    raw_dir: Path = LOCAL_RAW_DIR,
+    out_dir: Path = LOCAL_ORGANIZED_DIR,
 ) -> None:
     """
     Organize a file into a folder based on its metadata or clustering label.
