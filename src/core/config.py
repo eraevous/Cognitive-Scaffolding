@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from core.constants import DEFAULT_S3_DOWNLOAD_PREFIX, DEFAULT_S3_PREFIXES
+
 
 def _resolve_path_setting(env_name: str, default: Path) -> Path:
     default = Path(default).expanduser().resolve()
@@ -39,18 +41,13 @@ AWS_BUCKET_NAME = os.getenv("AWS_BUCKET_NAME")
 AWS_REGION = os.getenv("AWS_REGION")
 AWS_LAMBDA_NAME = os.getenv("AWS_LAMBDA_NAME")
 
-_DEFAULT_PREFIXES: Dict[str, str] = {
-    "raw": "raw/",
-    "parsed": "parsed/",
-    "stub": "stub/",
-    "metadata": "metadata/",
-}
 S3_PREFIXES: Dict[str, str] = {
     key: os.getenv(f"S3_PREFIX_{key.upper()}", default)
-    for key, default in _DEFAULT_PREFIXES.items()
+    for key, default in DEFAULT_S3_PREFIXES.items()
 }
 S3_DOWNLOAD_PREFIX = os.getenv(
-    "S3_DOWNLOAD_PREFIX", S3_PREFIXES.get("raw", _DEFAULT_PREFIXES["raw"])
+    "S3_DOWNLOAD_PREFIX",
+    S3_PREFIXES.get("raw", DEFAULT_S3_DOWNLOAD_PREFIX),
 )
 
 _LOCAL_DEFAULTS = {

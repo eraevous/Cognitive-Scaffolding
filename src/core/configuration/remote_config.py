@@ -38,6 +38,11 @@ import json
 from pathlib import Path
 from typing import Union
 
+from core.constants import (
+    ERROR_REMOTE_CONFIG_MISSING_FIELDS,
+    ERROR_REMOTE_CONFIG_NOT_FOUND,
+)
+
 
 class RemoteConfig:
     def __init__(
@@ -90,7 +95,9 @@ class RemoteConfig:
         """
         config_path = Path(config_path).expanduser().resolve()
         if not config_path.exists():
-            raise FileNotFoundError(f"Remote config file not found at: {config_path}")
+            raise FileNotFoundError(
+                ERROR_REMOTE_CONFIG_NOT_FOUND.format(path=config_path)
+            )
 
         with open(config_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -105,7 +112,9 @@ class RemoteConfig:
         ]
         missing = [k for k in required_keys if k not in data]
         if missing:
-            raise KeyError(f"Missing required remote config fields: {missing}")
+            raise KeyError(
+                ERROR_REMOTE_CONFIG_MISSING_FIELDS.format(fields=missing)
+            )
 
         return cls(
             bucket_name=data["bucket_name"],
