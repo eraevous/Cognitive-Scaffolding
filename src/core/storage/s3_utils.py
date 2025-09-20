@@ -46,6 +46,7 @@ Designed to support workflows needing reliable cloud storage and retrieval pipel
 import json
 
 from core.config import REMOTE_CONFIG_PATH, S3_DOWNLOAD_PREFIX, RemoteConfig
+from core.constants import ERROR_S3_KEY_NOT_FOUND
 from core.logger import get_logger
 from core.metadata.schema import validate_metadata
 from core.storage.aws_clients import get_s3_client
@@ -90,7 +91,7 @@ def load_metadata_s3(bucket: str, key: str, s3=None) -> dict:
         validate_metadata(metadata)
         return metadata
     except Exception as e:
-        raise FileNotFoundError(f"S3 key not found: {key}") from e
+        raise FileNotFoundError(ERROR_S3_KEY_NOT_FOUND.format(key=key)) from e
 
 
 def download_file_from_s3(

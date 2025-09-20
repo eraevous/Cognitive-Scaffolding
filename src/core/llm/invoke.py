@@ -57,6 +57,11 @@ import tiktoken
 from openai import OpenAI
 
 from core.config.remote_config import RemoteConfig
+from core.constants import (
+    ERROR_BUDGET_EXCEEDED,
+    ERROR_OPENAI_RESPONSE_NOT_JSON,
+    ERROR_PROMPT_FILE_NOT_FOUND,
+)
 from core.utils.budget_tracker import get_budget_tracker
 
 PROMPT_DIR = Path(__file__).parent / "prompts"
@@ -74,7 +79,9 @@ LLM_COMPLETION_COST_PER_1K = {
 def load_prompt(prompt_name: str) -> str:
     path = PROMPT_DIR / f"{prompt_name}.txt"
     if not path.exists():
-        raise FileNotFoundError(f"Prompt file not found: {path}")
+        raise FileNotFoundError(
+            ERROR_PROMPT_FILE_NOT_FOUND.format(path=path)
+        )
     return path.read_text(encoding="utf-8")
 
 
@@ -95,7 +102,7 @@ def run_openai_completion(
             model, 0
         ) + max_tokens / 1000 * LLM_COMPLETION_COST_PER_1K.get(model, 0)
         if not tracker.check(est_cost):
-            raise RuntimeError("Budget exceeded for completion request")
+            raise RuntimeError(ERROR_BUDGET_EXCEEDED)
 
     response = client.chat.completions.create(
         model=model,
@@ -130,7 +137,7 @@ def summarize_text(
         return json.loads(raw_response)
     except json.JSONDecodeError as e:
         raise ValueError(
-            f"Could not parse OpenAI response as JSON:\n{raw_response}"
+            ERROR_OPENAI_RESPONSE_NOT_JSON.format(response=raw_response)
         ) from e
 
 

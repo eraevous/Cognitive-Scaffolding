@@ -24,6 +24,7 @@ from typing import Callable, Dict, List
 
 from transformers import AutoTokenizer
 
+from core.constants import ERROR_TOKENIZER_NOT_FOUND
 from core.logger import get_logger
 
 
@@ -60,7 +61,9 @@ def get_tokenizer(spec: str) -> Callable[[str], int]:
     family, model = spec.split(":", 1)
     if spec not in TOKENIZERS:
         raise ValueError(
-            f"Tokenizer '{spec}' not found.  " f"Available: {list(TOKENIZERS.keys())}"
+            ERROR_TOKENIZER_NOT_FOUND.format(
+                spec=spec, available=list(TOKENIZERS.keys())
+            )
         )
     return TOKENIZERS[spec](model)
 

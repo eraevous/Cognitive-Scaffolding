@@ -22,6 +22,11 @@ import zipfile
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
+from core.constants import (
+    ERROR_CONVERSATION_EXTRACTION_FAILED,
+    ERROR_CONVERSATIONS_EXPORT_MISSING,
+)
+
 from .normalize import normalize_filename
 
 
@@ -43,7 +48,9 @@ def _load_conversations(export_path: Path) -> List[Dict]:
             with zf.open(name) as f:
                 return json.load(f)
         except KeyError as exc:
-            raise FileNotFoundError("conversations.json not found in export") from exc
+            raise FileNotFoundError(
+                ERROR_CONVERSATIONS_EXPORT_MISSING
+            ) from exc
 
 
 def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
@@ -117,7 +124,7 @@ def parse_chatgpt_export(
         prompts = []
         msgs = _extract_messages(convo)
         if msgs is None:
-            raise ValueError("Failed to extract messages from conversation")
+            raise ValueError(ERROR_CONVERSATION_EXTRACTION_FAILED)
         for role, text in msgs:
             clean = text.strip()
             if markdown:

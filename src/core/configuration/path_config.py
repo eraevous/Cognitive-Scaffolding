@@ -43,6 +43,12 @@ import json
 from pathlib import Path
 from typing import Union
 
+from core.constants import (
+    DEFAULT_METADATA_SCHEMA_PATH,
+    ERROR_PATH_CONFIG_NOT_FOUND,
+    ERROR_PATH_RESOLVE_FAILURE,
+)
+
 
 class PathConfig:
     def __init__(
@@ -66,7 +72,7 @@ class PathConfig:
         self.output = self._resolve_path_relative_to_root(output, default="output")
         self.vector = self._resolve_path_relative_to_root(vector, default="vector")
         self.schema = self._resolve_path_relative_to_root(
-            schema, default="config/metadata_schema.json"
+            schema, default=DEFAULT_METADATA_SCHEMA_PATH
         )
         self.semantic_chunking = bool(semantic_chunking)
 
@@ -88,7 +94,7 @@ class PathConfig:
             return path if path.is_absolute() else (self.root / path).resolve()
         except Exception as e:
             raise ValueError(
-                f"Failed to resolve path relative to root: {path_value}\n{e}"
+                ERROR_PATH_RESOLVE_FAILURE.format(value=path_value, error=e)
             )
 
     @classmethod
@@ -111,7 +117,9 @@ class PathConfig:
         """
         config_path = Path(config_path).expanduser().resolve()
         if not config_path.exists():
-            raise FileNotFoundError(f"Path config file not found at: {config_path}")
+            raise FileNotFoundError(
+                ERROR_PATH_CONFIG_NOT_FOUND.format(path=config_path)
+            )
 
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
