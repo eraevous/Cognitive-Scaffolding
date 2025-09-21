@@ -39,10 +39,7 @@ import os
 from pathlib import Path
 from typing import Dict, Union
 
-from core.constants import (
-    DEFAULT_S3_PREFIXES,
-    ERROR_REMOTE_CONFIG_MISSING_FIELDS,
-)
+from core.constants import DEFAULT_S3_PREFIXES, ERROR_REMOTE_CONFIG_MISSING_FIELDS
 from core.logger import get_logger
 
 
@@ -80,9 +77,9 @@ class RemoteConfig:
             missing_path,
         )
 
-        project_root = Path(
-            os.getenv("PROJECT_ROOT", Path.cwd())
-        ).expanduser().resolve()
+        project_root = (
+            Path(os.getenv("PROJECT_ROOT", Path.cwd())).expanduser().resolve()
+        )
 
         prefixes: Dict[str, str] = {
             key: os.getenv(f"S3_PREFIX_{key.upper()}", default)

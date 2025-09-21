@@ -13,7 +13,7 @@ from core.workflows.main_commands import classify
 
 logger = get_logger(__name__)
 
-pytest.skip("Skipping heavy clustering test", allow_module_level=True)
+# pytest.skip("Skipping heavy clustering test", allow_module_level=True)
 
 
 def test_clustering_from_embeddings(tmp_path, monkeypatch):

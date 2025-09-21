@@ -8,8 +8,8 @@ from unittest.mock import patch
 
 import pytest
 
+from core.configuration.path_config import PathConfig
 from scripts import pipeline
-from src.core.configuration.path_config import PathConfig
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault("PROJECT_ROOT", str(PROJECT_ROOT))
