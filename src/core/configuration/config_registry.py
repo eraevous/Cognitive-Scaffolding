@@ -36,9 +36,12 @@ def configure(
 def get_path_config(force_reload: bool = False) -> PathConfig:
     global _path_instance
     if _path_instance is None or force_reload:
-        _path_instance = (
-            PathConfig.from_file(path_config) if path_config else PathConfig()
-        )
+        try:
+            _path_instance = (
+                PathConfig.from_file(path_config) if path_config else PathConfig()
+            )
+        except Exception:
+            _path_instance = PathConfig()
     return _path_instance
 
 
