@@ -3,7 +3,7 @@ import random
 import time
 from functools import lru_cache
 
-from core.config import REMOTE_CONFIG_PATH, RemoteConfig
+from core.configuration import remote_config
 from core.logger import get_logger
 from core.storage.aws_clients import get_lambda_client, get_s3_client
 
@@ -49,6 +49,8 @@ It includes retry logic, structured result unpacking, and error handling for mal
     - Change Caution: AWS limits on payload size or malformed JSON responses could cause failures.
     - Future Hints: Add circuit-breaker logic after repeated Lambda failures to prevent downstream corruption.
 """
+
+codex/fix-missing-config-files-for-tests
 
 logger = get_logger(__name__)
 
