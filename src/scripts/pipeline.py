@@ -3,11 +3,27 @@ from pathlib import Path
 
 from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
-from core.embeddings.embedder import generate_embeddings
 from core.logger import get_logger
-from core.workflows.main_commands import classify, upload_and_prepare
 
 logger = get_logger(__name__)
+
+
+def upload_and_prepare(*args, **kwargs):
+    from core.workflows.main_commands import upload_and_prepare as _upload
+
+    return _upload(*args, **kwargs)
+
+
+def classify(*args, **kwargs):
+    from core.workflows.main_commands import classify as _classify
+
+    return _classify(*args, **kwargs)
+
+
+def generate_embeddings(*args, **kwargs):
+    from core.embeddings.embedder import generate_embeddings as _generate
+
+    return _generate(*args, **kwargs)
 
 
 def run_full_pipeline(
