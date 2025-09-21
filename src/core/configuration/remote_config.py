@@ -23,7 +23,7 @@ Role: Load remote service settings for AWS, OpenAI, and future integrations.
 - any OpenAI-based CLI tool
 
 TODOs:
-- [ ] Add .from_env fallback for cloud mode
+- [x] Add .from_env fallback for cloud mode
 
 AI-Assistance Tags:
 @ai-role: service_config_loader
@@ -32,16 +32,18 @@ AI-Assistance Tags:
 @ai-version: 0.1.0
 """
 
-# remote_config.py (Enforced Explicit Config Path — No Defaults Allowed)
+# remote_config.py (File-backed with environment fallback)
 
 import json
+import os
 from pathlib import Path
-from typing import Union
+from typing import Dict, Union
 
 from core.constants import (
+    DEFAULT_S3_PREFIXES,
     ERROR_REMOTE_CONFIG_MISSING_FIELDS,
-    ERROR_REMOTE_CONFIG_NOT_FOUND,
 )
+from core.logger import get_logger
 
 
 class RemoteConfig:
@@ -71,6 +73,32 @@ class RemoteConfig:
         )
 
     @classmethod
+    def _from_environment(cls, missing_path: Path) -> "RemoteConfig":
+        logger = get_logger(__name__)
+        logger.warning(
+            "Remote config not found at %s; using environment defaults.",
+            missing_path,
+        )
+
+        project_root = Path(
+            os.getenv("PROJECT_ROOT", Path.cwd())
+        ).expanduser().resolve()
+
+        prefixes: Dict[str, str] = {
+            key: os.getenv(f"S3_PREFIX_{key.upper()}", default)
+            for key, default in DEFAULT_S3_PREFIXES.items()
+        }
+
+        return cls(
+            bucket_name=os.getenv("AWS_BUCKET_NAME", ""),
+            lambda_name=os.getenv("AWS_LAMBDA_NAME", ""),
+            region=os.getenv("AWS_REGION", "us-east-1"),
+            root=project_root,
+            openai_api_key=os.getenv("OPENAI_API_KEY", ""),
+            prefixes=prefixes,
+        )
+
+    @classmethod
     def from_file(
         cls,
         config_path: Union[str, Path] = Path(__file__).with_name("remote_config.json"),
@@ -95,9 +123,7 @@ class RemoteConfig:
         """
         config_path = Path(config_path).expanduser().resolve()
         if not config_path.exists():
-            raise FileNotFoundError(
-                ERROR_REMOTE_CONFIG_NOT_FOUND.format(path=config_path)
-            )
+            return cls._from_environment(config_path)
 
         with open(config_path, "r", encoding="utf-8") as f:
             data = json.load(f)

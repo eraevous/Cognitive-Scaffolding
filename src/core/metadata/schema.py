@@ -48,7 +48,6 @@ from core.config.config_registry import get_path_config
 from core.constants import ERROR_SCHEMA_FILE_NOT_FOUND
 from core.logger import get_logger
 
-paths = get_path_config()
 logger = get_logger(__name__)
 
 
@@ -64,6 +63,7 @@ def validate_metadata(metadata: dict) -> None:
         ValidationError: If metadata does not conform to schema.
         FileNotFoundError: If schema path is missing or invalid.
     """
+    paths = get_path_config()
     schema_path = Path(paths.schema)
     logger.info("Using schema path: %s", schema_path)
 

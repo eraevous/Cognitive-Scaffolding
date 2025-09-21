@@ -45,9 +45,11 @@ from typing import Union
 
 from core.constants import (
     DEFAULT_METADATA_SCHEMA_PATH,
-    ERROR_PATH_CONFIG_NOT_FOUND,
     ERROR_PATH_RESOLVE_FAILURE,
 )
+from core.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class PathConfig:
@@ -118,9 +120,11 @@ class PathConfig:
         """
         config_path = Path(config_path).expanduser().resolve()
         if not config_path.exists():
-            raise FileNotFoundError(
-                ERROR_PATH_CONFIG_NOT_FOUND.format(path=config_path)
+            logger.warning(
+                "Path config not found at %s; using default PathConfig.",
+                config_path,
             )
+            return cls()
 
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)

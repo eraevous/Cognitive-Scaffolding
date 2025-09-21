@@ -1,6 +1,7 @@
 import json
 import random
 import time
+from functools import lru_cache
 
 from core.config import REMOTE_CONFIG_PATH, RemoteConfig
 from core.logger import get_logger
@@ -49,13 +50,23 @@ It includes retry logic, structured result unpacking, and error handling for mal
     - Future Hints: Add circuit-breaker logic after repeated Lambda failures to prevent downstream corruption.
 """
 
-remote = RemoteConfig.from_file(REMOTE_CONFIG_PATH)
-
-lambda_client = get_lambda_client(region=remote.region)
 logger = get_logger(__name__)
 
 
+@lru_cache(maxsize=1)
+def _get_remote() -> RemoteConfig:
+    return RemoteConfig.from_file(REMOTE_CONFIG_PATH)
+
+
+@lru_cache(maxsize=1)
+def _get_lambda_client():
+    remote = _get_remote()
+    return get_lambda_client(region=remote.region)
+
+
 def invoke_summary(s3_filename: str, override_text: str = None) -> str:
+    remote = _get_remote()
+    lambda_client = _get_lambda_client()
     key = f"{remote.prefixes['parsed']}{s3_filename}"
 
     payload = {
@@ -84,6 +95,8 @@ def invoke_summary(s3_filename: str, override_text: str = None) -> str:
 
 
 def invoke_chatlog_summary(s3_filename: str) -> str:
+    remote = _get_remote()
+    lambda_client = _get_lambda_client()
     s3 = get_s3_client()
     key = f"{s3_filename}"
 
@@ -123,7 +136,7 @@ def invoke_chatlog_summary(s3_filename: str) -> str:
     logger.info("Payload: %s", body)
 
     response = lambda_client.invoke(
-        FunctionName="remote.lambda_name",
+        FunctionName=remote.lambda_name,
         InvocationType="RequestResponse",
         Payload=json.dumps({"bucket": remote.bucket_name, "key": key}).encode("utf-8"),
         LogType="Tail",
