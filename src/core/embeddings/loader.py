@@ -53,14 +53,48 @@ from typing import List, Tuple, Union
 import numpy as np
 
 
+def _extract_embedding(value: object) -> np.ndarray:
+    """Normalize serialized embedding payloads into a 1D numpy array."""
+
+    array = np.asarray(value, dtype=float)
+    if array.ndim == 0:
+        # Scalar values are unexpected but coerce to a 1-length vector to avoid crashes.
+        array = array.reshape(1)
+    if array.ndim > 1:
+        # Some pipelines may have stored nested lists; flatten to a single vector.
+        array = array.reshape(-1)
+    return array
+
+
 def load_embeddings(embedding_path: Union[str, Path]) -> Tuple[List[str], np.ndarray]:
     """
     Load JSON-based document embeddings and return doc IDs and matrix.
     """
+
     embedding_path = Path(embedding_path)
     with open(embedding_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     doc_ids = list(data.keys())
-    X = np.array([data[doc_id] for doc_id in doc_ids])
-    return doc_ids, X
+    if not doc_ids:
+        return doc_ids, np.empty((0, 0), dtype=float)
+
+    vectors: List[np.ndarray] = []
+    for doc_id in doc_ids:
+        payload = data[doc_id]
+        if isinstance(payload, dict):
+            if "embedding" in payload:
+                payload = payload["embedding"]
+            else:
+                raise ValueError(
+                    f"Embedding payload for '{doc_id}' does not include an 'embedding' field."
+                )
+        vectors.append(_extract_embedding(payload))
+
+    matrix = np.vstack([np.atleast_2d(vec) for vec in vectors])
+    if matrix.ndim == 1:
+        matrix = matrix.reshape(1, -1)
+    elif matrix.ndim > 2:
+        matrix = matrix.reshape(matrix.shape[0], -1)
+
+    return doc_ids, np.asarray(matrix, dtype=float)

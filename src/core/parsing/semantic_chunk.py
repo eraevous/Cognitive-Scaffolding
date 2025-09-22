@@ -1,10 +1,22 @@
 from typing import Any, Dict, List, Sequence
 
-import hdbscan
 import numpy as np
-import tiktoken
-import umap
 from sklearn.cluster import SpectralClustering
+
+try:
+    import hdbscan  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    hdbscan = None  # type: ignore[assignment]
+
+try:
+    import tiktoken  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    tiktoken = None  # type: ignore[assignment]
+
+try:
+    import umap  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    umap = None  # type: ignore[assignment]
 
 from core.embeddings.embedder import embed_text
 from core.logger import get_logger
@@ -16,6 +28,11 @@ def _cluster_embeddings(
     embeddings: Sequence[Sequence[float]], method: str
 ) -> List[int]:
     """Cluster embeddings using UMAP + Spectral Clustering or HDBSCAN."""
+    if umap is None:  # pragma: no cover - optional dependency
+        raise ModuleNotFoundError(
+            "umap-learn is required for semantic chunking but is not installed."
+        )
+
     X = np.asarray(embeddings, dtype="float32")
     reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
     X_red = reducer.fit_transform(X)
@@ -32,9 +49,17 @@ def _cluster_embeddings(
             labels = clusterer.fit_predict(X_red)
         except Exception:
             logger.exception("Spectral clustering failed; falling back to HDBSCAN")
+            if hdbscan is None:  # pragma: no cover - optional dependency
+                raise ModuleNotFoundError(
+                    "hdbscan is required for fallback clustering but is not installed."
+                )
             clusterer = hdbscan.HDBSCAN(min_cluster_size=2)
             labels = clusterer.fit_predict(X_red)
     else:
+        if hdbscan is None:  # pragma: no cover - optional dependency
+            raise ModuleNotFoundError(
+                "hdbscan is required for semantic chunking but is not installed."
+            )
         clusterer = hdbscan.HDBSCAN(min_cluster_size=2)
         labels = clusterer.fit_predict(X_red)
 
@@ -50,6 +75,11 @@ def semantic_chunk(
     cluster_method: str = "spectral",
 ) -> List[Dict[str, Any]]:
     """Return semantic chunk objects with embeddings and metadata."""
+    if tiktoken is None:  # pragma: no cover - optional dependency
+        raise ModuleNotFoundError(
+            "tiktoken is required for semantic chunking but is not installed."
+        )
+
     enc = tiktoken.encoding_for_model(model)
     tokens = enc.encode(text, disallowed_special=())
     logger.debug("Tokenized into %d tokens", len(tokens))
