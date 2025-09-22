@@ -26,6 +26,7 @@ dependencies = [
     "streamlit",
     "fastapi",
     "pytest",
+    "pytest-mock",
     "ruff",
     "mypy",
 ]
