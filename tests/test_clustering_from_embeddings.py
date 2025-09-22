@@ -19,6 +19,7 @@ if "tiktoken" not in sys.modules:
         )
 
 if "openai" not in sys.modules:
+
     class _DummyChat:  # pragma: no cover - optional dependency shim
         def __init__(self):
             self.completions = types.SimpleNamespace(
@@ -31,7 +32,9 @@ if "openai" not in sys.modules:
                 )
             )
 
-    sys.modules["openai"] = types.SimpleNamespace(OpenAI=lambda *a, **k: types.SimpleNamespace(chat=_DummyChat()))
+    sys.modules["openai"] = types.SimpleNamespace(
+        OpenAI=lambda *a, **k: types.SimpleNamespace(chat=_DummyChat())
+    )
 
 from core.clustering import algorithms
 from core.clustering.clustering_steps import (
@@ -88,7 +91,7 @@ def test_clustering_from_embeddings(tmp_path, monkeypatch):
         "core.clustering.clustering_steps.label_clusters",
         lambda ids, lbls, md, model="gpt-4": {
             f"cluster_{int(label)}": f"Label {int(label)}"
-            for label in sorted(set(int(l) for l in lbls if l != -1))
+            for label in sorted(set(int(lab) for lab in lbls if lab != -1))
         },
     )
     label_map = run_labeling(doc_ids, labels, metadata_dir)

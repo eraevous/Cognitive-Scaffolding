@@ -83,9 +83,7 @@ def cluster_embeddings(
         if n_samples < max(1, min_cluster_size):
             return np.zeros((n_samples,), dtype=int)
 
-        model = hdbscan.HDBSCAN(
-            min_cluster_size=min_cluster_size, prediction_data=True
-        )
+        model = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, prediction_data=True)
         return model.fit_predict(embeddings)
 
     if method == "spectral":
