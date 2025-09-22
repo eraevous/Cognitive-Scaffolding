@@ -2,8 +2,12 @@ import hashlib
 from pathlib import Path
 from typing import Iterable, List, Tuple
 
-import faiss
 import numpy as np
+
+try:
+    import faiss  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    faiss = None  # type: ignore[assignment]
 
 from core.logger import get_logger
 
@@ -12,6 +16,11 @@ class FaissStore:
     """Lightweight wrapper around a FAISS index with ID mapping."""
 
     def __init__(self, dim: int, path: Path):
+        if faiss is None:  # pragma: no cover - optional dependency
+            raise ModuleNotFoundError(
+                "faiss is required for FaissStore but is not installed."
+            )
+
         self.dim = dim
         self.path = path
         self.logger = get_logger(__name__)

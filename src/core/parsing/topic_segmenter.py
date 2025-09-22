@@ -8,10 +8,22 @@ Module: core.parsing.topic_segmenter
 
 from typing import Any, Dict, List, Optional
 
-import hdbscan
 import numpy as np
-import tiktoken
-import umap
+
+try:
+    import hdbscan  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    hdbscan = None  # type: ignore[assignment]
+
+try:
+    import tiktoken  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    tiktoken = None  # type: ignore[assignment]
+
+try:
+    import umap  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    umap = None  # type: ignore[assignment]
 
 from core.embeddings.embedder import embed_text
 from core.logger import get_logger
@@ -45,6 +57,11 @@ def segment_topics(
     hdbscan_config: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
     """Return topic segments with start/end token indices and cluster IDs."""
+    if tiktoken is None:  # pragma: no cover - optional dependency
+        raise ModuleNotFoundError(
+            "tiktoken is required for topic segmentation but is not installed."
+        )
+
     enc = tiktoken.encoding_for_model(model)
     tokens = enc.encode(text, disallowed_special=())
 
@@ -73,6 +90,10 @@ def segment_topics(
     logger.info("Embedded %d windows", len(windows))
 
     X = np.asarray(windows, dtype="float32")
+    if umap is None:  # pragma: no cover - optional dependency
+        raise ModuleNotFoundError(
+            "umap-learn is required for topic segmentation but is not installed."
+        )
     reducer = umap.UMAP(
         **(umap_config or {"n_neighbors": 15, "min_dist": 0.1, "random_state": 42})
     )
@@ -81,6 +102,10 @@ def segment_topics(
     if cluster_method != "hdbscan":
         logger.warning("Unsupported cluster_method %s; using hdbscan", cluster_method)
 
+    if hdbscan is None:  # pragma: no cover - optional dependency
+        raise ModuleNotFoundError(
+            "hdbscan is required for topic segmentation but is not installed."
+        )
     clusterer = hdbscan.HDBSCAN(**(hdbscan_config or {"min_cluster_size": 2}))
     labels = clusterer.fit_predict(X_red)
 
