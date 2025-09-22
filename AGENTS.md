@@ -115,6 +115,8 @@ Consolidate during Drift into `.purpose.md`.
 | G-09 | Changes lacking `@ai-intent` block CI until resolved                                                       |
 | G-10 | `.purpose.md` must include output schema, coordination notes, and integration anchors if applicable        |
 | G-11 | Use `@ai-pipeline-order: inverse` if prompt flow reverses default assumptions (e.g. topic-before-chunking) |
+| G-12 | All modules must declare io.exports if they expose public functions/classes.                               |
+| G-13 | PR must include either: updated .purpose.md or new .intent.md referencing the change.                      |
 
 ---
 
