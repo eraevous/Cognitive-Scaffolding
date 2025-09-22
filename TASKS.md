@@ -6,21 +6,21 @@ This repo was largely AI-generated. The following tasks are structured so that A
 
 ## Phase 1: Hygiene (Consistency & Automation)
 
-- **Task 1.1: Add Pre-commit Hooks**    
+- DONE **Task 1.1: Add Pre-commit Hooks**    
     - Create `.pre-commit-config.yaml`.        
     - Enable `black`, `ruff`, and `isort`.        
     - Command: `pre-commit install`        
-- **Task 1.2: Apply Auto-Formatting to Entire Repo**    
+- DONE **Task 1.2: Apply Auto-Formatting to Entire Repo**    
     - Run `pre-commit run --all-files`.        
     - Commit results.        
-- **Task 1.3: Centralize Logging**    
+- DONE **Task 1.3: Centralize Logging**    
     - Create `src/core/logger.py` with `logging` config (INFO default, DEBUG option).        
     - Replace all `print()` with `logger.info()`, `logger.error()`, etc.        
-- **Task 1.4: Centralize Configuration**    
+- DONE **Task 1.4: Centralize Configuration**    
     - Create `src/core/config.py` that loads `.env` via `dotenv`.        
     - Move all inline constants (AWS buckets, paths, prefixes) into `config.py`.        
     - Replace scattered constants with imports from config.        
-- **Task 1.5: Centralize Constants**    
+- DONE **Task 1.5: Centralize Constants**    
     - Create `src/core/constants.py`.        
     - Move static strings (error messages, prefixes, schema names). 
 
@@ -50,11 +50,11 @@ This repo was largely AI-generated. The following tasks are structured so that A
 
 ## Phase 3: Confidence (Tests & CI/CD)
 
-- **Task 3.1: Add Test Harness**    
+- DONE **Task 3.1: Add Test Harness**    
     - Create `tests/` folder with `pytest`.        
     - Add test for `pipeline.run_pipeline()` (happy path).        
     - Add test for `lambda_summary()` error case.        
-- **Task 3.2: Mock External Services**    
+- DONE **Task 3.2: Mock External Services**    
     - Use `pytest-mock` or `moto` for AWS calls.        
     - Ensure tests do not hit live AWS.        
 - **Task 3.3: Add GitHub Actions CI**    
