@@ -29,6 +29,8 @@ dependencies = [
     "pytest-mock",
     "ruff",
     "mypy",
+    "requests>=2.32.5",
+    "dotenv>=0.9.9",
 ]
 
 [project.scripts]
@@ -43,3 +45,10 @@ package-dir = {"" = "src"}
 
 [tool.isort]
 profile = "black"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "pyyaml>=6.0.2",
+    "ruff>=0.13.1",
+]

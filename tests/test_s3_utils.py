@@ -37,12 +37,16 @@ def test_load_metadata_s3_fetches_and_validates(mocker) -> None:
     metadata = {"answer": 42}
     mocker.patch("core.storage.s3_utils.validate_metadata")
     s3_client = mocker.Mock()
-    s3_client.get_object.return_value = {"Body": BytesIO(json.dumps(metadata).encode("utf-8"))}
+    s3_client.get_object.return_value = {
+        "Body": BytesIO(json.dumps(metadata).encode("utf-8"))
+    }
     mocker.patch("core.storage.s3_utils.get_s3_client", return_value=s3_client)
 
     result = load_metadata_s3("bucket", "metadata/key.json")
 
-    s3_client.get_object.assert_called_once_with(Bucket="bucket", Key="metadata/key.json")
+    s3_client.get_object.assert_called_once_with(
+        Bucket="bucket", Key="metadata/key.json"
+    )
     assert result == metadata
 
 
@@ -79,7 +83,9 @@ def test_clear_s3_folders_deletes_listed_objects(mocker) -> None:
 
     clear_s3_folders(["raw/"])
 
-    s3_client.list_objects_v2.assert_called_once_with(Bucket="fixture-bucket", Prefix="raw/")
+    s3_client.list_objects_v2.assert_called_once_with(
+        Bucket="fixture-bucket", Prefix="raw/"
+    )
     s3_client.delete_object.assert_has_calls(
         [
             call(Bucket="fixture-bucket", Key="raw/doc1"),
