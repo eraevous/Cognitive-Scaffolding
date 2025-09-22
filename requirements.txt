@@ -28,6 +28,7 @@ tqdm
 
 # Optional: Dev/Testing
 pytest
+pytest-mock
 python-dotenv  # if you want to externalize secrets later
 
 # Pin versions for stability (optional but recommended for production)
