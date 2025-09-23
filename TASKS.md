@@ -34,7 +34,7 @@ This repo was largely AI-generated. The following tasks are structured so that A
         - `classify_document()`            
         - `embed_document()`            
     - Keep wrapper function (`run_pipeline()`) to call helpers.        
-- **Task 2.2: Refactor Classify Workflow**    
+- DONE **Task 2.2: Refactor Classify Workflow**    
     - Break `classify()` into: `detect()`, `segment()`, `summarize()`, `merge_stubs()`, `persist()`.        
     - Keep wrapper function (`classify()`) that calls helpers.        
 - **Task 2.3: Move AWS Lambda Wrapper to Clean Module**    
@@ -42,8 +42,8 @@ This repo was largely AI-generated. The following tasks are structured so that A
         - Remove undefined constants.            
         - Accept config object instead of globals.            
         - Use `logger` instead of `print`.            
-- **Task 2.4: Remove Duplicate or Experimental Scripts**    
-    - Move `transformers_test.py`, `llama_test.py` → `examples/`. 
+- DONE **Task 2.4: Remove Duplicate or Experimental Scripts**    
+    - Move or delete `transformers_test.py`, `llama_test.py` → `examples/`. 
     - Delete `Combined_Scripts/` folder unless formalized.        
 
 ---

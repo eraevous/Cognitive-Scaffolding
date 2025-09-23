@@ -3,7 +3,7 @@ name = "kairos"
 version = "0.0.1"
 description = "Zach's modular RAG pipeline & CLI"
 authors = [{ name = "Zach" }]
-requires-python = ">=3.12" 
+requires-python = ">=3.11" 
 dependencies = [
     "typer[all]>=0.12.3",
     "tiktoken>=0.5.1",
