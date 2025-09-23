@@ -1005,14 +1005,11 @@ core\utils\dedup.dedup_lines_in_folder,core\utils\dedup.txt_file.open
 core\utils\dedup.dedup_lines_in_folder,core\utils\dedup.out.write
 core\utils\dedup.dedup_lines_in_folder,core\utils\dedup.line.strip
 core\utils\dedup.dedup_lines_in_folder,core\utils\dedup.unique.add
-core\utils\lambda_summary._get_remote,functools.lru_cache
-core\utils\lambda_summary._get_remote,core.config.RemoteConfig.from_file
 core\utils\lambda_summary._get_lambda_client,functools.lru_cache
-core\utils\lambda_summary._get_lambda_client,core\utils\lambda_summary._get_remote
 core\utils\lambda_summary._get_lambda_client,core.storage.aws_clients.get_lambda_client
-core\utils\lambda_summary.invoke_summary,core\utils\lambda_summary._get_remote
 core\utils\lambda_summary.invoke_summary,core\utils\lambda_summary._get_lambda_client
 core\utils\lambda_summary.invoke_summary,core\utils\lambda_summary.range
+core\utils\lambda_summary.invoke_summary,core\utils\lambda_summary.logger.error
 core\utils\lambda_summary.invoke_summary,json.dumps
 core\utils\lambda_summary.invoke_summary,core\utils\lambda_summary.lambda_client.invoke
 core\utils\lambda_summary.invoke_summary,core\utils\lambda_summary.read.decode
@@ -1022,7 +1019,6 @@ core\utils\lambda_summary.invoke_summary,json.dumps.encode
 core\utils\lambda_summary.invoke_summary,core\utils\lambda_summary.read
 core\utils\lambda_summary.invoke_summary,random.random
 core\utils\lambda_summary.invoke_summary,json.dumps
-core\utils\lambda_summary.invoke_chatlog_summary,core\utils\lambda_summary._get_remote
 core\utils\lambda_summary.invoke_chatlog_summary,core\utils\lambda_summary._get_lambda_client
 core\utils\lambda_summary.invoke_chatlog_summary,core.storage.aws_clients.get_s3_client
 core\utils\lambda_summary.invoke_chatlog_summary,core\utils\lambda_summary.read.decode

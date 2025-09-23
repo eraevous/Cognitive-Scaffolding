@@ -37,7 +37,7 @@ This repo was largely AI-generated. The following tasks are structured so that A
 - DONE **Task 2.2: Refactor Classify Workflow**    
     - Break `classify()` into: `detect()`, `segment()`, `summarize()`, `merge_stubs()`, `persist()`.        
     - Keep wrapper function (`classify()`) that calls helpers.        
-- **Task 2.3: Move AWS Lambda Wrapper to Clean Module**    
+- DONE **Task 2.3: Move AWS Lambda Wrapper to Clean Module**    
     - Refactor `lambda_summary.py`:        
         - Remove undefined constants.            
         - Accept config object instead of globals.            
