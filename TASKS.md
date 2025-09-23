@@ -4,7 +4,7 @@ This repo was largely AI-generated. The following tasks are structured so that A
 
 ---
 
-## Phase 1: Hygiene (Consistency & Automation)
+## Phase 1: Hygiene (Consistency & Automation) - COMPLETED
 
 - DONE **Task 1.1: Add Pre-commit Hooks**    
     - Create `.pre-commit-config.yaml`.        
@@ -48,7 +48,7 @@ This repo was largely AI-generated. The following tasks are structured so that A
 
 ---
 
-## Phase 3: Confidence (Tests & CI/CD)
+## Phase 3: Confidence (Tests & CI/CD) - COMPLETED
 
 - DONE **Task 3.1: Add Test Harness**    
     - Create `tests/` folder with `pytest`.        
@@ -57,7 +57,7 @@ This repo was largely AI-generated. The following tasks are structured so that A
 - DONE **Task 3.2: Mock External Services**    
     - Use `pytest-mock` or `moto` for AWS calls.        
     - Ensure tests do not hit live AWS.        
-- **Task 3.3: Add GitHub Actions CI**    
+- DONE **Task 3.3: Add GitHub Actions CI**    
     - Add `.github/workflows/ci.yaml`:        
         - `ruff check .`            
         - `pytest -q`            
