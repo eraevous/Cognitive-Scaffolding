@@ -3,7 +3,7 @@ import random
 import time
 from functools import lru_cache
 
-from core.config import REMOTE_CONFIG_PATH, RemoteConfig
+from core.configuration.remote_config import RemoteConfig
 from core.logger import get_logger
 from core.storage.aws_clients import get_lambda_client, get_s3_client
 
@@ -53,24 +53,21 @@ It includes retry logic, structured result unpacking, and error handling for mal
 logger = get_logger(__name__)
 
 
-@lru_cache(maxsize=1)
-def _get_remote() -> RemoteConfig:
-    return RemoteConfig.from_file(REMOTE_CONFIG_PATH)
+@lru_cache(maxsize=None)
+def _get_lambda_client(region: str):
+    """Cache Lambda clients by AWS region."""
+
+    return get_lambda_client(region=region)
 
 
-@lru_cache(maxsize=1)
-def _get_lambda_client():
-    remote = _get_remote()
-    return get_lambda_client(region=remote.region)
-
-
-def invoke_summary(s3_filename: str, override_text: str = None) -> str:
-    remote = _get_remote()
-    lambda_client = _get_lambda_client()
-    key = f"{remote.prefixes['parsed']}{s3_filename}"
+def invoke_summary(
+    config: RemoteConfig, s3_filename: str, override_text: str | None = None
+) -> str:
+    lambda_client = _get_lambda_client(config.region)
+    key = f"{config.prefixes['parsed']}{s3_filename}"
 
     payload = {
-        "bucket": remote.bucket_name,
+        "bucket": config.bucket_name,
         "key": key,
     }
 
@@ -80,28 +77,33 @@ def invoke_summary(s3_filename: str, override_text: str = None) -> str:
     for attempt in range(5):
         try:
             response = lambda_client.invoke(
-                FunctionName=remote.lambda_name,
+                FunctionName=config.lambda_name,
                 InvocationType="RequestResponse",
                 Payload=json.dumps(payload).encode("utf-8"),
                 LogType="Tail",
             )
             return response["Payload"].read().decode("utf-8")
-        except Exception as e:
+        except Exception as exc:
             wait = 2 + random.random() * 2
-            logger.warning("Retrying (%d/5) after error: %s", attempt + 1, e)
+            logger.warning(
+                "Retrying (%d/5) for Lambda summary key %s after error: %s",
+                attempt + 1,
+                key,
+                exc,
+            )
             time.sleep(wait)
 
+    logger.error("Exceeded retries invoking Lambda summary for key %s", key)
     return json.dumps({"error": "Exceeded retries", "key": key})
 
 
-def invoke_chatlog_summary(s3_filename: str) -> str:
-    remote = _get_remote()
-    lambda_client = _get_lambda_client()
+def invoke_chatlog_summary(config: RemoteConfig, s3_filename: str) -> str:
+    lambda_client = _get_lambda_client(config.region)
     s3 = get_s3_client()
     key = f"{s3_filename}"
 
     prompt_text = (
-        s3.get_object(Bucket=remote.bucket_name, Key=key)["Body"].read().decode("utf-8")
+        s3.get_object(Bucket=config.bucket_name, Key=key)["Body"].read().decode("utf-8")
     )
 
     body = {
@@ -136,9 +138,9 @@ def invoke_chatlog_summary(s3_filename: str) -> str:
     logger.info("Payload: %s", body)
 
     response = lambda_client.invoke(
-        FunctionName=remote.lambda_name,
+        FunctionName=config.lambda_name,
         InvocationType="RequestResponse",
-        Payload=json.dumps({"bucket": remote.bucket_name, "key": key}).encode("utf-8"),
+        Payload=json.dumps({"bucket": config.bucket_name, "key": key}).encode("utf-8"),
         LogType="Tail",
     )
 
