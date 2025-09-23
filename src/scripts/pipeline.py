@@ -26,7 +26,48 @@ def generate_embeddings(*args, **kwargs):
     return _generate(*args, **kwargs)
 
 
-def run_full_pipeline(
+def upload_file(file: Path, paths: PathConfig) -> None:
+    """Upload and prepare a single file for downstream processing."""
+    try:
+        upload_and_prepare(file, paths=paths)
+    except Exception as exc:  # pragma: no cover - defensive logging
+        logger.error("Upload failed: %s — %s", file.name, exc)
+
+
+def classify_document(
+    file: Path,
+    *,
+    chunked: bool,
+    segmentation: str,
+    overwrite: bool,
+    paths: PathConfig,
+) -> None:
+    """Classify a parsed document if classification is required."""
+    name = file.name
+    meta_path = paths.metadata / f"{name}.meta.json"
+    if meta_path.exists() and not overwrite:
+        logger.info("Skipping %s (already classified)", name)
+        return
+
+    try:
+        classify(name, chunked=chunked, segmentation=segmentation, paths=paths)
+        logger.info("%s classified", name)
+    except Exception as exc:  # pragma: no cover - defensive logging
+        logger.error("Classification failed: %s — %s", name, exc)
+
+
+def embed_document(*, method: str, paths: PathConfig) -> None:
+    """Generate embeddings for the processed corpus."""
+    logger.info("Generating embeddings and updating vector index...")
+    generate_embeddings(
+        source_dir=paths.parsed if method != "raw" else paths.raw,
+        method=method,
+        out_path=paths.root / "rich_doc_embeddings.json",
+        segment_mode=paths.semantic_chunking,
+    )
+
+
+def run_pipeline(
     input_dir: Path,
     chunked: bool = False,
     overwrite: bool = True,
@@ -50,29 +91,17 @@ def run_full_pipeline(
 
     logger.info("Uploading and parsing raw files...")
     for file in sorted(input_dir.glob("*")):
-        try:
-            upload_and_prepare(file, paths=paths)
-        except Exception as e:
-            logger.error("Upload failed: %s — %s", file.name, e)
+        upload_file(file, paths=paths)
 
     logger.info("Classifying parsed documents...")
     for file in sorted(paths.parsed.glob("*.txt")):
-        name = file.name
-        meta_path = paths.metadata / f"{name}.meta.json"
-        if meta_path.exists() and not overwrite:
-            logger.info("Skipping %s (already classified)", name)
-            continue
-        try:
-            classify(name, chunked=chunked, segmentation=segmentation, paths=paths)
-            logger.info("%s classified", name)
-        except Exception as e:
-            logger.error("Classification failed: %s — %s", name, e)
+        classify_document(
+            file,
+            chunked=chunked,
+            segmentation=segmentation,
+            overwrite=overwrite,
+            paths=paths,
+        )
 
-    logger.info("Generating embeddings and updating vector index...")
-    generate_embeddings(
-        source_dir=paths.parsed if method != "raw" else paths.raw,
-        method=method,
-        out_path=paths.root / "rich_doc_embeddings.json",
-        segment_mode=paths.semantic_chunking,
-    )
+    embed_document(method=method, paths=paths)
     logger.info("Pipeline complete.")
