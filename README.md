@@ -82,14 +82,6 @@ Install with `pip install -e .` and run `kairos --help` to explore all options.
 
 ---
 
-## 🔎 Learn More
-
-- 📘 [Project Vision & Philosophy →](https://chatgpt.com/c/docs/VISION.md)
-- 🧠 [Quickstart Guide →](https://chatgpt.com/c/docs/QAT_Quickstart.md)
-- 🧪 [Test Coverage →](https://chatgpt.com/c/src/tests/)
-
----
-
 ## 🤝 Contributing
 
 Pull requests and collaboration ideas welcome! This scaffold is designed for personal knowledgebases, research pipelines, and semantic search assistants.
