@@ -28,7 +28,7 @@ This repo was largely AI-generated. The following tasks are structured so that A
 
 ## Phase 2: Structure (Refactors & Modularization)
 
-- **Task 2.1: Refactor Monolithic Pipeline**    
+- DONE **Task 2.1: Refactor Monolithic Pipeline**    
     - Break `scripts/pipeline.py` into helpers:        
         - `upload_file()`            
         - `classify_document()`            
