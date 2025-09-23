@@ -102,9 +102,7 @@ def summarize(chunks: list[str], doc_type: str) -> dict:
         return summarize_text(chunks[0], doc_type=doc_type)
 
     block_results = [
-        summarize_text(chunk, doc_type=doc_type)
-        for chunk in chunks
-        if chunk.strip()
+        summarize_text(chunk, doc_type=doc_type) for chunk in chunks if chunk.strip()
     ]
     return merge_metadata_blocks(block_results)
 
