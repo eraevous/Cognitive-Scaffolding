@@ -9,7 +9,7 @@ from src.core.clustering.clustering_steps import (
     run_labeling,
 )
 from src.core.config.config_registry import get_path_config
-from src.scripts.pipeline import run_full_pipeline
+from src.scripts.pipeline import run_pipeline
 
 pytest.skip("Demo script not meant for pytest", allow_module_level=True)
 
@@ -23,7 +23,7 @@ pytest.skip("Demo script not meant for pytest", allow_module_level=True)
 
 
 def run_demo():
-    run_full_pipeline(
+    run_pipeline(
         Path("./incoming_docs"),
         chunked=True,
         method="summary",

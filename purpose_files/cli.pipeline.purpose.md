@@ -31,7 +31,7 @@
 | 📤 Out | cluster_output | Folder | CSV/PNG cluster exports |
 
 ### 🔗 Dependencies
-- `scripts.pipeline.run_full_pipeline`
+- `scripts.pipeline.run_pipeline`
 - `core.clustering.clustering_steps.run_all_steps`
 - `core.config.config_registry.get_path_config`
 

@@ -142,7 +142,7 @@ def test_run_pipeline_happy_path(sample_paths: PathConfig) -> None:
         patch.object(pipeline, "classify") as classify_mock,
         patch.object(pipeline, "generate_embeddings") as embed_mock,
     ):
-        pipeline.run_full_pipeline(
+        pipeline.run_pipeline(
             input_dir=sample_paths.raw,
             chunked=False,
             overwrite=True,

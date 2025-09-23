@@ -5,6 +5,7 @@
 - Serve as a one-stop execution layer for the full LLM-powered pipeline.
 - Ingest files from a local folder, route them through upload + parsing → classification → embedding stages.
 - Handle optional chunked summarization and overwrite behavior for idempotent operation.
+- Expose `upload_file`, `classify_document`, and `embed_document` helpers that encapsulate each stage for reuse and testing.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name         | Type     | Brief Description                                                               |

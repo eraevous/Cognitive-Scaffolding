@@ -6,7 +6,7 @@ import typer
 from core.clustering.clustering_steps import run_all_steps
 from core.config.config_registry import get_path_config
 from core.config.path_config import PathConfig
-from scripts.pipeline import run_full_pipeline
+from scripts.pipeline import run_pipeline
 
 app = typer.Typer()
 
@@ -55,7 +55,7 @@ def run_all(
     paths = _resolve_paths(root, raw_dir, parsed_dir, metadata_dir, output_dir)
 
     # Steps 1–3
-    run_full_pipeline(
+    run_pipeline(
         input_dir=input_dir,
         chunked=chunked,
         method=method,
