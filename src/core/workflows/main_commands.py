@@ -78,6 +78,54 @@ def looks_like_chatlog(text: str) -> bool:
     )
 
 
+def detect(text: str, force_chunked: bool) -> tuple[str, bool]:
+    """Determine document type and whether chunked summarization is required."""
+    doc_type = "chatlog" if looks_like_chatlog(text) else "standard"
+    use_chunks = force_chunked or len(text) > MAX_CHARS
+    return doc_type, use_chunks
+
+
+def segment(text: str, segmentation: Literal["semantic", "paragraph"]) -> list[str]:
+    """Split text into chunks using the configured segmentation strategy."""
+    if segmentation == "semantic":
+        raw_chunks = segment_text(text)
+        if not raw_chunks:
+            raw_chunks = chunk_text(text)
+    else:
+        raw_chunks = chunk_text(text)
+    return raw_chunks
+
+
+def summarize(chunks: list[str], doc_type: str) -> dict:
+    """Summarize provided chunks and merge results when necessary."""
+    if len(chunks) == 1:
+        return summarize_text(chunks[0], doc_type=doc_type)
+
+    block_results = [
+        summarize_text(chunk, doc_type=doc_type)
+        for chunk in chunks
+        if chunk.strip()
+    ]
+    return merge_metadata_blocks(block_results)
+
+
+def merge_stubs(name: str, metadata: dict, paths: PathConfig) -> dict:
+    """Overlay stub metadata onto generated metadata if present."""
+    stub_path = paths.metadata / f"{name}.stub.json"
+    if stub_path.exists():
+        stub = json.loads(stub_path.read_text("utf-8"))
+        metadata.update(stub)
+    return metadata
+
+
+def persist(name: str, metadata: dict, paths: PathConfig) -> dict:
+    """Validate and write metadata to disk."""
+    validate_metadata(metadata)
+    out_path = paths.metadata / f"{name}.meta.json"
+    out_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    return metadata
+
+
 def classify(
     name: str,
     chunked: bool = False,
@@ -89,35 +137,16 @@ def classify(
     parsed_path = paths.parsed / name
     text = parsed_path.read_text(encoding="utf-8")
 
-    doc_type = "chatlog" if looks_like_chatlog(text) else "standard"
+    doc_type, use_chunks = detect(text, chunked)
 
-    if not chunked and len(text) <= MAX_CHARS:
-        metadata = summarize_text(text, doc_type=doc_type)
+    if use_chunks:
+        chunks = segment(text, segmentation)
     else:
-        if segmentation == "semantic":
-            raw_chunks = segment_text(text)
-            if not raw_chunks:
-                raw_chunks = chunk_text(text)
-        else:
-            raw_chunks = chunk_text(text)
-        block_results = [
-            summarize_text(chunk, doc_type=doc_type)
-            for chunk in raw_chunks
-            if chunk.strip()
-        ]
-        metadata = merge_metadata_blocks(block_results)
+        chunks = [text]
 
-    # Merge with stub if present
-    stub_path = paths.metadata / f"{name}.stub.json"
-    if stub_path.exists():
-        stub = json.loads(stub_path.read_text("utf-8"))
-        metadata.update(stub)
-
-    validate_metadata(metadata)
-
-    out_path = paths.metadata / f"{name}.meta.json"
-    out_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    return metadata
+    metadata = summarize(chunks, doc_type)
+    metadata = merge_stubs(name, metadata, paths)
+    return persist(name, metadata, paths)
 
 
 def upload_metadata_to_s3(name: str, metadata: dict):

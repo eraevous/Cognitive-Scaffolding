@@ -29,7 +29,7 @@
 - `@ai-risks:` Stub merging may overwrite key fields unless preemptively managed.
 
 ### 🗣 Dialogic Notes
-- `classify()` chooses summarization strategy based on size and chatlog heuristics.
+- `detect()`, `segment()`, `summarize()`, `merge_stubs()`, and `persist()` decompose `classify()` into testable steps (routing, chunking, summarization, stub overlay, validation/write).
 - Supports optional `segmentation` choice to use semantic or paragraph boundaries.
 - `pipeline_from_upload()` provides a single-call ingestion-to-metadata interface.
 - Works with either local-only or hybrid S3-local workflows.
