@@ -14,6 +14,7 @@
 
 ### 🎯 Intent & Responsibility
 - Create embeddings for parsed, raw, summary, or metadata text.
+- Batch short texts with `embed_text_batch` so overlapping windows do not spam the API.
 - Insert vectors into `FaissStore` for later retrieval or clustering.
 - Store a JSON map linking hashed IDs to document filenames.
 - When segmenting, persist chunk metadata with embeddings for downstream search.
@@ -32,21 +33,23 @@
 | 📤 Out | chunks/*.json | Per-chunk files with text, embedding, and metadata |
 
 ### 🔗 Dependencies
-- `openai`, `tiktoken`, `numpy`
+- `openai`, cached `OpenAI` client instance, and `tiktoken`
+- `numpy` for array math and averaging long-text embeddings
 - `core.vectorstore.faiss_store` for index management
-- `core.config.config_registry` for path lookups
+- `core.config.config_registry` for path lookups and remote API keys
 - `core.utils.logger` for logging
-- `core.utils.budget_tracker.get_budget_tracker` for budget checks
+- `core.utils.budget_tracker.get_budget_tracker` for request budgeting
 
 ### 🗣 Dialogic Notes
 - Document IDs are hashed via Blake2b and **masked to 63 bits** (`0x7FFF_FFFF_FFFF_FFFF`) so FAISS can store them as signed `int64` without overflow.
-- Embeddings for long documents are averaged from token chunks.
+- Embeddings for long documents are averaged from token chunks, while short inputs are batched per request to cut run time.
+- A module-level OpenAI client and encoding cache prevent repeated session setup when thousands of chunks are processed.
 - FAISS index is recreated on each run if dimensions mismatch.
 - Topic segmentation import is lazy to avoid circular dependencies with
   `semantic_chunk`.
 - If `segment_mode` is omitted, `PathConfig.semantic_chunking` determines whether
   to segment via topics or simple paragraphs.
-- Estimated OpenAI cost is checked via `BudgetTracker`; calls abort when the budget is exceeded.
+- Estimated OpenAI cost is checked via `BudgetTracker`; batched calls debit budgets by total token count before dispatch.
 
 ### 9 Pipeline Integration
 - @ai-pipeline-order: inverse

@@ -1,8 +1,9 @@
 # core/embeddings/embedder.py
+from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Dict, List, Literal
+from typing import Callable, Dict, List, Literal, Sequence
 
 import numpy as np
 import tiktoken
@@ -33,20 +34,42 @@ def get_model_for_dim(dim: int) -> str:
 logger = get_logger(__name__)
 
 
+_client: OpenAI | None = None
+_encodings: Dict[str, tiktoken.Encoding] = {}
+
+
+def _get_client() -> OpenAI:
+    global _client
+    if _client is None:
+        remote = get_remote_config()
+        _client = OpenAI(api_key=remote.openai_api_key)
+    return _client
+
+
+def _get_encoding(model: str) -> tiktoken.Encoding:
+    if model not in _encodings:
+        _encodings[model] = tiktoken.encoding_for_model(model)
+    return _encodings[model]
+
+
+def _charge_budget(token_count: int, model: str, tracker) -> None:
+    if not tracker or token_count <= 0:
+        return
+    est_cost = token_count / 1000 * EMBED_COST_PER_1K.get(model, 0)
+    if not tracker.check(est_cost):
+        raise RuntimeError("Budget exceeded for embedding request")
+
+
 def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
     """Return an embedding for ``text``. Handles long inputs by chunking."""
-    remote = get_remote_config()
-    client = OpenAI(api_key=remote.openai_api_key)
+    client = _get_client()
     tracker = get_budget_tracker()
 
-    enc = tiktoken.encoding_for_model(model)
+    enc = _get_encoding(model)
     tokens = enc.encode(text, disallowed_special=())
 
     if len(tokens) <= MAX_EMBED_TOKENS:
-        if tracker:
-            est_cost = len(tokens) / 1000 * EMBED_COST_PER_1K.get(model, 0)
-            if not tracker.check(est_cost):
-                raise RuntimeError("Budget exceeded for embedding request")
+        _charge_budget(len(tokens), model, tracker)
         response = client.embeddings.create(input=[text], model=model)
         return response.data[0].embedding
 
@@ -54,15 +77,57 @@ def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
     vectors = []
     for i in range(0, len(tokens), MAX_EMBED_TOKENS):
         chunk_tokens = tokens[i : i + MAX_EMBED_TOKENS]
-        if tracker:
-            est_cost = len(chunk_tokens) / 1000 * EMBED_COST_PER_1K.get(model, 0)
-            if not tracker.check(est_cost):
-                raise RuntimeError("Budget exceeded for embedding request")
+        _charge_budget(len(chunk_tokens), model, tracker)
         chunk_text = enc.decode(chunk_tokens)
         resp = client.embeddings.create(input=[chunk_text], model=model)
         vectors.append(np.asarray(resp.data[0].embedding, dtype="float32"))
 
     return np.mean(vectors, axis=0).tolist()
+
+
+def embed_text_batch(
+    texts: Sequence[str],
+    model: str = "text-embedding-3-small",
+    *,
+    embedder: Callable[[str, str], List[float]] | None = None,
+) -> List[List[float]]:
+    """Embed multiple texts in as few API calls as possible."""
+
+    if not texts:
+        return []
+
+    tracker = get_budget_tracker()
+    enc = _get_encoding(model)
+    embed_fn = embedder or embed_text
+
+    results: Dict[int, List[float]] = {}
+    short_payload: List[str] = []
+    short_indices: List[int] = []
+    short_tokens: List[int] = []
+
+    for idx, text in enumerate(texts):
+        token_ids = enc.encode(text, disallowed_special=())
+        if len(token_ids) <= MAX_EMBED_TOKENS:
+            short_payload.append(text)
+            short_indices.append(idx)
+            short_tokens.append(len(token_ids))
+        else:
+            results[idx] = embed_fn(text, model=model)
+
+    if short_payload:
+        client = _get_client()
+        embeddings_api = getattr(getattr(client, "embeddings", None), "create", None)
+        if embeddings_api is None:
+            for idx, text in zip(short_indices, short_payload):
+                results[idx] = embed_fn(text, model=model)
+        else:
+            total_tokens = sum(short_tokens)
+            _charge_budget(total_tokens, model, tracker)
+            response = embeddings_api(input=short_payload, model=model)
+            for idx, data in zip(short_indices, response.data):
+                results[idx] = data.embedding
+
+    return [results[i] for i in range(len(texts))]
 
 
 def generate_embeddings(

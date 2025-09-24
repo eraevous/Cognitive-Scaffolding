@@ -15,9 +15,9 @@
 
 ### 🎯 Intent & Responsibility
 - Slide 256-token windows over the text with stride 128.
-- Embed each window using `text-embedding-3-large`.
+- Batch window texts through `embed_text_batch` to keep OpenAI calls bounded.
 - Reduce dimensions with UMAP and cluster via Spectral Clustering (HDBSCAN fallback).
-- Merge adjacent windows with identical cluster IDs into final chunks.
+- Merge adjacent windows with identical cluster IDs into final chunks and embed those chunks in batches.
 
 ### 📥 Inputs & 📤 Outputs
 | Direction | Name | Type | Brief Description |
@@ -31,10 +31,12 @@
 ### 🔗 Dependencies
 - `tiktoken` for tokenization
 - `umap-learn`, `sklearn.cluster.SpectralClustering`, `hdbscan`
-- `core.embeddings.embedder.embed_text`
+- `core.embeddings.embedder.embed_text` and `embed_text_batch`
 
 ### 🗣 Dialogic Notes
 - Works best when text length >> window size, giving enough context for clustering.
+- Window embeddings are now generated in batches, preventing the embedding agent from looping on hundreds of single-text calls.
+- Final chunk embeddings reuse the same batching helper to stay within the budget guardrails.
 - Future improvements might use HDBSCAN or heuristics to auto-select cluster count.
 
 ### 9 Pipeline Integration
