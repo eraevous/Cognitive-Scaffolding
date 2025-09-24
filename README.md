@@ -88,6 +88,8 @@ Pull requests and collaboration ideas welcome! This scaffold is designed for per
 
 ---
 
-## 🧠 License
+## 🧠 License & Licensing
 
-TBD — Intended for open knowledge-sharing and ethical deployment.
+This project is licensed under [MIT/Apache-2.0](LICENSE).
+
+All contributions are subject to our [Contributor License Agreement](CLA.md).

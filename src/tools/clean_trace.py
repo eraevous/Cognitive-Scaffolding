@@ -7,6 +7,8 @@ from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
+STRICT_DEBUG = False   # flip to False for normal behavior
+
 
 def clean_trace_line(line: str) -> str:
     if line.strip().startswith("```") or not line.strip():
@@ -17,33 +19,32 @@ def clean_trace_line(line: str) -> str:
     return line.strip()
 
 
-def truncate_to_sentences(
-    text: str, max_sentences: int = 6, max_chars: int = 200
-) -> str:
+def truncate_to_sentences(text: str, max_sentences: int = 6, max_chars: int = 200) -> str:
     text = re.sub(r"\s+", " ", text).strip()
-
-    # Try to split into sentences with punctuation or code-structure
     sentences = re.split(r"(?<=[.!?])\s+|(?<=[:;])\s+|(?<=\))\s+", text)
     truncated = " ".join(sentences[:max_sentences]).strip()
-
-    # Hard truncate regardless of sentence structure
     truncated = truncated[:max_chars].rstrip()
     if len(text) > max_chars:
         truncated += " ..."
-    elif len(text) > max_chars:
-        # Fallback in case sentence logic fails entirely
-        truncated = text[:max_chars].rstrip() + " ..."
-
     return truncated
 
 
-def extract_codex_reasoning(
-    input_path: Path, output_md: Path, output_jsonl: Path = None
-):
+def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Path = None):
+    # --- Detect encoding
     try:
-        lines = input_path.read_text(encoding="utf-8").splitlines()
+        raw_text = input_path.read_text(encoding="utf-8")
+        encoding_used = "utf-8"
     except UnicodeDecodeError:
-        lines = input_path.read_text(encoding="latin1").splitlines()
+        raw_text = input_path.read_text(encoding="latin1")
+        encoding_used = "latin1"
+
+    lines = raw_text.splitlines()
+
+    if STRICT_DEBUG:
+        logger.info("[DEBUG] Processing %s", input_path)
+        logger.info("[DEBUG] Encoding used: %s", encoding_used)
+        logger.info("[DEBUG] First 5 raw lines:\n%s",
+                    "\n".join(lines[:5]))
 
     prompt = None
     reasoning_steps = []
@@ -55,13 +56,15 @@ def extract_codex_reasoning(
         re.IGNORECASE,
     )
 
-    for raw_line in lines:
+    for idx, raw_line in enumerate(lines, start=1):
         line = clean_trace_line(raw_line)
         if not line:
             continue
 
         if not prompt and line.lower().startswith("user:"):
             prompt = line[5:].strip()
+            if STRICT_DEBUG:
+                logger.info("[DEBUG] Found prompt at line %d: %s", idx, prompt)
             continue
 
         if step_start.match(line):
@@ -73,6 +76,8 @@ def extract_codex_reasoning(
                 step_id += 1
                 current_step_lines = []
             current_step_lines.append(line)
+            if STRICT_DEBUG:
+                logger.info("[DEBUG] Step start detected at line %d: %s", idx, line)
         else:
             current_step_lines.append(line)
 
@@ -81,6 +86,11 @@ def extract_codex_reasoning(
         reasoning_steps.append(
             {"step": step_id, "text": truncate_to_sentences(combined)}
         )
+
+    if STRICT_DEBUG:
+        logger.info("[DEBUG] Total reasoning steps: %d", len(reasoning_steps))
+        if not reasoning_steps:
+            logger.warning("[DEBUG] No steps extracted from %s", input_path)
 
     # Save Markdown
     output_md.parent.mkdir(parents=True, exist_ok=True)
@@ -119,9 +129,7 @@ def bulk_process_dir(input_dir: Path, output_dir: Path):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         logger.error("Usage:")
-        logger.error(
-            "  Single file : python clean_trace.py <input_file> <output_md> [<output_jsonl>]"
-        )
+        logger.error("  Single file : python clean_trace.py <input_file> <output_md> [<output_jsonl>]")
         logger.error("  Bulk mode   : python clean_trace.py <input_dir> <output_dir>")
         sys.exit(1)
 
