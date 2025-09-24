@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List, Sequence, Tuple
 
 import numpy as np
 from sklearn.cluster import SpectralClustering
@@ -18,7 +18,7 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
     umap = None  # type: ignore[assignment]
 
-from core.embeddings.embedder import embed_text
+from core.embeddings.embedder import embed_text, embed_text_batch
 from core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -84,19 +84,17 @@ def semantic_chunk(
     tokens = enc.encode(text, disallowed_special=())
     logger.debug("Tokenized into %d tokens", len(tokens))
 
-    windows: List[List[float]] = []
+    window_texts: List[str] = []
     starts: List[int] = []
     for i in range(0, len(tokens), step_tokens):
         window = tokens[i : i + window_tokens]
         if not window:
             continue
-        window_text = enc.decode(window)
-        vec = embed_text(window_text, model=model)
-        windows.append(vec)
+        window_texts.append(enc.decode(window))
         starts.append(i)
-    logger.debug("Created %d windows", len(windows))
+    logger.debug("Created %d windows", len(window_texts))
 
-    if not windows:
+    if not window_texts:
         return [
             {
                 "text": text,
@@ -108,38 +106,57 @@ def semantic_chunk(
             }
         ]
 
-    labels = _cluster_embeddings(windows, cluster_method)
+    window_vectors = embed_text_batch(window_texts, model=model, embedder=embed_text)
+    labels = [int(label) for label in _cluster_embeddings(window_vectors, cluster_method)]
 
-    segments: List[Dict[str, Any]] = []
+    segment_bounds: List[Tuple[int, int, int]] = []
     current_start = 0
     current_label = labels[0]
     for idx in range(1, len(starts)):
         if labels[idx] != current_label:
-            seg_text = enc.decode(tokens[current_start : starts[idx]])
-            segments.append(
-                {
-                    "text": seg_text,
-                    "embedding": embed_text(seg_text, model=model),
-                    "topic": f"topic_{current_label}",
-                    "start": current_start,
-                    "end": starts[idx],
-                    "cluster_id": int(current_label),
-                }
-            )
+            segment_bounds.append((current_start, starts[idx], current_label))
             current_start = starts[idx]
             current_label = labels[idx]
 
-    seg_text = enc.decode(tokens[current_start : len(tokens)])
-    segments.append(
-        {
-            "text": seg_text,
-            "embedding": embed_text(seg_text, model=model),
-            "topic": f"topic_{current_label}",
-            "start": current_start,
-            "end": len(tokens),
-            "cluster_id": int(current_label),
-        }
+    segment_bounds.append((current_start, len(tokens), current_label))
+
+    segment_payload: List[Tuple[int, int, int, str]] = []
+    for start, end, label in segment_bounds:
+        seg_text = enc.decode(tokens[start:end])
+        if not seg_text.strip():
+            continue
+        segment_payload.append((start, end, label, seg_text))
+
+    if not segment_payload:
+        return [
+            {
+                "text": text,
+                "embedding": embed_text(text, model=model),
+                "topic": "topic_0",
+                "start": 0,
+                "end": len(tokens),
+                "cluster_id": 0,
+            }
+        ]
+
+    segment_embeddings = embed_text_batch(
+        [payload[3] for payload in segment_payload], model=model, embedder=embed_text
     )
+
+    segments: List[Dict[str, Any]] = []
+    for (start, end, label, seg_text), vector in zip(
+        segment_payload, segment_embeddings
+    ):
+        segments.append(
+            {
+                "text": seg_text,
+                "embedding": vector,
+                "topic": f"topic_{label}",
+                "start": start,
+                "end": end,
+                "cluster_id": int(label),
+            }
+        )
 
     logger.debug("Produced %d segments", len(segments))
     return segments
