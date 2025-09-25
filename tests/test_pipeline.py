@@ -169,3 +169,34 @@ def test_run_pipeline_happy_path(sample_paths: PathConfig) -> None:
         out_path=sample_paths.root / "rich_doc_embeddings.json",
         segment_mode=sample_paths.semantic_chunking,
     )
+
+
+def test_run_pipeline_processes_nested_directories(sample_paths: PathConfig) -> None:
+    """Nested raw files should be discovered and uploaded."""
+    nested_dir = sample_paths.raw / "nested"
+    nested_dir.mkdir()
+    nested_file = nested_dir / "deep.md"
+    nested_file.write_text("nested content", encoding="utf-8")
+
+    with (
+        patch.object(pipeline, "upload_and_prepare") as upload_mock,
+        patch.object(pipeline, "classify") as classify_mock,
+        patch.object(pipeline, "generate_embeddings") as embed_mock,
+    ):
+        pipeline.run_pipeline(
+            input_dir=sample_paths.raw,
+            chunked=False,
+            overwrite=True,
+            method="summary",
+            segmentation="semantic",
+            paths=sample_paths,
+        )
+
+    uploaded_paths = [call.args[0] for call in upload_mock.call_args_list]
+    assert uploaded_paths == [
+        sample_paths.raw / "example.md",
+        nested_file,
+    ]
+
+    classify_mock.assert_called_once()
+    embed_mock.assert_called_once()

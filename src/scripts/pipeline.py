@@ -90,7 +90,11 @@ def run_pipeline(
     paths = paths or get_path_config()
 
     logger.info("Uploading and parsing raw files...")
-    for file in sorted(input_dir.glob("*")):
+    files_to_upload = sorted(
+        (path for path in input_dir.rglob("*") if path.is_file()),
+        key=lambda path: str(path),
+    )
+    for file in files_to_upload:
         upload_file(file, paths=paths)
 
     logger.info("Classifying parsed documents...")
