@@ -7,7 +7,7 @@ from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
-STRICT_DEBUG = False   # flip to False for normal behavior
+STRICT_DEBUG = False  # flip to False for normal behavior
 
 
 def clean_trace_line(line: str) -> str:
@@ -19,7 +19,9 @@ def clean_trace_line(line: str) -> str:
     return line.strip()
 
 
-def truncate_to_sentences(text: str, max_sentences: int = 6, max_chars: int = 200) -> str:
+def truncate_to_sentences(
+    text: str, max_sentences: int = 6, max_chars: int = 200
+) -> str:
     text = re.sub(r"\s+", " ", text).strip()
     sentences = re.split(r"(?<=[.!?])\s+|(?<=[:;])\s+|(?<=\))\s+", text)
     truncated = " ".join(sentences[:max_sentences]).strip()
@@ -29,7 +31,9 @@ def truncate_to_sentences(text: str, max_sentences: int = 6, max_chars: int = 20
     return truncated
 
 
-def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Path = None):
+def extract_codex_reasoning(
+    input_path: Path, output_md: Path, output_jsonl: Path = None
+):
     # --- Detect encoding
     try:
         raw_text = input_path.read_text(encoding="utf-8")
@@ -43,8 +47,7 @@ def extract_codex_reasoning(input_path: Path, output_md: Path, output_jsonl: Pat
     if STRICT_DEBUG:
         logger.info("[DEBUG] Processing %s", input_path)
         logger.info("[DEBUG] Encoding used: %s", encoding_used)
-        logger.info("[DEBUG] First 5 raw lines:\n%s",
-                    "\n".join(lines[:5]))
+        logger.info("[DEBUG] First 5 raw lines:\n%s", "\n".join(lines[:5]))
 
     prompt = None
     reasoning_steps = []
@@ -129,7 +132,9 @@ def bulk_process_dir(input_dir: Path, output_dir: Path):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         logger.error("Usage:")
-        logger.error("  Single file : python clean_trace.py <input_file> <output_md> [<output_jsonl>]")
+        logger.error(
+            "  Single file : python clean_trace.py <input_file> <output_md> [<output_jsonl>]"
+        )
         logger.error("  Bulk mode   : python clean_trace.py <input_dir> <output_dir>")
         sys.exit(1)
 

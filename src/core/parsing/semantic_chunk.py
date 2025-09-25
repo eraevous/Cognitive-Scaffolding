@@ -107,7 +107,9 @@ def semantic_chunk(
         ]
 
     window_vectors = embed_text_batch(window_texts, model=model, embedder=embed_text)
-    labels = [int(label) for label in _cluster_embeddings(window_vectors, cluster_method)]
+    labels = [
+        int(label) for label in _cluster_embeddings(window_vectors, cluster_method)
+    ]
 
     segment_bounds: List[Tuple[int, int, int]] = []
     current_start = 0
