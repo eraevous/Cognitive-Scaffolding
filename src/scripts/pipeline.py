@@ -1,8 +1,8 @@
 # scripts/pipeline.py
 from pathlib import Path
 
-from core.config.config_registry import get_path_config
-from core.config.path_config import PathConfig
+from core.configuration.config_registry import get_path_config
+from core.configuration.path_config import PathConfig
 from core.logger import get_logger
 
 logger = get_logger(__name__)

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from core.config.config_registry import get_path_config
+from core.configuration.config_registry import get_path_config
 from core.parsing import parse_chatgpt_export
 
 app = typer.Typer()

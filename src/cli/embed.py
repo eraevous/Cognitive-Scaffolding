@@ -3,7 +3,7 @@ from pathlib import Path
 
 import typer
 
-from core.config.config_registry import get_path_config
+from core.configuration.config_registry import get_path_config
 from core.embeddings.embedder import generate_embeddings
 
 app = typer.Typer()

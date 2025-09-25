@@ -2,8 +2,8 @@ from pathlib import Path
 
 import typer
 
-from core.config.config_registry import get_path_config
-from core.config.path_config import PathConfig
+from core.configuration.config_registry import get_path_config
+from core.configuration.path_config import PathConfig
 from core.storage.upload_local import prepare_document_for_processing
 
 app = typer.Typer(help="Parse documents into text with optional path overrides")

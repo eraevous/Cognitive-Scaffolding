@@ -52,7 +52,7 @@ from pathlib import Path
 
 import typer
 
-from core.config.config_registry import get_path_config
+from core.configuration.config_registry import get_path_config
 from core.logger import get_logger
 from core.workflows.main_commands import (
     classify,

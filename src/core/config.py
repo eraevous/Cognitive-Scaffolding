@@ -32,7 +32,7 @@ BASE_DIR = (
     .expanduser()
     .resolve()
 )
-CONFIG_DIR = _resolve_path_setting("CONFIG_DIR", BASE_DIR / "config")
+CONFIG_DIR = _resolve_path_setting("CONFIG_DIR", BASE_DIR / "core/configuration")
 REMOTE_CONFIG_PATH = _resolve_path_setting(
     "REMOTE_CONFIG_PATH", CONFIG_DIR / "remote_config.json"
 )

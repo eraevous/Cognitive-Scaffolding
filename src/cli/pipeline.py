@@ -4,8 +4,8 @@ from pathlib import Path
 import typer
 
 from core.clustering.clustering_steps import run_all_steps
-from core.config.config_registry import get_path_config
-from core.config.path_config import PathConfig
+from core.configuration.config_registry import get_path_config
+from core.configuration.path_config import PathConfig
 from scripts.pipeline import run_pipeline
 
 app = typer.Typer()

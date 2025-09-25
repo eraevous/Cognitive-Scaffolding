@@ -9,7 +9,7 @@ import numpy as np
 import tiktoken
 from openai import OpenAI
 
-from core.config.config_registry import get_path_config, get_remote_config
+from core.configuration.config_registry import get_path_config, get_remote_config
 from core.logger import get_logger
 from core.utils.budget_tracker import get_budget_tracker
 from core.vectorstore.faiss_store import FaissStore
