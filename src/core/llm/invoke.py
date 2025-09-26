@@ -56,7 +56,7 @@ from typing import Literal, Optional
 import tiktoken
 from openai import OpenAI
 
-from core.config.remote_config import RemoteConfig
+from core.configuration.remote_config import RemoteConfig
 from core.constants import (
     ERROR_BUDGET_EXCEEDED,
     ERROR_OPENAI_RESPONSE_NOT_JSON,

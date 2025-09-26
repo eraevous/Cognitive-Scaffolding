@@ -8,7 +8,7 @@ from src.core.clustering.clustering_steps import (
     run_export,
     run_labeling,
 )
-from src.core.config.config_registry import get_path_config
+from src.core.configuration.config_registry import get_path_config
 from src.scripts.pipeline import run_pipeline
 
 pytest.skip("Demo script not meant for pytest", allow_module_level=True)
