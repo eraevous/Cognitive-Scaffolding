@@ -5,6 +5,6 @@
   "metadata": "metadata",
   "output": "output",
   "vector": "vector",
-  "schema": "metadata_schema.json",
+  "schema": "src/core/configuration/metadata_schema.json",
   "semantic_chunking": false
 }
