@@ -79,7 +79,7 @@ Cadence tags may be used for clarity:
 * Flag IO, dependencies, or risks that mismatch documented assumptions.
 * Prompt user if `.purpose.md` is missing — stub and label with `@ai-generated: true`.
 * Trigger validation against schema and field guards (e.g. `@ai-risk-*`, `@ai-role`).
-* `.purpose.md`, `.intent.md`, `.trace.txt`, and other developmental and structural files are found in the `codex++` directory one level up from project root.
+* `.purpose.md`, `.intent.md`, `.trace.txt`, and other developmental and structural files are found in the `codex_++` directory one level up from project root.
 
 > **StressTest Insight**: Add support for `@ai-used-by:` and `@ai-downstream:` tags to surface integration paths Codex cannot infer from imports alone.
 
@@ -95,7 +95,7 @@ During `Run`, capture:
 
 When substantial reasoning, tradeoffs, or justifications arise - capture the natural-language upshot. Write as `.intent.md`, using ISO timestamp and module path, e.g.:
 
-`codex++/intents/2025-07-02__core.analysis.token_stats.intent.md`
+`codex_++/intents/2025-07-02__core.analysis.token_stats.intent.md`
 
 Consolidate during Drift into `.purpose.md`.
 
