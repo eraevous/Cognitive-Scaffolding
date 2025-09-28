@@ -1,0 +1,72 @@
+version: 1.0
+title: Core Terminology & Structures for Agent-Native GPTs
+author: Zachary Rhodes
+description: >
+  Foundational schema for multi-agent, memory-structured GPT workflows using Cells, Threads, Frames, and Forks.
+
+## === Glossary Definitions ===
+glossary:
+  cell:
+    definition: "An atomic interaction—one input (prompt) and one output (response)."
+    aliases: ["message pair", "turn", "unit"]
+  thread:
+    definition: "A linear sequence of Cells forming a coherent dialogue or process."
+    notes: "Assumes linear progression unless forked."
+  frame:
+    definition: "A bounded, context-rich memory object, composed of selected Cells and metadata."
+    use_cases: ["summary memory", "context injection", "recall block"]
+  film:
+    definition: "A stylized or annotated version of a Thread, often organized thematically or narratively."
+    related_to: ["thread"]
+  fork:
+    definition: "A new Thread that branches from a previous Cell or Frame within a parent Thread."
+    notes: "Used for nonlinear exploration, tangent development, or speculative divergence."
+  branch:
+    definition: "A named or labeled forked Thread from a parent Node."
+  node:
+    definition: "Any Cell designated as a forking point."
+
+## === Tagging Schema ===
+tags:
+  - ::user[ ]
+  - ::ai[ ]
+  - ::quote[ ]
+  - ::meta[ ]
+  - ::agent[ ]
+  - ::fork[ ]
+  - ::frame[ ]
+  - ::summary[ ]
+  - ::source[ ]
+
+## === Agent RoleCard Template ===
+agent_role_template:
+  agent_id: null
+  description: null
+  purpose: null
+  tone: null
+  capabilities:
+    - summarize
+    - reroute
+    - annotate
+    - recall
+  restricted_behaviors:
+    - "Do not generalize identity beyond defined role_card"
+  memory_model: frame-aware
+  fork_awareness: true
+  example_triggers: []
+
+## === Thread Object Blueprint ===
+thread_schema:
+  thread_id: null
+  title: null
+  root_cell_id: null
+  cells: []
+  branches: []
+
+cell_schema:
+  cell_id: null
+  speaker: [user, ai, agent]
+  content: ""
+  tags: []
+  forked_threads: []
+

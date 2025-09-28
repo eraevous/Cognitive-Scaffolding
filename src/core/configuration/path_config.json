@@ -1,0 +1,9 @@
+{
+  "root": "~/Documents/My Repo/Robot Organizer",
+  "raw": "raw",
+  "parsed": "parsed",
+  "metadata": "metadata",
+  "output": "output",
+  "vector": "vector",
+  "semantic_chunking": false
+}

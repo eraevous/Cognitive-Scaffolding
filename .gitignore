@@ -160,6 +160,11 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+<<<<<<< HEAD
+.vs/
+
+=======
+>>>>>>> c21c4fb7d974b7cb11b9a77ae226a0dff2fad39c
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
@@ -180,4 +185,26 @@ config.py
 *.docx
 *.txt
 *.pdf
+<<<<<<< HEAD
+*.json
+!tests/fixtures/*.json
+*.xlsx
+*.trace.*
+*.db
+
+
+
+# Dev Tools
+
+Cognitive-Scaffolding.code-workspace
+*.combined.py
+/Combined_Scripts
+Combined_Scripts/
+!ast_deps.csv
+!metadata_schema.json
+!remote_config_example.json
+
+.DS_Store
+=======
 *.md
+>>>>>>> c21c4fb7d974b7cb11b9a77ae226a0dff2fad39c

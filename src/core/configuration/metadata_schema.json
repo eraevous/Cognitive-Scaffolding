@@ -1,0 +1,169 @@
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string"
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "category": {
+      "type": "string"
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "tone": {
+      "type": "string"
+    },
+    "depth": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string"
+    },
+    "file_info": {
+      "type": "object",
+      "properties": {
+        "source_file": {
+          "type": "string"
+        },
+        "parsed_file": {
+          "type": "string"
+        },
+        "source_ext": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "filesize_bytes": {
+          "type": "integer"
+        },
+        "word_count": {
+          "type": "integer"
+        },
+        "char_count": {
+          "type": "integer"
+        },
+        "reading_time_min": {
+          "type": "integer"
+        },
+        "reading_level": {
+          "type": "string"
+        },
+        "image_count": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source_file",
+        "parsed_file"
+      ]
+    },
+    "lexical_analysis": {
+      "type": "object",
+      "properties": {
+        "top_terms": {
+          "type": "array"
+        },
+        "unusual_phrases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cluster_position": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "similar_docs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "custom": {
+      "type": "object",
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "project": {
+          "type": "string"
+        },
+        "year": {
+          "type": "integer"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "context": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "reasoning": {
+      "type": "object",
+      "properties": {
+        "what_is_this": {
+          "type": "string"
+        },
+        "why_useful": {
+          "type": "string"
+        },
+        "exploration_trails": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "direction": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "direction"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "summary",
+    "topics",
+    "tags",
+    "category",
+    "priority",
+    "tone",
+    "depth",
+    "stage"
+  ]
+}
