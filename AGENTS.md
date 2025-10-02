@@ -20,7 +20,7 @@ Treat code, conversation, configuration, and documentation as **co-equal substra
 
 ---
 
-## 1 Dual-Channel Protocol
+## 1 Multi-Channel Protocol
 
 | Channel      | Purpose                                                | Constraints             |
 | ------------ | ------------------------------------------------------ | ----------------------- |
@@ -106,13 +106,13 @@ Consolidate during Drift into `.purpose.md`.
 | ID   | Rule                                                                                                       |
 | ---- | ---------------------------------------------------------------------------------------------------------- |
 | G-01 | No commits to `main` without valid `.purpose.md` present or stubbed                                        |
-| G-02 | If AST IO != `.purpose.md`, raise and draft reconciliation                                                 |
+| G-02 | If AST graph (ast_deps.csv) != `.purpose.md`, raise and draft reconciliation                               |
 | G-03 | If `@ai-risk-*` is high or unknown, require human checkoff                                                 |
 | G-04 | Log change in module role, coupling, or edge behavior in `.intent.md`                                      |
 | G-05 | Auto-generate `.purpose.md` scaffolds with required schema fields                                          |
 | G-06 | Obey Run/Drift cadence when generating or interpreting commentary                                          |
 | G-07 | Never store secrets or plaintext credentials                                                               |
-| G-08 | All OpenAI calls must respect `BudgetTracker` if configured                                                |
+| G-08 | All external API calls must respect `BudgetTracker` if configured                                          |
 | G-09 | Changes lacking `@ai-intent` block CI until resolved                                                       |
 | G-10 | `.purpose.md` must include output schema, coordination notes, and integration anchors if applicable        |
 | G-11 | Use `@ai-pipeline-order: inverse` if prompt flow reverses default assumptions (e.g. topic-before-chunking) |
