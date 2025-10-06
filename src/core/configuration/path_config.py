@@ -49,6 +49,27 @@ from core.logger import get_logger
 logger = get_logger(__name__)
 
 
+def validate_schema_path(candidate: Union[str, Path, None]) -> Path:
+    """Ensure the metadata schema path exists, falling back to the default."""
+
+    default_path = Path(DEFAULT_METADATA_SCHEMA_PATH).expanduser().resolve(
+        strict=False
+    )
+    if candidate is None:
+        return default_path
+
+    resolved_candidate = Path(candidate).expanduser().resolve(strict=False)
+    if resolved_candidate.exists():
+        return resolved_candidate
+
+    logger.warning(
+        "Metadata schema not found at %s; using default schema at %s.",
+        resolved_candidate,
+        default_path,
+    )
+    return default_path
+
+
 class PathConfig:
     def __init__(
         self,
@@ -70,9 +91,10 @@ class PathConfig:
         )
         self.output = self._resolve_path_relative_to_root(output, default="output")
         self.vector = self._resolve_path_relative_to_root(vector, default="vector")
-        self.schema = self._resolve_path_relative_to_root(
+        schema_candidate = self._resolve_path_relative_to_root(
             schema, default=DEFAULT_METADATA_SCHEMA_PATH
         )
+        self.schema = validate_schema_path(schema_candidate)
         self.semantic_chunking = bool(semantic_chunking)
 
     def __repr__(self):
@@ -111,8 +133,7 @@ class PathConfig:
             "parsed": "parsed_docs",
             "metadata": "meta",
             "output": "clustered",
-            "vector": "vector",
-            "schema": "config/metadata_schema.json"
+            "vector": "vector"
         }
         """
         config_path = Path(config_path).expanduser().resolve()
@@ -136,3 +157,6 @@ class PathConfig:
             schema=config.get("schema"),
             semantic_chunking=config.get("semantic_chunking", False),
         )
+
+
+__all__ = ["PathConfig", "validate_schema_path"]

@@ -26,7 +26,6 @@ path_config_path.write_text(
             "metadata": "metadata",
             "output": "output",
             "vector": "vector",
-            "schema": "config/metadata_schema.json",
             "semantic_chunking": False,
         }
     )
@@ -130,7 +129,6 @@ def sample_paths(tmp_path: Path) -> PathConfig:
         metadata=metadata_dir,
         output=output_dir,
         vector=vector_dir,
-        schema=tmp_path / "config" / "metadata_schema.json",
         semantic_chunking=True,
     )
 

@@ -5,46 +5,40 @@
 # - integration points
 # - ecosystem anchoring
 # Follow AGENTS.md G-10 and Section 9 enrichment instructions.
-
 - @ai-path: core.constants
-- @ai-role: shared_config
-- @ai-intent: "Provide canonical constants (prefixes, schema defaults, error messages) for reuse across core modules."
-- @schema-version: 0.2
+- @ai-source-file: constants.py
+- @ai-role: constants
+- @ai-intent: "Expose shared constants for storage prefixes, schema defaults, and error messaging."
+- @ai-version: 0.3.0
 - @ai-generated: true
 - @human-reviewed: false
-- @ai-risk-performance: low
-- @ai-risk-pii: low
+- @schema-version: 0.3
+- @ai-risk-pii: none
+- @ai-risk-performance: "Static definitions only."
+- @ai-dependencies: pathlib
+- @ai-used-by: core.configuration.path_config, core.storage.*, core.metadata.schema, core.utils.budget_tracker
+- @ai-downstream: repo-wide modules referencing default prefixes & schema paths
 
-## 🎯 Purpose & Responsibilities
-Centralize immutable strings and templates that multiple core modules reference. This avoids configuration drift for
-S3 prefixes, schema filenames, and high-level error messages used throughout the ingestion and LLM workflows.
+## Module Summary
+`core.constants` centralizes immutable values that multiple subsystems share—S3 directory prefixes, metadata schema location, and reusable error templates. Trace A consolidation converts the metadata schema constant into a fully-resolved `Path`, ensuring every consumer inherits the same absolute path without embedding literals.
 
-## 📤 Outputs (Structured)
-| Name                                | Type                  | Description |
-|-------------------------------------|-----------------------|-------------|
-| `DEFAULT_S3_PREFIXES`               | `Dict[str, str]`      | Canonical bucket subfolder prefixes for `raw`, `parsed`, `stub`, `metadata`. |
-| `DEFAULT_S3_DOWNLOAD_PREFIX`        | `str`                 | Default prefix applied when downloading S3 artifacts. |
-| `DEFAULT_METADATA_SCHEMA_PATH`      | `str`                 | Relative path to the JSON schema for metadata validation. |
-| `ERROR_*` constants (11 variants)   | `str` templates       | Preformatted error messages for schema, config, tokenizer, prompt, and S3 failures. |
+### Output Schema
+| Name | Type | Description |
+| --- | --- | --- |
+| DEFAULT_S3_PREFIXES | Dict[str, str] | Canonical prefix map for S3-backed storage (raw, parsed, stub, metadata). |
+| DEFAULT_METADATA_SCHEMA_PATH | Path | Absolute metadata schema resolved via `Path.resolve(strict=False)`. |
+| ERROR_* constants | str | Standardized error message templates for configuration + storage failures. |
 
-## 🔄 Coordination Mechanics
-- No runtime logic; modules import constants at load time to format error strings consistently.
-- Message templates expect `.format(...)` substitution (e.g., `{path}`, `{spec}`, `{available}`) and should be filled before raising exceptions.
-- Aligns with Run cadence modules (`executor` role) by preventing divergence in user-facing errors without extra synchronization.
+### Coordination Mechanics
+- Acts as the single source for schema path resolution; `PathConfig` and `validate_schema_path` read `DEFAULT_METADATA_SCHEMA_PATH` instead of redefining literals.
+- Error templates feed into validation modules (`core.metadata.schema`) and storage code paths (`core.storage.upload_local`).
+- S3 prefix defaults seed both CLI workflows and background workers via `core.config` and remote configuration.
 
-## 🔗 Integration Points
-- Upstream consumers: `core.config`, `core.configuration.{path_config,remote_config}`, `core.metadata.schema`, `core.storage.s3_utils`, `core.parsing.openai_export`, `core.llm.invoke`, `core.analysis.token_stats`.
-- Downstream effects: surfaces identical messaging to CLI and logging layers, improving observability consistency for agents like `BudgetTracker` and GUI surfaces.
+### Integration Notes
+- All Trace A configuration consumers indirectly rely on this module when computing resolved schema paths.
+- `core.configuration.config_registry` ensures environment overrides still converge on the same default path when no custom schema provided.
+- Changes here should trigger Drift review because they affect ingestion, retrieval, and storage simultaneously.
 
-## 🌐 Ecosystem Anchoring
-- @ai-used-by: executor agents that perform config loading, parsing, retrieval, and LLM invocation.
-- @ai-downstream: logging infrastructure, CLI feedback loops, orchestration workflows in `core.workflows` and GUI prompts relying on coherent error messages.
-- Complements `core.config` orchestrator role by supplying immutable defaults while leaving environmental overrides to `config_registry`.
-
-## ⚠️ Risks & Mitigations
-- @ai-risk-drift: Medium — adding new error messages in modules without updating this hub may reintroduce duplication. Mitigate via code review checklist referencing this module.
-- @ai-risk-integration: Low — pure constant exports with no side effects.
-
-## ✅ Validation Notes
-- No runtime hooks; unit validation relies on importing constants where needed.
-- Ensure placeholders in templates stay synchronized with calling code parameters during future edits.
+### Risks & Mitigations
+- **Path drift:** Resolving the schema path with `strict=False` avoids raising when files are absent; downstream validation still checks existence.
+- **Inconsistent prefixes:** Keeping S3 defaults centralized prevents CLI vs. server mismatches.

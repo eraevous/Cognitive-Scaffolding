@@ -5,7 +5,7 @@ cli\agent.run,cli\agent.r.strip
 cli\agent.run,cli\agent.roles.split
 cli\agent.run,cli\agent.r.strip
 cli\batch_ops.classify_all,cli\batch_ops.app.command
-cli\batch_ops.classify_all,core.config.config_registry.get_path_config
+cli\batch_ops.classify_all,core.configuration.config_registry.get_path_config
 cli\batch_ops.classify_all,cli\batch_ops.sorted
 cli\batch_ops.classify_all,cli\batch_ops.paths.parsed.glob
 cli\batch_ops.classify_all,cli\batch_ops.meta_path.exists
@@ -44,12 +44,12 @@ cli\cluster.run_all,cli\cluster.app.command
 cli\cluster.run_all,typer.Option
 cli\cluster.run_all,typer.Option
 cli\cluster.run_all,typer.Option
-cli\cluster.run_all,core.config.config_registry.get_path_config
+cli\cluster.run_all,core.configuration.config_registry.get_path_config
 cli\cluster.run_all,core.clustering.clustering_steps.run_all_steps
 cli\dedup.dedup_prompts,cli\dedup.app.command
 cli\dedup.dedup_prompts,typer.Option
 cli\dedup.dedup_prompts,typer.Option
-cli\dedup.dedup_prompts,core.config.config_registry.get_path_config
+cli\dedup.dedup_prompts,core.configuration.config_registry.get_path_config
 cli\dedup.dedup_prompts,core.utils.dedup.dedup_lines_in_folder
 cli\dedup.dedup_prompts,typer.echo
 cli\dedup.dedup_prompts,pathlib.Path
@@ -57,10 +57,10 @@ cli\dedup.dedup_prompts,pathlib.Path
 cli\embed.all,cli\embed.app.command
 cli\embed.all,typer.Option
 cli\embed.all,typer.Option
-cli\embed.all,core.config.config_registry.get_path_config
+cli\embed.all,core.configuration.config_registry.get_path_config
 cli\embed.all,core.embeddings.embedder.generate_embeddings
 cli\export.parse,cli\export.app.command
-cli\export.parse,core.config.config_registry.get_path_config
+cli\export.parse,core.configuration.config_registry.get_path_config
 cli\export.parse,core.parsing.parse_chatgpt_export
 cli\organize.organize_file,core.metadata.io.load_metadata
 cli\organize.organize_file,pathlib.Path.stem.lower
@@ -86,8 +86,8 @@ cli\organize.organize_file,cli\organize.source_src.replace
 cli\organize.organize_file,cli\organize.logger.info
 cli\organize.organize_file,cli\organize.logger.warning
 cli\organize.organize_file,pathlib.Path
-cli\parse._resolve_paths,core.config.config_registry.get_path_config
-cli\parse._resolve_paths,core.config.path_config.PathConfig
+cli\parse._resolve_paths,core.configuration.config_registry.get_path_config
+cli\parse._resolve_paths,core.configuration.path_config.PathConfig
 cli\parse.run,cli\parse.app.command
 cli\parse.run,typer.Argument
 cli\parse.run,typer.Option
@@ -101,8 +101,8 @@ cli\parse.run,cli\parse.sorted
 cli\parse.run,core.storage.upload_local.prepare_document_for_processing
 cli\parse.run,cli\parse.input_path.glob
 cli\parse.run,core.storage.upload_local.prepare_document_for_processing
-cli\pipeline._resolve_paths,core.config.config_registry.get_path_config
-cli\pipeline._resolve_paths,core.config.path_config.PathConfig
+cli\pipeline._resolve_paths,core.configuration.config_registry.get_path_config
+cli\pipeline._resolve_paths,core.configuration.path_config.PathConfig
 cli\pipeline.run_all,cli\pipeline.app.command
 cli\pipeline.run_all,typer.Option
 cli\pipeline.run_all,typer.Option
@@ -347,7 +347,7 @@ core\clustering\export.export_cluster_data,core\clustering\export.meta.get
 core\clustering\export.export_cluster_data,core\clustering\export.meta.get
 core\clustering\export.export_cluster_data,core\clustering\export.meta.get
 core\clustering\labeling.label_clusters,core\clustering\labeling.zip
-core\clustering\labeling.label_clusters,core.config.config_registry.get_remote_config
+core\clustering\labeling.label_clusters,core.configuration.config_registry.get_remote_config
 core\clustering\labeling.label_clusters,openai.OpenAI
 core\clustering\labeling.label_clusters,core\clustering\labeling.cluster_map.items
 core\clustering\labeling.label_clusters,core\clustering\labeling.cluster_map.setdefault.append
@@ -457,7 +457,7 @@ core\configuration\remote_config.from_file,pathlib.Path.expanduser
 core\configuration\remote_config.from_file,core.constants.ERROR_REMOTE_CONFIG_MISSING_FIELDS.format
 core\configuration\remote_config.from_file,pathlib.Path
 core\embeddings\embedder.get_model_for_dim,core\embeddings\embedder.MODEL_BY_DIM.get
-core\embeddings\embedder.embed_text,core.config.config_registry.get_remote_config
+core\embeddings\embedder.embed_text,core.configuration.config_registry.get_remote_config
 core\embeddings\embedder.embed_text,openai.OpenAI
 core\embeddings\embedder.embed_text,core.utils.budget_tracker.get_budget_tracker
 core\embeddings\embedder.embed_text,tiktoken.encoding_for_model
@@ -481,7 +481,7 @@ core\embeddings\embedder.embed_text,core\embeddings\embedder.RuntimeError
 core\embeddings\embedder.embed_text,core\embeddings\embedder.len
 core\embeddings\embedder.embed_text,core\embeddings\embedder.len
 core\embeddings\embedder.generate_embeddings,pathlib.Path
-core\embeddings\embedder.generate_embeddings,core.config.config_registry.get_path_config
+core\embeddings\embedder.generate_embeddings,core.configuration.config_registry.get_path_config
 core\embeddings\embedder.generate_embeddings,core\embeddings\embedder.MODEL_DIMS.get
 core\embeddings\embedder.generate_embeddings,core\embeddings\embedder.index_path.exists
 core\embeddings\embedder.generate_embeddings,core.vectorstore.faiss_store.FaissStore
@@ -556,9 +556,9 @@ core\llm\invoke.run_openai_completion,core\llm\invoke.tracker.check
 core\llm\invoke.run_openai_completion,core\llm\invoke.RuntimeError
 core\llm\invoke.run_openai_completion,core\llm\invoke.LLM_PROMPT_COST_PER_1K.get
 core\llm\invoke.run_openai_completion,core\llm\invoke.LLM_COMPLETION_COST_PER_1K.get
-core\llm\invoke.run_openai_completion,core.config.remote_config.RemoteConfig.from_file
+core\llm\invoke.run_openai_completion,core.configuration.remote_config.RemoteConfig.from_file
 core\llm\invoke.summarize_text,core\llm\invoke.run_openai_completion
-core\llm\invoke.summarize_text,core.config.remote_config.RemoteConfig.from_file
+core\llm\invoke.summarize_text,core.configuration.remote_config.RemoteConfig.from_file
 core\llm\invoke.summarize_text,core\llm\invoke.prompt_override.format
 core\llm\invoke.summarize_text,core\llm\invoke.load_prompt
 core\llm\invoke.summarize_text,core\llm\invoke.base_prompt.format
@@ -572,7 +572,7 @@ core\llm\invoke.test_summarize_text_standard,core\llm\invoke.result.get
 core\llm\invoke.test_summarize_text_chatlog,core\llm\invoke.summarize_text
 core\llm\invoke.test_summarize_text_chatlog,core\llm\invoke.isinstance
 core\llm\invoke.test_summarize_text_chatlog,core\llm\invoke.result.get
-core\memory\frame_store.__init__,core.config.config_registry.get_path_config
+core\memory\frame_store.__init__,core.configuration.config_registry.get_path_config
 core\memory\frame_store.__init__,core\memory\frame_store.self.path.mkdir
 core\memory\frame_store.save_frame,core\memory\frame_store.fpath.write_text
 core\memory\frame_store.save_frame,json.dumps
@@ -665,7 +665,7 @@ core\metadata\merge.flatten,core\metadata\merge.block.get
 core\metadata\merge.most_common,collections.Counter.most_common
 core\metadata\merge.most_common,collections.Counter
 core\metadata\merge.most_common,core\metadata\merge.block.get
-core\metadata\schema.validate_metadata,core.config.config_registry.get_path_config
+core\metadata\schema.validate_metadata,core.configuration.config_registry.get_path_config
 core\metadata\schema.validate_metadata,pathlib.Path
 core\metadata\schema.validate_metadata,core\metadata\schema.logger.info
 core\metadata\schema.validate_metadata,jsonschema.validate
@@ -857,7 +857,7 @@ core\parsing\__init__.segment_topics,openai_export.parse_chatgpt_export
 core\parsing\__init__.topic_segmenter,openai_export.parse_chatgpt_export
 core\parsing\__init__.parse_chatgpt_export,openai_export.parse_chatgpt_export
 core\retrieval\retriever.__init__,core.logger.get_logger
-core\retrieval\retriever.__init__,core.config.config_registry.get_path_config
+core\retrieval\retriever.__init__,core.configuration.config_registry.get_path_config
 core\retrieval\retriever.__init__,core.embeddings.embedder.MODEL_DIMS.get
 core\retrieval\retriever.__init__,core\retrieval\retriever.id_map_path.exists
 core\retrieval\retriever.__init__,core.vectorstore.faiss_store.FaissStore
@@ -944,7 +944,7 @@ core\storage\upload_local.prepare_document_for_processing,core\storage\upload_lo
 core\storage\upload_local.prepare_document_for_processing,core\storage\upload_local.stub_file.write_text
 core\storage\upload_local.prepare_document_for_processing,core\storage\upload_local.logger.info
 core\storage\upload_local.prepare_document_for_processing,core\storage\upload_local.logger.info
-core\storage\upload_local.prepare_document_for_processing,core.config.config_registry.get_path_config
+core\storage\upload_local.prepare_document_for_processing,core.configuration.config_registry.get_path_config
 core\storage\upload_local.prepare_document_for_processing,core\storage\upload_local.file_path.read_bytes
 core\storage\upload_local.prepare_document_for_processing,core.parsing.extract_text.extract_text
 core\storage\upload_local.prepare_document_for_processing,core\storage\upload_local.str
@@ -964,7 +964,7 @@ core\storage\upload_s3.push_document_to_s3,core.parsing.extract_text.extract_tex
 core\storage\upload_s3.push_document_to_s3,core\storage\upload_s3.s3.upload_file
 core\storage\upload_s3.push_document_to_s3,core\storage\upload_s3.s3.put_object
 core\storage\upload_s3.push_document_to_s3,core\storage\upload_s3.s3.put_object
-core\storage\upload_s3.push_document_to_s3,core.config.remote_config.RemoteConfig.from_file
+core\storage\upload_s3.push_document_to_s3,core.configuration.remote_config.RemoteConfig.from_file
 core\storage\upload_s3.push_document_to_s3,core\storage\upload_s3.str
 core\storage\upload_s3.push_document_to_s3,core\storage\upload_s3.str
 core\storage\upload_s3.push_document_to_s3,core\storage\upload_s3.file_path.suffix.lower.lstrip
@@ -1064,7 +1064,7 @@ core\vectorstore\faiss_store.persist,faiss.write_index
 core\vectorstore\faiss_store.persist,core\vectorstore\faiss_store.str
 core\vectorstore\faiss_store._load,faiss.read_index
 core\vectorstore\faiss_store._load,core\vectorstore\faiss_store.str
-core\workflows\main_commands.get_parsed_text,core.config.config_registry.get_path_config
+core\workflows\main_commands.get_parsed_text,core.configuration.config_registry.get_path_config
 core\workflows\main_commands.get_parsed_text,core\workflows\main_commands.parsed_path.read_text
 core\workflows\main_commands.looks_like_chatlog,core\workflows\main_commands.text.lower.splitlines
 core\workflows\main_commands.looks_like_chatlog,core\workflows\main_commands.sum
@@ -1092,9 +1092,9 @@ core\workflows\main_commands.classify,core\workflows\main_commands.detect
 core\workflows\main_commands.classify,core\workflows\main_commands.summarize
 core\workflows\main_commands.classify,core\workflows\main_commands.merge_stubs
 core\workflows\main_commands.classify,core\workflows\main_commands.persist
-core\workflows\main_commands.classify,core.config.config_registry.get_path_config
+core\workflows\main_commands.classify,core.configuration.config_registry.get_path_config
 core\workflows\main_commands.classify,core\workflows\main_commands.segment
-core\workflows\main_commands.upload_metadata_to_s3,core.config.config_registry.get_remote_config
+core\workflows\main_commands.upload_metadata_to_s3,core.configuration.config_registry.get_remote_config
 core\workflows\main_commands.upload_metadata_to_s3,core.storage.s3_utils.save_metadata_s3
 core\workflows\main_commands.upload_and_prepare,core.storage.upload_local.upload_file
 core\workflows\main_commands.pipeline_from_upload,core\workflows\main_commands.upload_and_prepare
@@ -1103,7 +1103,7 @@ core\workflows\main_commands.pipeline_from_upload,pathlib.Path.stem.replace.repl
 core\workflows\main_commands.pipeline_from_upload,pathlib.Path.stem.replace.replace
 core\workflows\main_commands.pipeline_from_upload,pathlib.Path.stem.replace
 core\workflows\main_commands.pipeline_from_upload,pathlib.Path
-gui\chat_gui.run_openai_chat,core.config.config_registry.get_remote_config
+gui\chat_gui.run_openai_chat,core.configuration.config_registry.get_remote_config
 gui\chat_gui.run_openai_chat,openai.OpenAI
 gui\chat_gui.run_openai_chat,core.utils.budget_tracker.get_budget_tracker
 gui\chat_gui.run_openai_chat,gui\chat_gui.client.chat.completions.create
@@ -1144,7 +1144,7 @@ scripts\pipeline.run_pipeline,scripts\pipeline.logger.info
 scripts\pipeline.run_pipeline,scripts\pipeline.sorted
 scripts\pipeline.run_pipeline,scripts\pipeline.embed_document
 scripts\pipeline.run_pipeline,scripts\pipeline.logger.info
-scripts\pipeline.run_pipeline,core.config.config_registry.get_path_config
+scripts\pipeline.run_pipeline,core.configuration.config_registry.get_path_config
 scripts\pipeline.run_pipeline,scripts\pipeline.input_dir.glob
 scripts\pipeline.run_pipeline,scripts\pipeline.upload_file
 scripts\pipeline.run_pipeline,scripts\pipeline.paths.parsed.glob
