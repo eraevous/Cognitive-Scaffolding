@@ -1,58 +1,57 @@
-# Module: core.embeddings.embedder
-# @ai-path: core.embeddings.embedder
-# @ai-source-file: embedder.py
-# @ai-role: logic
-# @ai-intent: "Generate document embeddings and persist them in a FAISS index."
-# @ai-version: 0.1.0
-# @ai-generated: true
-# @ai-verified: false
-# @human-reviewed: false
-# @schema-version: 0.2
-# @ai-risk-pii: medium
+# @codex-role: architect
+# @codex-objective: generate or upgrade `.purpose.md` with:
+# - output schema
+# - coordination logic
+# - integration points
+# - ecosystem anchoring
+# Follow AGENTS.md G-10 and Section 9 enrichment instructions.
+- @ai-path: core.embeddings.embedder
+- @ai-source-file: embedder.py
+- @ai-role: embedder
+- @ai-intent: "Create OpenAI embeddings for documents, chunks, and ad-hoc queries while tracking spend."
+- @ai-version: 0.4.0
+- @ai-generated: true
+- @human-reviewed: false
+- @schema-version: 0.3
+- @ai-risk-pii: medium
+- @ai-risk-performance: "OpenAI batching mitigates API round-trips but remains network bound."
+- @ai-dependencies: core.configuration.config_registry, core.parsing.chunk_text, core.parsing.semantic_chunk, core.utils.budget_tracker, core.vectorstore.faiss_store, hashlib, json, numpy, openai, pathlib, tiktoken
+- @ai-used-by: scripts.pipeline, cli.embed, core.retrieval.retriever
+- @ai-downstream: core.vectorstore.faiss_store, core.retrieval.retriever, cli.pipeline
 
-> Converts textual documents to embeddings and writes them to a FAISS index with a mapping of hashed document IDs.
+## Module Summary
+The embedder module encapsulates all embedding generation paths. It caches the OpenAI client, manages tokenizer lookups, enforces Trace A schema resolution through `PathConfig`, and persists vectors + chunk metadata for FAISS ingestion. Chunking strategies span simple text windows and semantic segmentation, enabling downstream retrieval quality.
 
-### 🎯 Intent & Responsibility
-- Create embeddings for parsed, raw, summary, or metadata text.
-- Batch short texts with `embed_text_batch` so overlapping windows do not spam the API.
-- Insert vectors into `FaissStore` for later retrieval or clustering.
-- Store a JSON map linking hashed IDs to document filenames.
-- When segmenting, persist chunk metadata with embeddings for downstream search.
+### IO Contracts
+| Channel | Name | Type | Description |
+| --- | --- | --- | --- |
+| 📥 In | source_dir | Path \| None | Directory containing text or metadata payloads for embedding. |
+| 📥 In | method | Literal["parsed","summary","raw","meta"] | Source text selector for embedding generation. |
+| 📥 In | segment_mode | bool \| None | Toggle semantic chunking; defaults to `PathConfig.semantic_chunking`. |
+| 📥 In | model | str | Embedding model to request from OpenAI; informs FAISS index dimension. |
+| 📥 In | chunk_dir | Path \| None | Optional override for chunk artifact directory. |
+| 📤 Out | vectors | List[List[float]] | Embedding vectors persisted via `FaissStore`. |
+| 📤 Out | id_map | Dict[str, str] | Mapping between FAISS integer ids and document or chunk identifiers. |
+| 📤 Out | chunk_files | List[Path] | JSON chunk payloads written when semantic segmentation enabled. |
 
-### 📥 Inputs & 📤 Outputs
-| Direction | Name | Type | Brief Description |
-|-----------|------|------|-------------------|
-| 📥 In | source_dir | Path | Directory containing text or `.meta.json` files |
-| 📥 In | method | Literal[str] | How to select text (`"parsed"`, `"raw"`, `"summary"`, `"meta"`) |
-| 📥 In | model | str | OpenAI model name |
-| 📥 In | segment_mode | bool | Overrides config to use topic segmentation when True; defaults to `PathConfig.semantic_chunking` |
-| 📥 In | chunk_dir | Path (optional) | Where to write chunk text when `segment_mode` is enabled |
-| 📤 Out | rich_doc_embeddings.json | JSON file of `{doc_id: vector}` |
-| 📤 Out | mosaic.index | FAISS index persisted to disk |
-| 📤 Out | id_map.json | Map of int IDs to original filenames |
-| 📤 Out | chunks/*.json | Per-chunk files with text, embedding, and metadata |
+### Schema Resolution
+- Uses `core.configuration.config_registry.get_path_config` to acquire cached paths and schema metadata.
+- `PathConfig` applies `validate_schema_path`, guaranteeing schema lookups survive missing overrides and remain reproducible across CLI invocations.
+- All vector + chunk outputs live under `paths.vector`, aligning retrieval and clustering flows.
 
-### 🔗 Dependencies
-- `openai`, cached `OpenAI` client instance, and `tiktoken`
-- `numpy` for array math and averaging long-text embeddings
-- `core.vectorstore.faiss_store` for index management
-- `core.config.config_registry` for path lookups and remote API keys
-- `core.utils.logger` for logging
-- `core.utils.budget_tracker.get_budget_tracker` for request budgeting
+### Coordination Mechanics
+- Budget control: `core.utils.budget_tracker` enforces estimated spend per request.
+- Client bootstrap: `core.configuration.config_registry.get_remote_config` supplies API keys (via cached remote config).
+- Chunk orchestration: `core.parsing.chunk_text` (windowing) and `core.parsing.semantic_chunk` (topic-aware segmentation) feed the embedding loop.
+- Persistence: `core.vectorstore.faiss_store` writes FAISS indices, while `hashlib` ensures deterministic chunk identifiers.
+- Tokenizer: `tiktoken` encodes inputs to respect `MAX_EMBED_TOKENS` constraints.
 
-### 🗣 Dialogic Notes
-- Document IDs are hashed via Blake2b and **masked to 63 bits** (`0x7FFF_FFFF_FFFF_FFFF`) so FAISS can store them as signed `int64` without overflow.
-- Embeddings for long documents are averaged from token chunks, while short inputs are batched per request to cut run time.
-- A module-level OpenAI client and encoding cache prevent repeated session setup when thousands of chunks are processed.
-- FAISS index is recreated on each run if dimensions mismatch.
-- Topic segmentation import is lazy to avoid circular dependencies with
-  `semantic_chunk`.
-- If `segment_mode` is omitted, `PathConfig.semantic_chunking` determines whether
-  to segment via topics or simple paragraphs.
-- Estimated OpenAI cost is checked via `BudgetTracker`; batched calls debit budgets by total token count before dispatch.
+### Integration Notes
+- Entry point for ingestion pipeline (`scripts.pipeline.generate_embeddings`) and CLI embed workflows.
+- Supplies embeddings to `core.retrieval.retriever` and clustering routines.
+- Shares Trace A configuration contract with CLI + workflow modules—no inline schema literals remain after consolidation.
 
-### 9 Pipeline Integration
-- @ai-pipeline-order: inverse
-- **Coordination Mechanics:** Embedding generation triggers semantic chunking when enabled and writes vectors to `FaissStore`. Index files are then consumed by `core.retrieval.retriever`.
-- **Integration Points:** Downstream usage includes Retriever search, Synthesizer summarization loops, and TokenMap Analyzer for chunk metrics.
-- **Risks:** Excessive chunk count inflates API spend and FAISS index size; GPU memory may limit batch processing.
+### Risks & Mitigations
+- **Rate limits / cost spikes:** budget tracker halts requests before spend overrun; chunk batching reduces API calls.
+- **Schema drift:** reliance on `PathConfig` ensures metadata directories align with validated schema path.
+- **Large documents:** long inputs automatically chunked and averaged to avoid OpenAI token limits.

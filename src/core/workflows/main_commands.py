@@ -48,8 +48,8 @@ import json
 from pathlib import Path
 from typing import Literal, Optional
 
-from core.config.config_registry import get_path_config, get_remote_config
-from core.config.path_config import PathConfig
+from core.configuration.config_registry import get_path_config, get_remote_config
+from core.configuration.path_config import PathConfig
 from core.llm.invoke import summarize_text
 from core.metadata.merge import merge_metadata_blocks
 from core.metadata.schema import validate_metadata

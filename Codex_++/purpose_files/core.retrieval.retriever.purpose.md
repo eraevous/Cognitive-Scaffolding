@@ -1,53 +1,54 @@
+# @codex-role: architect
+# @codex-objective: generate or upgrade `.purpose.md` with:
+# - output schema
+# - coordination logic
+# - integration points
+# - ecosystem anchoring
+# Follow AGENTS.md G-10 and Section 9 enrichment instructions.
 - @ai-path: core.retrieval.retriever
 - @ai-source-file: retriever.py
-- @ai-role: logic
-- @ai-intent: "Embed one or more queries, rank results, and optionally aggregate chunk text across documents."
-- @ai-version: 0.2.0
+- @ai-role: retriever
+- @ai-intent: "Rank vector-store hits for one or more natural-language queries."
+- @ai-version: 0.3.0
 - @ai-generated: true
-- @ai-verified: false
 - @human-reviewed: false
-- @schema-version: 0.2
+- @schema-version: 0.3
 - @ai-risk-pii: low
-- @ai-risk-performance: "Embedding model calls incur latency and cost."
+- @ai-risk-performance: "Embedding + FAISS search bounded by query batch size."
+- @ai-dependencies: core.configuration.config_registry, core.embeddings.embedder, core.logger.get_logger, core.vectorstore.faiss_store, json, numpy, pathlib
+- @ai-used-by: core.workflows.main_commands, cli.pipeline, scripts.pipeline
+- @ai-downstream: core.synthesis.summarizer, gui.chat_gui
 
-# Module: core.retrieval.retriever
-> Unified interface for semantic search against the FAISS vector store.
+## Module Summary
+Retriever centralizes semantic search against the FAISS index. It resolves storage locations via the shared `PathConfig` cache, infers embedding dimensions, and exposes helpers for single query, multi-query, and file-based retrieval. Result aggregation can collapse chunk-level hits back to document-level summaries for downstream synthesis loops.
 
-### 🎯 Intent & Responsibility
-- Convert query text to embeddings using the configured model.
- - Delegate search to `FaissStore` and return ranked document filenames using `id_map.json`.
-- Provide an easy-to-mock layer for CLI and future agent use.
-- Detect index dimension at init and switch embedding model accordingly.
+### IO Contracts
+| Channel | Name | Type | Description |
+| --- | --- | --- | --- |
+| 📥 In | store | FaissStore \| None | Optional pre-built index; defaults to vector path from `PathConfig`. |
+| 📥 In | model | str \| None | Embedding model override; auto-inferred from FAISS index dimension when omitted. |
+| 📥 In | chunk_dir | Path \| None | Directory containing cached chunk text; defaults to `<vector>/chunks` when present. |
+| 📥 In | texts | Iterable[str] | Query strings handled by `query_multi`. |
+| 📤 Out | ranked | List[Tuple[str, float]] | Ranked `(doc_id, score)` pairs for top-k hits. |
+| 📤 Out | enriched | List[Tuple[str, float, str]] | Ranked triples including chunk text when `return_text=True`. |
 
-### 📥 Inputs & 📤 Outputs
-| Direction | Name | Type | Brief Description |
-|-----------|------|------|-------------------|
-| 📥 In | text | str | Search query text (via ``query``) |
-| 📥 In | texts | Iterable[str] | Multiple search queries (``query_multi``) |
-| 📥 In | file | Path | Text file used as query (``query_file``) |
-| 📥 In | k | int | Number of results to return |
-| 📥 In | chunk_dir | Path (optional) | Directory holding text chunks for retrieval |
-| 📥 In | return_text | bool (optional) | Include chunk text when `chunk_dir` is configured |
-| 📥 In | aggregate | bool (optional) | Combine chunks by document when using ``query_multi`` |
-| 📤 Out | results | List[Tuple[str, float]] or List[Tuple[str, float, str]] | Ranked IDs and scores, optionally aggregated with text |
+### Schema Resolution
+- Delegates filesystem discovery to `core.configuration.config_registry.get_path_config`.
+- `PathConfig` internally calls `validate_schema_path`, ensuring cached schema paths stay reproducible even when overrides are missing.
+- Vector index (`mosaic.index`), `id_map.json`, and optional chunk cache resolve under `paths.vector`.
 
-### 🔗 Dependencies
-- `core.embeddings.embedder.embed_text`
-- `core.vectorstore.faiss_store.FaissStore`
-- `numpy`
-- `core.utils.logger`
+### Coordination Mechanics
+- Embedding provider: `core.embeddings.embedder` (uses same registry + schema contract).
+- Vector store: `core.vectorstore.faiss_store.FaissStore` handles search, exposes `index.d` for dimension inference.
+- Logging: `core.logger.get_logger` surfaces cadence + model auto-detection to observability feeds.
+- Aggregation: merges multi-query hits, supports chunk aggregation for the Synthesizer agent.
 
-### 🗣 Dialogic Notes
-- Embedding model is configurable; defaults to OpenAI `text-embedding-3-small`.
-- Agents will call this layer instead of accessing FAISS directly.
-- When no model is specified, the retriever infers one by reading the FAISS index dimension.
-- Uses `id_map.json` to translate FAISS integer IDs back to document filenames.
-- When embeddings include chunk IDs (`doc_chunk01`), results may refer to those composite identifiers and `return_text` can load the chunk file if available.
-- `query_multi` merges scores across queries and can group chunks by their document prefix when `aggregate=True`.
-- `query_file` reads text from disk then delegates to `query`.
+### Integration Notes
+- Upstream call sites: CLI (`cli.pipeline.run_all`), scripted ingestion (`scripts.pipeline.run_pipeline`), and workflow orchestrators (`core.workflows.main_commands`).
+- Downstream: Summarization (`core.synthesis.summarizer`) and GUI retrieval experiences consume ranked outputs.
+- Maintains compatibility with Trace A schema consolidation by never embedding schema literals; all configuration flows through cached registries.
 
-### 9 Pipeline Integration
-- @ai-pipeline-order: inverse
-- **Coordination Mechanics:** Receives query embeddings from `embed_text` and consults `FaissStore`; can merge scores across multiple queries and aggregate retrieved chunk text.
-- **Integration Points:** Results feed directly into the Synthesizer RAG loop and TokenMap Analyzer for token-level context alignment.
-- **Risks:** Retrieval across many chunks may load large text blobs and increase latency; misaligned embeddings reduce search quality.
+### Risks & Mitigations
+- **Index drift:** Embedding model mismatch mitigated by dimension auto-detection and logging.
+- **Missing chunk text:** Gracefully returns empty strings when chunk files absent; aggregation still returns ranking.
+- **Config drift:** Reliance on `PathConfig` ensures shared schema + vector roots even across CLI/worker contexts.

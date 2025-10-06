@@ -4,7 +4,7 @@ from typing import Iterable, List, Tuple, cast
 
 import numpy as np
 
-from core.config.config_registry import get_path_config
+from core.configuration.config_registry import get_path_config
 from core.embeddings.embedder import MODEL_DIMS, embed_text, get_model_for_dim
 from core.logger import get_logger
 from core.vectorstore.faiss_store import FaissStore

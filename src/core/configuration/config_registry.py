@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from .path_config import PathConfig
 from .remote_config import RemoteConfig
@@ -11,25 +11,42 @@ from .remote_config import RemoteConfig
 _path_instance: Optional[PathConfig] = None
 _remote_instance: Optional[RemoteConfig] = None
 
-path_config: Optional[Path] = Path(__file__).with_name("path_config.json")
-remote_config: Optional[Path] = Path(__file__).with_name("remote_config.json")
+_DEFAULT_PATH_CONFIG_PATH = (
+    Path(__file__).with_name("path_config.json").expanduser().resolve(strict=False)
+)
+_DEFAULT_REMOTE_CONFIG_PATH = (
+    Path(__file__).with_name("remote_config.json").expanduser().resolve(strict=False)
+)
+
+path_config: Optional[Path] = _DEFAULT_PATH_CONFIG_PATH
+remote_config: Optional[Path] = _DEFAULT_REMOTE_CONFIG_PATH
+
+_UNSET = object()
 
 
 def configure(
     *,
-    path_config_path: Optional[Path] = None,
-    remote_config_path: Optional[Path] = None,
+    path_config_path: Union[Path, str, None, object] = _UNSET,
+    remote_config_path: Union[Path, str, None, object] = _UNSET,
 ) -> None:
     """Override the filesystem locations for configuration files."""
 
     global path_config, remote_config, _path_instance, _remote_instance
 
-    if path_config_path is not None:
-        path_config = Path(path_config_path)
+    if path_config_path is not _UNSET:
+        if path_config_path is None:
+            path_config = _DEFAULT_PATH_CONFIG_PATH
+        else:
+            path_config = Path(path_config_path).expanduser().resolve(strict=False)
         _path_instance = None
 
-    if remote_config_path is not None:
-        remote_config = Path(remote_config_path)
+    if remote_config_path is not _UNSET:
+        if remote_config_path is None:
+            remote_config = _DEFAULT_REMOTE_CONFIG_PATH
+        else:
+            remote_config = Path(remote_config_path).expanduser().resolve(
+                strict=False
+            )
         _remote_instance = None
 
 

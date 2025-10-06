@@ -52,7 +52,7 @@ from typing import Dict, List
 
 from openai import OpenAI
 
-from core.config.config_registry import get_remote_config
+from core.configuration.config_registry import get_remote_config
 from core.logger import get_logger
 
 logger = get_logger(__name__)

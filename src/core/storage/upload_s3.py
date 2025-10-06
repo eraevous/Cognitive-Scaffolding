@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from core.config.config_registry import get_path_config
-from core.config.remote_config import RemoteConfig
+from core.configuration.config_registry import get_path_config
+from core.configuration.remote_config import RemoteConfig
 from core.parsing.extract_text import extract_text
 from core.storage.aws_clients import get_s3_client
 

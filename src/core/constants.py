@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Dict
 
 # --------------------------------------------------------------------------- #
@@ -19,8 +20,13 @@ DEFAULT_S3_PREFIXES: Dict[str, str] = {
 DEFAULT_S3_DOWNLOAD_PREFIX: str = DEFAULT_S3_PREFIXES["raw"]
 """Default prefix used when downloading files from S3."""
 
-DEFAULT_METADATA_SCHEMA_PATH: str = "config/metadata_schema.json"
-"""Relative path to the default metadata schema file."""
+_DEFAULT_SCHEMA_RELATIVE = Path("core/configuration/metadata_schema.json")
+DEFAULT_METADATA_SCHEMA_PATH: Path = (
+    (Path(__file__).resolve().parents[1] / _DEFAULT_SCHEMA_RELATIVE)
+    .expanduser()
+    .resolve(strict=False)
+)
+"""Absolute path to the default metadata schema file."""
 
 # --------------------------------------------------------------------------- #
 #  Error message templates
