@@ -44,9 +44,7 @@ def configure(
         if remote_config_path is None:
             remote_config = _DEFAULT_REMOTE_CONFIG_PATH
         else:
-            remote_config = Path(remote_config_path).expanduser().resolve(
-                strict=False
-            )
+            remote_config = Path(remote_config_path).expanduser().resolve(strict=False)
         _remote_instance = None
 
 

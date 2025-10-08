@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import json
 import importlib
+import json
 from pathlib import Path
 
 import pytest
@@ -19,7 +19,9 @@ runner = CliRunner()
 @pytest.fixture(autouse=True)
 def restore_registry_state():
     """Reload the registry module between tests to avoid cross-test bleed."""
-    module = importlib.reload(importlib.import_module("core.configuration.config_registry"))
+    module = importlib.reload(
+        importlib.import_module("core.configuration.config_registry")
+    )
     try:
         yield module
     finally:
@@ -56,17 +58,23 @@ def test_configure_resets_to_default(tmp_path: Path):
     assert registry.get_path_config() is restored
 
 
-def test_validate_schema_path_warns_and_falls_back(tmp_path: Path, caplog: pytest.LogCaptureFixture):
+def test_validate_schema_path_warns_and_falls_back(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
     """Missing schema files log a warning and fall back to the default path."""
     missing = tmp_path / "missing-schema.json"
     caplog.set_level("WARNING")
 
     resolved = validate_schema_path(missing)
     assert resolved == DEFAULT_METADATA_SCHEMA_PATH
-    assert any("Metadata schema not found" in record.message for record in caplog.records)
+    assert any(
+        "Metadata schema not found" in record.message for record in caplog.records
+    )
 
 
-def test_cli_pipeline_uses_cached_schema(tmp_path: Path, caplog: pytest.LogCaptureFixture):
+def test_cli_pipeline_uses_cached_schema(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
     """CLI invocation should reuse cached schema resolution when composing PathConfig."""
     caplog.set_level("INFO")
     base = PathConfig(root=tmp_path, schema=tmp_path / "nonexistent.json")
@@ -109,4 +117,6 @@ def test_cli_pipeline_uses_cached_schema(tmp_path: Path, caplog: pytest.LogCaptu
     assert result.exit_code == 0
     assert captured["schema"] == base.schema
     assert base.schema == DEFAULT_METADATA_SCHEMA_PATH
-    assert any("Metadata schema not found" in record.message for record in caplog.records)
+    assert any(
+        "Metadata schema not found" in record.message for record in caplog.records
+    )

@@ -52,9 +52,7 @@ logger = get_logger(__name__)
 def validate_schema_path(candidate: Union[str, Path, None]) -> Path:
     """Ensure the metadata schema path exists, falling back to the default."""
 
-    default_path = Path(DEFAULT_METADATA_SCHEMA_PATH).expanduser().resolve(
-        strict=False
-    )
+    default_path = Path(DEFAULT_METADATA_SCHEMA_PATH).expanduser().resolve(strict=False)
     if candidate is None:
         return default_path
 

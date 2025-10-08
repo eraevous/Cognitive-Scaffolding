@@ -168,7 +168,7 @@ def analyze(
     source_dir: str = typer.Option(".", help="Directory to scan for Python files."),
     recursive: bool = typer.Option(True, help="Recursively scan subdirectories."),
     ignore_dirs: str = typer.Option(
-        "venv,.git,.pytest_cache,Scratch,tests,env,Combined_Scripts",
+        "venv,.git,.pytest_cache,Scratch,tests,env,Combined_Scripts,kairos.egg-info, Codex_++, __pycache__, tests,vector,demo_script,.venv",
         help="Comma-separated relative paths to ignore under source_dir.",
     ),
     output: Path = typer.Option(None, help="Optional CSV output file."),

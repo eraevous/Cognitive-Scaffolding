@@ -40,7 +40,6 @@ disk and validates metadata dictionaries against it using `jsonschema`, raising 
 """
 
 import json
-from pathlib import Path
 
 from jsonschema import validate
 
