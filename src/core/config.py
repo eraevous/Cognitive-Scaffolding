@@ -79,7 +79,7 @@ get_path_config = _config_registry.get_path_config
 get_remote_config = _config_registry.get_remote_config
 configure_registry = _config_registry.configure
 
-for module_name in ("config_registry", "path_config", "remote_config", "llm_config"):
+for module_name in ("config_registry", "path_config", "remote_config"):
     sys.modules[f"{__name__}.{module_name}"] = import_module(
         f"core.configuration.{module_name}"
     )
