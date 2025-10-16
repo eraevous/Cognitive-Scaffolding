@@ -137,29 +137,3 @@ def summarize_text(
         raise ValueError(
             ERROR_OPENAI_RESPONSE_NOT_JSON.format(response=raw_response)
         ) from e
-
-
-# test_core_llm_invoke.py
-
-
-def test_summarize_text_standard():
-    example_text = """
-    This document describes the future of automation and how workers can adapt to changes in the economy. It touches on AI ethics, retraining, and the emotional journey of letting go of obsolete skills.
-    """
-    result = summarize_text(example_text, doc_type="standard")
-    assert isinstance(result, dict)
-    assert "summary" in result
-    assert isinstance(result.get("topics", []), list)
-
-
-def test_summarize_text_chatlog():
-    example_chat = """
-    User: I'm feeling stuck about my job.
-    Assistant: Can you tell me more about what's been happening?
-    User: I just feel like I'm not valued anymore. My company is automating everything.
-    Assistant: That sounds really difficult. Do you feel like your skills are being overlooked?
-    """
-    result = summarize_text(example_chat, doc_type="chatlog")
-    assert isinstance(result, dict)
-    assert result.get("category") == "chatlog"
-    assert "summary" in result
