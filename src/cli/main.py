@@ -11,8 +11,8 @@ import cli.export as export
 import cli.parse as parse
 import cli.pipeline as pipeline
 import cli.search as search
-import cli.tokens as tokens
 import cli.spite as spite
+import cli.tokens as tokens
 
 app = typer.Typer()
 

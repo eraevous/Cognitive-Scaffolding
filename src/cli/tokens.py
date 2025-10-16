@@ -45,5 +45,3 @@ def summary(
         for h, (lo, hi) in zip(hist, zip(edges[:-1], edges[1:])):
             bar = "█" * int(h / hist.max() * 30)
             typer.echo(f"{int(lo):>6,}–{int(hi):>6,} | {bar} {h}")
-
-

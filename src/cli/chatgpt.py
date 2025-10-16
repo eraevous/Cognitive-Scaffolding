@@ -1,7 +1,8 @@
 from pathlib import Path
-from core.parsing.openai_export import parse_chatgpt_export
 
 import typer
+
+from core.parsing.openai_export import parse_chatgpt_export
 
 app = typer.Typer(help="ChatGPT data export utilities")
 
