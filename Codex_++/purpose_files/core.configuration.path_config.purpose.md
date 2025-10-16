@@ -15,7 +15,7 @@
 - @schema-version: 0.3
 - @ai-risk-pii: none
 - @ai-risk-performance: "Negligible — pure path arithmetic."
-- @ai-dependencies: core.constants.ERROR_PATH_RESOLVE_FAILURE, json, pathlib
+- @ai-dependencies: core.constants.ERROR_PATH_RESOLVE_FAILURE, json, logging, os, pathlib
 - @ai-used-by: core.configuration.config_registry, cli.pipeline, scripts.pipeline, core.embeddings.embedder, core.retrieval.retriever
 - @ai-downstream: core.metadata.schema, core.storage.upload_local
 
