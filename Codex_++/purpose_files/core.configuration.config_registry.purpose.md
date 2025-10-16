@@ -15,7 +15,7 @@
 - @schema-version: 0.3
 - @ai-risk-pii: none
 - @ai-risk-performance: "Negligible — lazily loads JSON once per process."
-- @ai-dependencies: core.configuration.path_config, core.configuration.remote_config, pathlib
+- @ai-dependencies: core.configuration.path_config, core.configuration.remote_config, os, pathlib
 - @ai-used-by: core.config, cli.*, scripts.pipeline, core.embeddings.embedder, core.retrieval.retriever
 - @ai-downstream: core.metadata.schema, gui.chat_gui, core.workflows.main_commands
 

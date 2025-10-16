@@ -34,6 +34,7 @@ def test_summarize_documents(monkeypatch):
         return {"summary": text}
 
     monkeypatch.setattr(r, "query", fake_query)
+    monkeypatch.setattr(r, "get_chunk_text", lambda identifier: f"text for {identifier}")
     monkeypatch.setattr("core.synthesis.summarizer.summarize_text", fake_summarize)
 
     result = summarize_documents(["a", "b"], r)
