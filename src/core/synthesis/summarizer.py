@@ -15,6 +15,9 @@ class SupportsQuery(Protocol):
     ) -> list:
         ...
 
+    def get_chunk_text(self, identifier: str) -> str:
+        ...
+
 
 def summarize_text(text: str, doc_type: str = "standard") -> dict[str, object]:
     """Fallback summarisation routine used when no LLM client is configured."""
@@ -38,12 +41,10 @@ def summarize_documents(doc_ids: Iterable[str], retriever: SupportsQuery, doc_ty
 
     collected: list[str] = []
     for doc_id in doc_ids:
-        hits = retriever.query(doc_id, k=1, return_text=True)
-        if not hits:
+        text = retriever.get_chunk_text(doc_id)
+        if not text:
             continue
-        text = hits[0][2] if len(hits[0]) >= 3 else ""
-        if text:
-            collected.append(text)
+        collected.append(text)
     if not collected:
         return ""
     payload = summarize_text("\n".join(collected), doc_type=doc_type)

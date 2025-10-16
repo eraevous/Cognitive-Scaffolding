@@ -88,6 +88,27 @@ class Retriever:
             )
         return enriched
 
+    def get_chunk_text(self, identifier: str) -> str:
+        """Return the stored text for ``identifier`` if available."""
+
+        text = _load_chunk_text(self.chunk_dir, identifier)
+        if text:
+            return text
+
+        if not self.chunk_dir.exists():
+            return ""
+
+        prefix = f"{identifier}_chunk"
+        collected: list[str] = []
+        for candidate in sorted(self.chunk_dir.glob(f"{prefix}*")):
+            if candidate.suffix not in {".txt", ".json"}:
+                continue
+            chunk_text = _load_chunk_text(self.chunk_dir, candidate.stem)
+            if chunk_text:
+                collected.append(chunk_text)
+
+        return "\n".join(collected)
+
     def query_file(
         self,
         path: Path,
