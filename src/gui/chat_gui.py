@@ -9,8 +9,7 @@ import tiktoken
 from openai import OpenAI
 
 from core.configuration.config_registry import get_remote_config
-from core.llm.invoke import LLM_COMPLETION_COST_PER_1K  # type: ignore
-from core.llm.invoke import LLM_PROMPT_COST_PER_1K
+from core.llm.invoke import LLM_COMPLETION_COST_PER_1K, LLM_PROMPT_COST_PER_1K
 from core.utils.budget_tracker import get_budget_tracker  # type: ignore
 
 

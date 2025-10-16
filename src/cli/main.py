@@ -12,6 +12,7 @@ import cli.parse as parse
 import cli.pipeline as pipeline
 import cli.search as search
 import cli.tokens as tokens
+import cli.spite as spite
 
 app = typer.Typer()
 
@@ -27,6 +28,7 @@ app.add_typer(agent.app, name="agent")
 app.add_typer(chatgpt.app, name="chatgpt")
 app.add_typer(dedup.app, name="dedup")
 app.add_typer(export.app, name="export")
+app.add_typer(spite.app, name="spite")
 
 if __name__ == "__main__":
     app()

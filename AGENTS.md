@@ -20,6 +20,18 @@ Treat code, conversation, configuration, and documentation as **co-equal substra
 
 ---
 
+## Governing Docs (Hierarchy)
+
+1. AGENTS.md — operational protocol (Run/Drift, memory, reconciliation).
+2. CHARTER.md — canonical engineering rules (configuration, CLI thinness, schema I/O, budgeted LLMs, retrieval interface, logging, testing, storage).
+3. VISION.md — project intent and long-term aims.
+4. Module contracts — `.purpose.md` / `.intent.md`.
+
+**Precedence:** Charter > Agents. If a generated change would violate the Charter, stop, switch to Drift, and propose a compliant alternative.
+
+
+---
+
 ## 1 Dual-Channel Protocol
 
 | Channel      | Purpose                                                | Constraints             |
@@ -105,6 +117,7 @@ Consolidate during Drift into `.purpose.md`.
 
 | ID   | Rule                                                                                                       |
 | ---- | ---------------------------------------------------------------------------------------------------------- |
+| G-00 | Changes must comply with CHARTER.md. CI enforces Charter checks                                            |
 | G-01 | No commits to `main` without valid `.purpose.md` present or stubbed                                        |
 | G-02 | If AST IO != `.purpose.md`, raise and draft reconciliation                                                 |
 | G-03 | If `@ai-risk-*` is high or unknown, require human checkoff                                                 |

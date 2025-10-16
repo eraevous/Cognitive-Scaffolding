@@ -47,9 +47,3 @@ def summary(
             typer.echo(f"{int(lo):>6,}–{int(hi):>6,} | {bar} {h}")
 
 
-@app.command("spite")
-def recite():
-    from zen_of_spite import spite_verses
-
-    verses = "\n".join(f"• {v}" for v in spite_verses)
-    logger.info("%s", verses)

@@ -1,4 +1,5 @@
 from pathlib import Path
+from core.parsing.openai_export import parse_chatgpt_export
 
 import typer
 
@@ -16,7 +17,6 @@ def parse_export(
     markdown: bool = typer.Option(False, help="Save transcripts as Markdown"),
 ):
     """Extract conversations and prompts from a ChatGPT data export."""
-    from core.parsing.openai_export import parse_chatgpt_export
 
     results = parse_chatgpt_export(export_path, out_dir, markdown=markdown)
     typer.echo(f"Parsed {len(results)} conversations into {out_dir}")
