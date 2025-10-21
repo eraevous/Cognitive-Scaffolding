@@ -192,6 +192,7 @@ config.py
 
 # Dev Tools
 
+/Codex_++/docs/codex_traces
 Cognitive-Scaffolding.code-workspace
 *.combined.py
 /Combined_Scripts
