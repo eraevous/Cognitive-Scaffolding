@@ -88,19 +88,14 @@ def test_cli_pipeline_uses_cached_schema(
         captured["schema"] = paths.schema
         return None
 
-    def fake_run_all_steps(**kwargs):
-        return None
-
     registry = importlib.import_module("core.configuration.config_registry")
     registry.configure(path_config_path=None)
 
     original_get = pipeline_cli.get_path_config
     original_run_pipeline = pipeline_cli.run_pipeline
-    original_run_all_steps = pipeline_cli.run_all_steps
     try:
         pipeline_cli.get_path_config = lambda: base  # type: ignore[assignment]
         pipeline_cli.run_pipeline = fake_run_pipeline  # type: ignore[assignment]
-        pipeline_cli.run_all_steps = fake_run_all_steps  # type: ignore[assignment]
 
         result = runner.invoke(
             pipeline_cli.app,
@@ -112,7 +107,6 @@ def test_cli_pipeline_uses_cached_schema(
     finally:
         pipeline_cli.get_path_config = original_get  # type: ignore[assignment]
         pipeline_cli.run_pipeline = original_run_pipeline  # type: ignore[assignment]
-        pipeline_cli.run_all_steps = original_run_all_steps  # type: ignore[assignment]
 
     assert result.exit_code == 0
     assert captured["schema"] == base.schema

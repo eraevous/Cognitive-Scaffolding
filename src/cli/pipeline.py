@@ -3,7 +3,6 @@ from pathlib import Path
 
 import typer
 
-from core.clustering.clustering_steps import run_all_steps
 from core.configuration.config_registry import get_path_config
 from core.configuration.path_config import PathConfig
 from scripts.pipeline import run_pipeline
@@ -39,6 +38,11 @@ def run_all(
     method: str = "summary",
     cluster_method: str = "hdbscan",
     model: str = "gpt-4",
+    start_from: str = typer.Option(
+        "upload",
+        help="Resume the pipeline from a specific stage",
+        show_default=True,
+    ),
     root: Path | None = typer.Option(None, help="Override root directory"),
     raw_dir: Path | None = typer.Option(None, help="Raw documents directory"),
     parsed_dir: Path | None = typer.Option(None, help="Parsed documents directory"),
@@ -54,7 +58,6 @@ def run_all(
     """
     paths = _resolve_paths(root, raw_dir, parsed_dir, metadata_dir, output_dir)
 
-    # Steps 1–3
     run_pipeline(
         input_dir=input_dir,
         chunked=chunked,
@@ -62,13 +65,7 @@ def run_all(
         overwrite=True,
         segmentation=segmentation,
         paths=paths,
-    )
-
-    # Step 4
-    run_all_steps(
-        embedding_path=paths.root / "rich_doc_embeddings.json",
-        metadata_dir=paths.metadata,
-        out_dir=paths.output / "cluster_output",
-        method=cluster_method,
-        model=model,
+        start_from=start_from,
+        cluster_method=cluster_method,
+        label_model=model,
     )

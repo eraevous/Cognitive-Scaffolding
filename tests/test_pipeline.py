@@ -4,7 +4,7 @@ import sys
 import tempfile
 from pathlib import Path
 from types import ModuleType
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 import pytest
 
@@ -137,9 +137,20 @@ def test_run_pipeline_happy_path(sample_paths: PathConfig) -> None:
     """The pipeline should upload, classify, and embed documents in order."""
     with (
         patch.object(pipeline, "upload_and_prepare") as upload_mock,
+        patch.object(pipeline, "prepare_chunk_plan") as chunk_mock,
         patch.object(pipeline, "classify") as classify_mock,
         patch.object(pipeline, "generate_embeddings") as embed_mock,
     ):
+        chunk_record = {
+            "id": "example_chunk00",
+            "order": 0,
+            "strategy": "single",
+            "text": "parsed content",
+            "char_start": 0,
+            "char_end": 13,
+            "char_length": 13,
+        }
+        chunk_mock.return_value = ("standard", [chunk_record])
         pipeline.run_pipeline(
             input_dir=sample_paths.raw,
             chunked=False,
@@ -154,11 +165,19 @@ def test_run_pipeline_happy_path(sample_paths: PathConfig) -> None:
     assert uploaded_path == sample_paths.raw / "example.md"
     assert upload_mock.call_args.kwargs == {"paths": sample_paths}
 
+    chunk_mock.assert_called_once_with(
+        "example.txt",
+        chunked=False,
+        segmentation="semantic",
+        paths=sample_paths,
+    )
+
     classify_mock.assert_called_once_with(
         "example.txt",
         chunked=False,
         segmentation="semantic",
         paths=sample_paths,
+        chunk_records=[chunk_record],
     )
 
     embed_mock.assert_called_once_with(
@@ -178,9 +197,24 @@ def test_run_pipeline_processes_nested_directories(sample_paths: PathConfig) -> 
 
     with (
         patch.object(pipeline, "upload_and_prepare") as upload_mock,
+        patch.object(pipeline, "prepare_chunk_plan") as chunk_mock,
         patch.object(pipeline, "classify") as classify_mock,
         patch.object(pipeline, "generate_embeddings") as embed_mock,
     ):
+        chunk_mock.return_value = (
+            "standard",
+            [
+                {
+                    "id": "example_chunk00",
+                    "order": 0,
+                    "strategy": "single",
+                    "text": "parsed content",
+                    "char_start": 0,
+                    "char_end": 13,
+                    "char_length": 13,
+                }
+            ],
+        )
         pipeline.run_pipeline(
             input_dir=sample_paths.raw,
             chunked=False,
@@ -196,5 +230,51 @@ def test_run_pipeline_processes_nested_directories(sample_paths: PathConfig) -> 
         nested_file,
     ]
 
+    chunk_mock.assert_called_once()
     classify_mock.assert_called_once()
+    embed_mock.assert_called_once()
+
+
+def test_run_pipeline_start_from_classify(sample_paths: PathConfig) -> None:
+    """Resuming from classification should skip upload and chunk stages."""
+    chunk_records = [
+        {
+            "id": "example_chunk00",
+            "order": 0,
+            "strategy": "single",
+            "text": "parsed content",
+            "char_start": 0,
+            "char_end": 13,
+            "char_length": 13,
+        }
+    ]
+
+    with (
+        patch.object(pipeline, "upload_and_prepare") as upload_mock,
+        patch.object(pipeline, "prepare_chunk_plan") as chunk_mock,
+        patch.object(pipeline, "load_chunk_metadata") as load_chunk_mock,
+        patch.object(pipeline, "classify") as classify_mock,
+        patch.object(pipeline, "generate_embeddings") as embed_mock,
+    ):
+        load_chunk_mock.return_value = chunk_records
+        pipeline.run_pipeline(
+            input_dir=sample_paths.raw,
+            chunked=False,
+            overwrite=True,
+            method="summary",
+            segmentation="semantic",
+            paths=sample_paths,
+            start_from="classify",
+        )
+
+    upload_mock.assert_not_called()
+    chunk_mock.assert_not_called()
+    load_chunk_mock.assert_called()
+    classify_mock.assert_called_once_with(
+        "example.txt",
+        chunked=False,
+        segmentation="semantic",
+        paths=sample_paths,
+        chunk_records=chunk_records,
+    )
     embed_mock.assert_called_once()
