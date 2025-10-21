@@ -104,6 +104,130 @@
         }
       }
     },
+    "chunk_map": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "strategy": {
+          "type": "string"
+        },
+        "context_window": {
+          "type": "integer"
+        },
+        "count": {
+          "type": "integer"
+        },
+        "chunks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "order": {
+                "type": "integer"
+              },
+              "char_start": {
+                "type": "integer"
+              },
+              "char_end": {
+                "type": "integer"
+              },
+              "char_length": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "order"
+            ]
+          }
+        }
+      }
+    },
+    "chunks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "order": {
+            "type": "integer"
+          },
+          "strategy": {
+            "type": "string"
+          },
+          "char_length": {
+            "type": "integer"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "themes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "priority": {
+            "type": "integer"
+          },
+          "tone": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "depth": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "order",
+          "strategy"
+        ]
+      }
+    },
+    "cluster": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "method"
+      ]
+    },
     "custom": {
       "type": "object",
       "properties": {
