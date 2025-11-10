@@ -341,14 +341,14 @@ def _assign_clusters(
 def semantic_chunk(
     text: str,
     model: str = "text-embedding-3-small",
-    window_tokens: int = 256,
-    step_tokens: int = 128,
+    window_tokens: int = 512, 
+    step_tokens: int = 256,
     *,
     mode: str = "coarse",
     cluster_method: str = "spectral",
     change_point_cosine_tau: float = 0.28,
-    min_chunk_tokens: int = 120,
-    max_chunk_tokens: int = 1200,
+    min_chunk_tokens: int = 480,
+    max_chunk_tokens: int = 24000,
     batch_size: Optional[int] = None,
     source_doc_id: Optional[str] = None,
 ) -> List[Dict[str, Any]]:

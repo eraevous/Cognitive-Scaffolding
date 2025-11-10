@@ -305,7 +305,7 @@ def run_pipeline(
     paths: PathConfig | None = None,
     start_from: str = "upload",
     cluster_method: str = "hdbscan",
-    label_model: str = "gpt-4",
+    label_model: str = "gpt-5-nano",
 ) -> None:
     """Run the full document processing pipeline.
 

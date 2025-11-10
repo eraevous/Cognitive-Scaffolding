@@ -114,7 +114,7 @@ def run_openai_completion(
 def summarize_text(
     text: str,
     doc_type: Literal["standard", "chatlog"] = "standard",
-    model: str = "gpt-4",
+    model: str = "gpt-5-nano",
     prompt_override: Optional[str] = None,
     config: Optional[RemoteConfig] = None,
 ) -> dict:

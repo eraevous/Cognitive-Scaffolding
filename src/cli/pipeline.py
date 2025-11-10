@@ -37,7 +37,7 @@ def run_all(
     segmentation: str = "semantic",
     method: str = "summary",
     cluster_method: str = "hdbscan",
-    model: str = "gpt-4",
+    model: str = "gpt-5-nano",
     start_from: str = typer.Option(
         "upload",
         help="Resume the pipeline from a specific stage",
