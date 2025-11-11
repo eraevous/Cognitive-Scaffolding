@@ -34,7 +34,7 @@
 
 ### 🔗 Dependencies
 - `streamlit`
-- `openai`, `tiktoken`
+- `openai`, `tiktoken`, `core.utils.openai_retry`
 - `core.config.config_registry.get_remote_config`
 - `core.utils.budget_tracker.get_budget_tracker`
 
@@ -46,4 +46,4 @@
 ### 9 Pipeline Integration
 - **Coordination Mechanics:** Standalone interface; loops via Streamlit callbacks.
 - **Integration Points:** Could later integrate with `Retriever` or `FrameStore` for RAG workflows.
-- **Risks:** Missing config or network failures will raise runtime errors; no retry logic implemented.
+- **Risks:** Missing config still raises runtime errors; rate limits trigger exponential backoff instead of skipping chats.

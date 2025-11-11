@@ -39,9 +39,10 @@
 
 ### 🔗 Dependencies
 - `tiktoken` for token estimation to feed `BudgetTracker`.
-- `openai.OpenAI` chat completions client.
+- `openai.OpenAI` chat completions client wrapped with retry backoff.
 - `core.configuration.remote_config.RemoteConfig` for credentials.
 - `core.utils.budget_tracker.get_budget_tracker` for spend enforcement.
+- `core.utils.openai_retry.retry_with_exponential_backoff` for resilient API usage.
 - Prompt templates stored under `core/llm/prompts`.
 
 ### 🤝 Integration Points
@@ -53,4 +54,5 @@
 - @ai-role: executor
 - @ai-used-by: core.synthesis.summarizer
 - @ai-downstream: core.workflows.insurance_verification, cli.pipeline
+- Built-in exponential backoff pauses on OpenAI rate limits to avoid skipping source documents.
 - Coordination: participates in agent loops where retriever output feeds summarizer before response synthesis; `summarize_text` must emit JSON conforming to downstream schema expectations for section/topic summaries.

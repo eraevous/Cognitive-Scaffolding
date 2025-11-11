@@ -24,7 +24,7 @@
 
 ### 🔗 Dependencies
 - `umap-learn`, `hdbscan`, `sklearn.cluster` – Clustering and dimensionality reduction
-- `openai` – GPT-based cluster labeling
+- `openai` – GPT-based cluster labeling wrapped with retry backoff utilities
 - `pandas`, `matplotlib`, `json`, `pathlib` – Plotting, I/O, and tabular output
 - `core.embeddings.loader`, `core.config.config_registry`, `core.clustering.labeling`, `core.clustering.export`, `core.clustering.cluster_utils`
 
