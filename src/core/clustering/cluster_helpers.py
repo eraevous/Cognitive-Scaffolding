@@ -10,6 +10,7 @@ import umap
 from sklearn.cluster import SpectralClustering
 
 from core.logger import get_logger
+from core.utils.openai_retry import retry_with_exponential_backoff
 
 logger = get_logger(__name__)
 
@@ -123,8 +124,13 @@ These are document topics:
 
 Provide a short (2–6 words) high-level label for this cluster:"""
 
-        response = openai.chat.completions.create(
-            model=model, messages=[{"role": "user", "content": prompt}], temperature=0.4
+        response = retry_with_exponential_backoff(
+            lambda: openai.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.4,
+            ),
+            logger=logger,
         )
 
         label = response.choices[0].message.content.strip()

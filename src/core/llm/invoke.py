@@ -62,7 +62,9 @@ from core.constants import (
     ERROR_OPENAI_RESPONSE_NOT_JSON,
     ERROR_PROMPT_FILE_NOT_FOUND,
 )
+from core.logger import get_logger
 from core.utils.budget_tracker import get_budget_tracker
+from core.utils.openai_retry import retry_with_exponential_backoff
 
 PROMPT_DIR = Path(__file__).parent / "prompts"
 
@@ -74,6 +76,9 @@ LLM_COMPLETION_COST_PER_1K = {
     "gpt-4": 0.06,
     "gpt-4o": 0.015,
 }
+
+
+logger = get_logger(__name__)
 
 
 def load_prompt(prompt_name: str) -> str:
@@ -102,11 +107,14 @@ def run_openai_completion(
         if not tracker.check(est_cost):
             raise RuntimeError(ERROR_BUDGET_EXCEEDED)
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=temperature,
-        max_tokens=max_tokens,
+    response = retry_with_exponential_backoff(
+        lambda: client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=max_tokens,
+        ),
+        logger=logger,
     )
     return response.choices[0].message.content.strip()
 

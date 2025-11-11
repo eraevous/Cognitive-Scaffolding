@@ -14,6 +14,7 @@ from core.configuration.config_registry import get_path_config, get_remote_confi
 from core.logger import get_logger
 from core.utils.budget_tracker import get_budget_tracker
 from core.vectorstore.faiss_store import FaissStore
+from core.utils.openai_retry import retry_with_exponential_backoff
 
 MAX_EMBED_TOKENS = 8191
 MODEL_DIMS = {
@@ -71,7 +72,10 @@ def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
 
     if len(tokens) <= MAX_EMBED_TOKENS:
         _charge_budget(len(tokens), model, tracker)
-        response = client.embeddings.create(input=[text], model=model)
+        response = retry_with_exponential_backoff(
+            lambda: client.embeddings.create(input=[text], model=model),
+            logger=logger,
+        )
         return response.data[0].embedding
 
     # chunk into MAX_EMBED_TOKENS slices and average embeddings
@@ -80,7 +84,10 @@ def embed_text(text: str, model: str = "text-embedding-3-small") -> List[float]:
         chunk_tokens = tokens[i : i + MAX_EMBED_TOKENS]
         _charge_budget(len(chunk_tokens), model, tracker)
         chunk_text = enc.decode(chunk_tokens)
-        resp = client.embeddings.create(input=[chunk_text], model=model)
+        resp = retry_with_exponential_backoff(
+            lambda: client.embeddings.create(input=[chunk_text], model=model),
+            logger=logger,
+        )
         vectors.append(np.asarray(resp.data[0].embedding, dtype="float32"))
 
     return np.mean(vectors, axis=0).tolist()
@@ -124,7 +131,10 @@ def embed_text_batch(
         else:
             total_tokens = sum(short_tokens)
             _charge_budget(total_tokens, model, tracker)
-            response = embeddings_api(input=short_payload, model=model)
+            response = retry_with_exponential_backoff(
+                lambda: embeddings_api(input=short_payload, model=model),
+                logger=logger,
+            )
             for idx, data in zip(short_indices, response.data):
                 results[idx] = data.embedding
 

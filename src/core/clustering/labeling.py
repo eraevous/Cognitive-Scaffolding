@@ -54,6 +54,7 @@ from openai import OpenAI
 
 from core.configuration.config_registry import get_remote_config
 from core.logger import get_logger
+from core.utils.openai_retry import retry_with_exponential_backoff
 
 logger = get_logger(__name__)
 
@@ -105,10 +106,13 @@ def label_clusters(
     Give a short 2–6 word descriptive label for this cluster:
     """
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.4,
+            response = retry_with_exponential_backoff(
+                lambda: client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.4,
+                ),
+                logger=logger,
             )
             label = response.choices[0].message.content.strip()
         except Exception as e:

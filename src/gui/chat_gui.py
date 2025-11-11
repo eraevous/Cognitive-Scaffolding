@@ -10,7 +10,12 @@ from openai import OpenAI
 
 from core.configuration.config_registry import get_remote_config
 from core.llm.invoke import LLM_COMPLETION_COST_PER_1K, LLM_PROMPT_COST_PER_1K
+from core.logger import get_logger
 from core.utils.budget_tracker import get_budget_tracker  # type: ignore
+from core.utils.openai_retry import retry_with_exponential_backoff
+
+
+logger = get_logger(__name__)
 
 
 def run_openai_chat(
@@ -34,11 +39,14 @@ def run_openai_chat(
         if not tracker.check(est_cost):
             raise RuntimeError("Budget exceeded for chat request")
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,  # type: ignore[arg-type]
-        temperature=temperature,
-        max_tokens=max_tokens,
+    response = retry_with_exponential_backoff(
+        lambda: client.chat.completions.create(
+            model=model,
+            messages=messages,  # type: ignore[arg-type]
+            temperature=temperature,
+            max_tokens=max_tokens,
+        ),
+        logger=logger,
     )
     content = response.choices[0].message.content or ""
     return content.strip()

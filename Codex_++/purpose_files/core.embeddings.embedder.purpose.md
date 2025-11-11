@@ -15,7 +15,7 @@
 - @schema-version: 0.3
 - @ai-risk-pii: medium
 - @ai-risk-performance: "OpenAI batching mitigates API round-trips but remains network bound."
-- @ai-dependencies: core.configuration.config_registry, core.parsing.chunk_text, core.parsing.semantic_chunk, core.utils.budget_tracker, core.vectorstore.faiss_store, hashlib, json, numpy, openai, pathlib, tiktoken
+- @ai-dependencies: core.configuration.config_registry, core.parsing.chunk_text, core.parsing.semantic_chunk, core.utils.budget_tracker, core.utils.openai_retry, core.vectorstore.faiss_store, hashlib, json, numpy, openai, pathlib, tiktoken
 - @ai-used-by: scripts.pipeline, cli.embed, core.retrieval.retriever
 - @ai-downstream: core.vectorstore.faiss_store, core.retrieval.retriever, cli.pipeline
 
@@ -52,6 +52,6 @@ The embedder module encapsulates all embedding generation paths. It caches the O
 - Shares Trace A configuration contract with CLI + workflow modules—no inline schema literals remain after consolidation.
 
 ### Risks & Mitigations
-- **Rate limits / cost spikes:** budget tracker halts requests before spend overrun; chunk batching reduces API calls.
+- **Rate limits / cost spikes:** budget tracker halts requests before spend overrun, and OpenAI calls are wrapped in exponential backoff so batches pause instead of failing when 429s occur.
 - **Schema drift:** reliance on `PathConfig` ensures metadata directories align with validated schema path.
 - **Large documents:** long inputs automatically chunked and averaged to avoid OpenAI token limits.
