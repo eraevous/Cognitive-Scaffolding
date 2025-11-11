@@ -71,10 +71,12 @@ PROMPT_DIR = Path(__file__).parent / "prompts"
 LLM_PROMPT_COST_PER_1K = {
     "gpt-4": 0.03,
     "gpt-4o": 0.005,
+    "gpt-5-nano": 0.0005,
 }
 LLM_COMPLETION_COST_PER_1K = {
     "gpt-4": 0.06,
     "gpt-4o": 0.015,
+    "gpt-5-nano": 0.004,
 }
 
 
@@ -90,7 +92,7 @@ def load_prompt(prompt_name: str) -> str:
 
 def run_openai_completion(
     prompt: str,
-    model: str = "gpt-4",
+    model: str = "gpt-5-nano",
     temperature: float = 0.4,
     max_tokens: int = 700,
     api_key: Optional[str] = None,
