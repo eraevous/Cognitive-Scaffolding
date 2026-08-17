@@ -120,6 +120,10 @@ def test_clustering_from_embeddings(tmp_path, monkeypatch):
             "stage": "draft",
             "depth": "low",
             "category": doc_type,
+            "file_info": {
+                "source_file": sample_file.name,
+                "parsed_file": sample_file.name,
+            },
         },
     )
     metadata = classify(sample_file.name, chunked=True, paths=pc)

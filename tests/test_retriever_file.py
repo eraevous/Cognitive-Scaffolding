@@ -25,3 +25,23 @@ def test_query_file(tmp_path, monkeypatch):
 
     results = r.query_file(file_path, k=1)
     assert results == [("docA", 0.9)]
+
+
+def test_query_file_rich_uses_file_text(tmp_path, monkeypatch):
+    file_path = tmp_path / "sample.txt"
+    file_path.write_text("needle text", encoding="utf-8")
+
+    r = retriever_mod.Retriever.__new__(retriever_mod.Retriever)
+
+    def fake_query_rich(text, k=5, return_text=False, aggregate=False):
+        assert text == "needle text"
+        assert k == 3
+        assert return_text is True
+        assert aggregate is True
+        return [{"doc_id": "docA", "title": "Doc A", "score": 0.9}]
+
+    monkeypatch.setattr(r, "query_rich", fake_query_rich)
+
+    assert r.query_file_rich(
+        file_path, k=3, return_text=True, aggregate=True
+    ) == [{"doc_id": "docA", "title": "Doc A", "score": 0.9}]

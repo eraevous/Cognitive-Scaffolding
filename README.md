@@ -3,6 +3,7 @@
 Cognitive Scaffold is a modular pipeline and agent toolkit for transforming raw documents into a searchable, semantic knowledge base. It combines document parsing, vector embeddings, memory-injected summarization, and multi-agent orchestration—backed by a flexible CLI and extensible architecture.
 
 > “What is this document? Why might it be useful? How can I find more of the same?”
+> “Where did this idea reappear after I forgot what I named the file?”
 
 ---
 
@@ -15,8 +16,9 @@ Cognitive Scaffold is a modular pipeline and agent toolkit for transforming raw 
 - **Run Agents** through `agent_hub` with shared memory and budget control
 - **Deduplicate Prompts** for data cleaning and fine-tuning prep
 - **Visualize AST Call Graphs** from source code
+- **Refind Drifting Ideas** across Obsidian vaults, exports, essays, and code-oriented notes
 
-See [docs/QAT_Quickstart.md](docs/QAT_Quickstart.md) for usage examples and design layout.
+See [Codex_++/docs/QAT_Quickstart.md](Codex_++/docs/QAT_Quickstart.md) for usage examples, [docs/CHATGPT_CORPUS_MVP.md](docs/CHATGPT_CORPUS_MVP.md) for the local ChatGPT export MVP path, and [docs/OBSIDIAN_ALIGNMENT.md](docs/OBSIDIAN_ALIGNMENT.md) for how the project maps back to the kAIros Obsidian notes.
 
 ---
 
@@ -75,7 +77,7 @@ Install with `pip install -e .` and run `kairos --help` to explore all options.
 │   ├── core/               # Parsing, embedding, memory, agents
 │   ├── tools/              # AST graph, deduplication, utilities
 │   └── tests/              # Unit tests
-├── purpose_files/          # `.purpose.md` design contracts
+├── Codex_++/purpose_files/ # `.purpose.md` design contracts
 ├── docs/                   # Guides and architecture notes
 └── ast_deps.csv            # Example AST output
 ```

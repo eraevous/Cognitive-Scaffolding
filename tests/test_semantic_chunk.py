@@ -25,7 +25,7 @@ sys.modules.setdefault(
 )
 
 
-from core.parsing import semantic_chunk as sc
+from core.parsing import semantic_chunk as sc  # noqa: E402
 
 
 def _patch_tokenizer(monkeypatch):

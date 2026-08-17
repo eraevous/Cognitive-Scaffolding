@@ -4,6 +4,8 @@
 
 **Cognitive Scaffold** exists to answer questions like these—not just through search, but through memory-aware synthesis, emergent patterning, and semantic organization.
 
+Its strongest use case is conceptual refinding: recovering the idea that started in one document, drifted through a conversation, and matured somewhere with an unrelated title.
+
 ---
 
 ## 🔍 Purpose
@@ -14,6 +16,7 @@ This project began as a way to reclaim fragmented insights buried across persona
 - Structuring messy corpora (notes, PDFs, exports, essays, code)
 - Synthesizing ideas with memory-aware summarization
 - Enabling **agentic exploration** of knowledge bases
+- Reassembling nonlinear thought without forcing it into rigid folders too early
 
 It is inspired by systems thinking, LLM workflows, and personal research needs—designed as a cognitive prosthetic for thinkers navigating complexity.
 
@@ -22,6 +25,7 @@ It is inspired by systems thinking, LLM workflows, and personal research needs�
 ## 🎯 Design Philosophy
 
 - **Metadata is Memory** – enriching documents with semantic tags, summaries, themes, and traceable provenance
+- **Drift is Signal** – topic changes, indirect connections, and unexpected thematic returns should be preserved and mapped
 - **LLMs as Synthesizers** – not oracles, but pattern recognizers that make reflection scalable
 - **Context is King** – `FrameStore` allows persistent memory across prompts and pipelines
 - **Modular by Default** – each tool can run standalone or as part of a CLI + agent ecosystem
@@ -48,6 +52,9 @@ Each component follows a `.purpose.md` contract describing IO schema, coordinati
 
 - [ ] Semantic clustering and thematic labeling
 - [ ] Embeddable web UI and Obsidian plug-in
+- [ ] Recursive Obsidian/vault ingestion with incremental modified-file extraction
+- [ ] Corpus-wide deduplication with provenance-preserving references
+- [ ] Drift-aware retrieval and concept-trail synthesis
 - [ ] Visual exploration (UMAP/2D map, trail search)
 - [ ] "Ask my archive" RAG interface
 - [ ] Versioned memory with time-aware summarization

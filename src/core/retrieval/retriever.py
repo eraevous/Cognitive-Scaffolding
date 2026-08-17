@@ -1,12 +1,14 @@
 import json
 from pathlib import Path
-from typing import Iterable, List, Tuple, cast
+from typing import Dict, Iterable, List, Tuple, cast
 
 import numpy as np
 
 from core.configuration.config_registry import get_path_config
+from core.configuration.path_config import PathConfig
 from core.embeddings.embedder import MODEL_DIMS, embed_text, get_model_for_dim
 from core.logger import get_logger
+from core.retrieval.metadata import enrich_result, source_id
 from core.vectorstore.faiss_store import FaissStore
 
 
@@ -22,9 +24,11 @@ class Retriever:
         store: FaissStore | None = None,
         model: str | None = None,
         chunk_dir: Path | None = None,
+        paths: PathConfig | None = None,
     ):
         self.logger = get_logger(__name__)
-        paths = get_path_config()
+        paths = paths or get_path_config()
+        self.paths = paths
         default_model = model or "text-embedding-3-small"
         dim = MODEL_DIMS.get(default_model, 1536)
         self.store = store or FaissStore(dim=dim, path=paths.vector / "mosaic.index")
@@ -56,6 +60,21 @@ class Retriever:
         """Return top ``k`` results using the contents of ``file`` as the query."""
         text = Path(file).read_text("utf-8")
         return self.query(text, k=k, return_text=return_text)
+
+    def query_file_rich(
+        self,
+        file: str | Path,
+        k: int = 5,
+        *,
+        return_text: bool = False,
+        aggregate: bool = False,
+    ) -> List[Dict[str, object]]:
+        """Return metadata-enriched results using a file as the query."""
+
+        text = Path(file).read_text("utf-8")
+        return self.query_rich(
+            text, k=k, return_text=return_text, aggregate=aggregate
+        )
 
     def query_multi(
         self,
@@ -97,7 +116,7 @@ class Retriever:
         if aggregate:
             doc_groups: dict[str, dict[str, List]] = {}
             for name, score in ranked_all:
-                root = name.split("_chunk")[0]
+                root = source_id(name)
                 entry = doc_groups.setdefault(root, {"scores": [], "chunks": []})
                 scores_list: List = entry["scores"]
                 chunks_list: List = entry["chunks"]
@@ -134,3 +153,27 @@ class Retriever:
             return cast(List[Tuple[str, float] | Tuple[str, float, str]], enriched)
 
         return cast(List[Tuple[str, float] | Tuple[str, float, str]], ranked)
+
+    def query_rich(
+        self,
+        text: str,
+        k: int = 5,
+        *,
+        return_text: bool = False,
+        aggregate: bool = False,
+    ) -> List[Dict[str, object]]:
+        """Return semantic hits enriched with corpus metadata."""
+
+        hits = self.query_multi(
+            [text], k=k, return_text=return_text, aggregate=aggregate
+        )
+        enriched = []
+        for hit in hits:
+            result_id = hit[0]
+            score = hit[1]
+            item = enrich_result(self.paths.root, result_id)
+            item["score"] = score
+            if len(hit) == 3:
+                item["text"] = hit[2]
+            enriched.append(item)
+        return enriched

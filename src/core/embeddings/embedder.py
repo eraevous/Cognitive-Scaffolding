@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Callable, Dict, List, Literal, Sequence
+from typing import Any, Callable, Dict, List, Literal, Sequence
 
 import numpy as np
 import tiktoken
@@ -17,6 +17,8 @@ from core.vectorstore.faiss_store import FaissStore
 from core.utils.openai_retry import retry_with_exponential_backoff
 
 MAX_EMBED_TOKENS = 8191
+MAX_EMBED_BATCH_TOKENS = 100_000
+MAX_EMBED_BATCH_ITEMS = 512
 MODEL_DIMS = {
     "text-embedding-3-small": 1536,
     "text-embedding-3-large": 3072,
@@ -129,14 +131,39 @@ def embed_text_batch(
             for idx, text in zip(short_indices, short_payload):
                 results[idx] = embed_fn(text, model=model)
         else:
-            total_tokens = sum(short_tokens)
-            _charge_budget(total_tokens, model, tracker)
-            response = retry_with_exponential_backoff(
-                lambda: embeddings_api(input=short_payload, model=model),
-                logger=logger,
-            )
-            for idx, data in zip(short_indices, response.data):
-                results[idx] = data.embedding
+            batch_payload: List[str] = []
+            batch_indices: List[int] = []
+            batch_tokens = 0
+
+            def flush_batch() -> None:
+                nonlocal batch_payload, batch_indices, batch_tokens
+                if not batch_payload:
+                    return
+                _charge_budget(batch_tokens, model, tracker)
+                response = retry_with_exponential_backoff(
+                    lambda: embeddings_api(input=batch_payload, model=model),
+                    logger=logger,
+                )
+                for idx, data in zip(batch_indices, response.data):
+                    results[idx] = data.embedding
+                batch_payload = []
+                batch_indices = []
+                batch_tokens = 0
+
+            for idx, text, token_count in zip(
+                short_indices, short_payload, short_tokens
+            ):
+                would_exceed_tokens = (
+                    batch_tokens + token_count > MAX_EMBED_BATCH_TOKENS
+                )
+                would_exceed_items = len(batch_payload) >= MAX_EMBED_BATCH_ITEMS
+                if batch_payload and (would_exceed_tokens or would_exceed_items):
+                    flush_batch()
+                batch_payload.append(text)
+                batch_indices.append(idx)
+                batch_tokens += token_count
+
+            flush_batch()
 
     return [results[i] for i in range(len(texts))]
 
@@ -148,6 +175,8 @@ def generate_embeddings(
     model: str = "text-embedding-3-large",
     segment_mode: bool | None = None,
     chunk_dir: Path | None = None,
+    paths=None,
+    reset_index: bool = True,
 ) -> None:
     """Generate embeddings for documents or topic segments.
 
@@ -156,17 +185,30 @@ def generate_embeddings(
     vectors are stored in the FAISS index with IDs in the form
     ``"docID_chunkXX"`` and optionally written to ``chunk_dir``.
     """
-    paths = get_path_config()
+    paths = paths or get_path_config()
     segment_mode = paths.semantic_chunking if segment_mode is None else segment_mode
     source_dir = source_dir or paths.parsed
     out_path = out_path or paths.vector / "rich_doc_embeddings.json"
     embeddings: Dict[str, List[float]] = {}
-    id_map = {}
+    id_map: Dict[str, str] = {}
+    failures: List[Dict[str, Any]] = []
     index_dim = MODEL_DIMS.get(model, 1536)
     index_path = paths.vector / "mosaic.index"
-    if index_path.exists():
+    id_map_path = paths.vector / "id_map.json"
+    if index_path.exists() and reset_index:
         logger.info("Reinitializing FAISS index at %s", index_path)
         index_path.unlink()
+    if not reset_index:
+        if out_path.exists():
+            try:
+                embeddings = json.loads(out_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                embeddings = {}
+        if id_map_path.exists():
+            try:
+                id_map = json.loads(id_map_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                id_map = {}
     store = FaissStore(dim=index_dim, path=index_path)
 
     chunk_dir = chunk_dir or (paths.vector / "chunks")
@@ -174,6 +216,12 @@ def generate_embeddings(
     pattern = "*.meta.json" if method in {"summary", "meta"} else "*.txt"
     for file in sorted(source_dir.glob(pattern)):
         doc_id = file.stem
+        if not reset_index and (
+            doc_id in embeddings
+            or any(key.startswith(f"{doc_id}_chunk") for key in embeddings)
+        ):
+            logger.info("Skipping already embedded file: %s", file.name)
+            continue
 
         if method == "parsed":
             text = file.read_text(encoding="utf-8")
@@ -201,9 +249,11 @@ def generate_embeddings(
             else:
                 from core.parsing.chunk_text import chunk_text
 
+                chunk_texts = chunk_text(text)
+                vectors = embed_text_batch(chunk_texts, model=model)
                 segments = [
-                    {"text": t, "embedding": embed_text(t, model=model)}
-                    for t in chunk_text(text)
+                    {"text": chunk_text, "embedding": vector}
+                    for chunk_text, vector in zip(chunk_texts, vectors)
                 ]
 
             if len(segments) == 1 and not segment_mode:
@@ -218,6 +268,8 @@ def generate_embeddings(
                 )
                 store.add([hashed_id], [vector])
                 id_map[str(hashed_id)] = doc_id
+                chunk_dir.mkdir(parents=True, exist_ok=True)
+                (chunk_dir / f"{doc_id}.txt").write_text(text, encoding="utf-8")
             else:
                 chunk_dir.mkdir(parents=True, exist_ok=True)
                 for idx, chunk in enumerate(segments):
@@ -230,11 +282,27 @@ def generate_embeddings(
                     (chunk_dir / f"{seg_id}.json").write_text(
                         json.dumps(chunk, indent=2), encoding="utf-8"
                     )
-        except Exception:
+                    (chunk_dir / f"{seg_id}.txt").write_text(
+                        chunk.get("text", ""), encoding="utf-8"
+                    )
+        except Exception as exc:
             logger.exception("Failed embedding %s", file.name)
+            failures.append(
+                {
+                    "file": str(file),
+                    "doc_id": doc_id,
+                    "error_type": type(exc).__name__,
+                    "error": str(exc),
+                }
+            )
 
     out_path.write_text(json.dumps(embeddings, indent=2))
     store.persist()
-    id_map_path = paths.vector / "id_map.json"
     id_map_path.write_text(json.dumps(id_map, indent=2))
+    failure_path = paths.vector / "embedding_failures.json"
+    if failures:
+        failure_path.write_text(json.dumps(failures, indent=2), encoding="utf-8")
+        logger.warning("Saved %d embedding failure(s) to %s", len(failures), failure_path)
+    elif failure_path.exists():
+        failure_path.unlink()
     logger.info("Saved %d embeddings to %s", len(embeddings), out_path)

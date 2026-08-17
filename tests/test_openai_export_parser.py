@@ -67,6 +67,47 @@ def make_nested_export_zip(tmp_path: Path) -> Path:
     return export_zip
 
 
+def make_sharded_export_zip(tmp_path: Path) -> Path:
+    conversations: List[Dict[str, object]] = [
+        {
+            "title": "Sharded",
+            "current_node": "2",
+            "mapping": {
+                "1": {
+                    "id": "1",
+                    "parent": None,
+                    "message": {
+                        "author": {"role": "user"},
+                        "content": {
+                            "content_type": "multimodal_text",
+                            "parts": [{"text": "Modern hello"}],
+                        },
+                    },
+                },
+                "2": {
+                    "id": "2",
+                    "parent": "1",
+                    "message": {
+                        "author": {"role": "assistant"},
+                        "content": {
+                            "content_type": "code",
+                            "text": "Modern answer",
+                        },
+                    },
+                },
+            },
+        }
+    ]
+    export_zip = tmp_path / "sharded.zip"
+    with zipfile.ZipFile(export_zip, "w") as zf:
+        zf.writestr(
+            "conversations.json",
+            json.dumps([{"title": "Index Only", "mapping": None}]),
+        )
+        zf.writestr("conversations-000.json", json.dumps(conversations))
+    return export_zip
+
+
 def test_parse_export(tmp_path: Path):
     export_zip = make_export_zip(tmp_path)
     out_dir = tmp_path / "out"
@@ -98,6 +139,17 @@ def test_parse_export_nested_dir(tmp_path: Path):
     assert len(results) == 1
     convo_file = out_dir / "0000_nested.txt"
     assert convo_file.exists()
+
+
+def test_parse_export_prefers_shards_and_modern_content(tmp_path: Path):
+    export_zip = make_sharded_export_zip(tmp_path)
+    out_dir = tmp_path / "out_sharded"
+    results = parse_chatgpt_export(export_zip, out_dir)
+    assert len(results) == 1
+    convo_file = out_dir / "0000_sharded.txt"
+    text = convo_file.read_text(encoding="utf-8")
+    assert "USER: Modern hello" in text
+    assert "ASSISTANT: Modern answer" in text
 
 
 def test_parse_export_handles_missing_messages(tmp_path: Path, monkeypatch):

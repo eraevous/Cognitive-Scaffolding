@@ -94,7 +94,7 @@ def run_openai_completion(
     prompt: str,
     model: str = "gpt-5-nano",
     temperature: float = 0.4,
-    max_tokens: int = 700,
+    max_tokens: int = 1200,
     api_key: Optional[str] = None,
 ) -> str:
     client = OpenAI(api_key=api_key or RemoteConfig.from_file().openai_api_key)
@@ -109,13 +109,19 @@ def run_openai_completion(
         if not tracker.check(est_cost):
             raise RuntimeError(ERROR_BUDGET_EXCEEDED)
 
+    completion_kwargs = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    if not model.startswith("gpt-5"):
+        completion_kwargs["temperature"] = temperature
+    token_param = "max_completion_tokens" if model.startswith("gpt-5") else "max_tokens"
+    completion_kwargs[token_param] = max_tokens
+    if model.startswith("gpt-5"):
+        completion_kwargs["reasoning_effort"] = "minimal"
+
     response = retry_with_exponential_backoff(
-        lambda: client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature,
-            max_tokens=max_tokens,
-        ),
+        lambda: client.chat.completions.create(**completion_kwargs),
         logger=logger,
     )
     return response.choices[0].message.content.strip()
@@ -144,6 +150,8 @@ def summarize_text(
     try:
         return json.loads(raw_response)
     except json.JSONDecodeError as e:
+        if raw_response:
+            return {"summary": raw_response}
         raise ValueError(
             ERROR_OPENAI_RESPONSE_NOT_JSON.format(response=raw_response)
         ) from e

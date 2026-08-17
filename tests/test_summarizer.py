@@ -3,6 +3,7 @@ from pathlib import Path
 
 from core.retrieval import retriever as retriever_mod
 from core.synthesis import summarize_documents
+from core.synthesis.summarizer import synthesize_query
 
 
 class DummyIndex:
@@ -38,3 +39,32 @@ def test_summarize_documents(monkeypatch):
 
     result = summarize_documents(["a", "b"], r)
     assert "text for a" in result and "text for b" in result
+
+
+def test_synthesize_query_uses_retrieved_text(monkeypatch):
+    r = retriever_mod.Retriever.__new__(retriever_mod.Retriever)
+
+    def fake_query_rich(text, k=8, return_text=False, aggregate=False):
+        assert text == "semantic drift"
+        assert return_text is True
+        assert aggregate is True
+        return [
+            {
+                "doc_id": "conv_1",
+                "title": "Semantic Drift",
+                "score": 0.9,
+                "text": "USER: idea\nASSISTANT: throughline",
+            }
+        ]
+
+    def fake_summarize(text, doc_type="standard", prompt_override=None):
+        assert "[S1] Semantic Drift" in text
+        assert "conv_1" in text
+        assert "throughline" in text
+        assert prompt_override == "{text}"
+        return {"summary": "synthesized throughline"}
+
+    monkeypatch.setattr(r, "query_rich", fake_query_rich)
+    monkeypatch.setattr("core.synthesis.summarizer.summarize_text", fake_summarize)
+
+    assert synthesize_query("semantic drift", r) == "synthesized throughline"

@@ -4,6 +4,9 @@ from core.llm.invoke import summarize_text
 from core.retrieval.retriever import Retriever
 
 
+CHARS_PER_TOKEN_ESTIMATE = 4
+
+
 def summarize_documents(doc_ids: Iterable[str], retriever: Retriever) -> str:
     """Retrieve documents by ID and produce a combined summary."""
     texts: List[str] = []
@@ -15,4 +18,52 @@ def summarize_documents(doc_ids: Iterable[str], retriever: Retriever) -> str:
     if not combined:
         return ""
     summary = summarize_text(combined, doc_type="standard")
+    return summary.get("summary", "")
+
+
+def _trim_text(text: str, max_tokens: int) -> str:
+    max_chars = max_tokens * CHARS_PER_TOKEN_ESTIMATE
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rsplit(" ", 1)[0].strip()
+
+
+def synthesize_query(
+    query: str,
+    retriever: Retriever,
+    k: int = 8,
+    *,
+    max_input_tokens: int = 12000,
+) -> str:
+    """Search for relevant chunks and synthesize a cited throughline summary."""
+
+    hits = retriever.query_rich(query, k=k, return_text=True, aggregate=True)
+    texts: List[str] = []
+    per_source_tokens = max(max_input_tokens // max(len(hits), 1), 500)
+    for idx, hit in enumerate(hits, start=1):
+        text = str(hit.get("text", "")).strip()
+        if not text:
+            continue
+        source = f"S{idx}"
+        title = hit.get("title", hit.get("doc_id"))
+        doc_id = hit.get("doc_id", hit.get("result_id"))
+        score = float(hit.get("score", 0.0))
+        trimmed = _trim_text(text, per_source_tokens)
+        texts.append(
+            f"[{source}] {title} ({doc_id}, score={score:.3f})\n{trimmed}"
+        )
+
+    if not texts:
+        return ""
+
+    prompt = (
+        "Synthesize the recurring ideas, useful distinctions, and unresolved "
+        "questions in these retrieved conversation excerpts. Cite sources using "
+        "the bracketed source labels such as [S1] when making claims. Return a "
+        'JSON object with a single string field named "summary".\n\n'
+        f"User query: {query}\n\n"
+        + "\n\n---\n\n".join(texts)
+    )
+    prompt = _trim_text(prompt, max_input_tokens)
+    summary = summarize_text(prompt, doc_type="chatlog", prompt_override="{text}")
     return summary.get("summary", "")

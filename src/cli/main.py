@@ -12,6 +12,7 @@ import cli.parse as parse
 import cli.pipeline as pipeline
 import cli.search as search
 import cli.spite as spite
+import cli.synthesize as synthesize
 import cli.tokens as tokens
 
 app = typer.Typer()
@@ -24,6 +25,7 @@ app.add_typer(pipeline.app, name="pipeline")
 app.add_typer(parse.app, name="parse")
 app.add_typer(tokens.app, name="tokens")
 app.add_typer(search.app, name="search")
+app.add_typer(synthesize.app, name="synthesize")
 app.add_typer(agent.app, name="agent")
 app.add_typer(chatgpt.app, name="chatgpt")
 app.add_typer(dedup.app, name="dedup")

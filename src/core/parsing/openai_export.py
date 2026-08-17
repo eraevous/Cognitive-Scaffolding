@@ -33,11 +33,31 @@ from .normalize import normalize_filename
 def _load_conversations(export_path: Path) -> List[Dict]:
     """Load conversation list from a zip archive or directory."""
     if export_path.is_dir():
+        shard_paths = sorted(export_path.glob("conversations-*.json"))
+        if shard_paths:
+            conversations: List[Dict] = []
+            for shard_path in shard_paths:
+                with shard_path.open("r", encoding="utf-8") as f:
+                    conversations.extend(json.load(f))
+            return conversations
         conv_path = export_path / "conversations.json"
         with conv_path.open("r", encoding="utf-8") as f:
             return json.load(f)
     with zipfile.ZipFile(export_path) as zf:
         try:
+            shard_names = sorted(
+                n
+                for n in zf.namelist()
+                if Path(n).name.startswith("conversations-")
+                and Path(n).name.endswith(".json")
+            )
+            if shard_names:
+                conversations: List[Dict] = []
+                for shard_name in shard_names:
+                    with zf.open(shard_name) as f:
+                        conversations.extend(json.load(f))
+                return conversations
+
             # Standard export has files under a top-level directory. Look for the
             # conversations file anywhere in the archive to support both
             # flattened and nested zips.
@@ -51,6 +71,28 @@ def _load_conversations(export_path: Path) -> List[Dict]:
             raise FileNotFoundError(ERROR_CONVERSATIONS_EXPORT_MISSING) from exc
 
 
+def _content_text(content: Dict) -> str:
+    """Extract readable text from known ChatGPT message content shapes."""
+
+    parts = content.get("parts") or []
+    text_parts: List[str] = []
+    for part in parts:
+        if isinstance(part, str):
+            text_parts.append(part)
+        elif isinstance(part, dict):
+            for key in ("text", "content", "caption"):
+                value = part.get(key)
+                if isinstance(value, str):
+                    text_parts.append(value)
+                    break
+
+    direct_text = content.get("text")
+    if isinstance(direct_text, str):
+        text_parts.append(direct_text)
+
+    return "\n".join(p for p in text_parts if p.strip())
+
+
 def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
     """Return ordered (role, text) tuples for a conversation.
 
@@ -59,9 +101,30 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
     Non-string content parts are ignored to handle multimodal nodes.
     """
 
-    mapping = convo.get("mapping", {})
+    mapping = convo.get("mapping") or {}
     node_id = convo.get("current_node")
     path: List[Tuple[str, str]] = []
+
+    if not node_id:
+        sortable_nodes = sorted(
+            mapping.values(),
+            key=lambda node: (
+                node.get("message", {}).get("create_time") is None,
+                node.get("message", {}).get("create_time") or 0,
+            ),
+        )
+        for node in sortable_nodes:
+            msg = node.get("message")
+            if not msg or not isinstance(msg, dict):
+                continue
+            if msg.get("author", {}).get("role") == "system":
+                continue
+            role = msg.get("author", {}).get("role", "unknown")
+            text = _content_text(msg.get("content", {}))
+            if text:
+                path.append((role, text))
+        return path
+
     while node_id:
         node = mapping.get(node_id)
         if not node:
@@ -72,10 +135,8 @@ def _extract_messages(convo: Dict) -> Iterable[Tuple[str, str]]:
             continue
         if msg.get("author", {}).get("role") != "system":
             role = msg["author"].get("role", "unknown")
-            parts = msg.get("content", {}).get("parts") or []
-            text_parts = [p for p in parts if isinstance(p, str)]
-            if text_parts:
-                text = "\n".join(text_parts)
+            text = _content_text(msg.get("content", {}))
+            if text:
                 path.append((role, text))
         node_id = node.get("parent")
     return reversed(path)

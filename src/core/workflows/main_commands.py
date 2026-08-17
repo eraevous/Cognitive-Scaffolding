@@ -79,6 +79,18 @@ def _write_stub(path: Path, stub: Dict[str, Any]) -> None:
     path.write_text(json.dumps(stub, indent=2), encoding="utf-8")
 
 
+def _default_file_info(name: str) -> Dict[str, str]:
+    return {"source_file": name, "parsed_file": name}
+
+
+def _ensure_file_info(name: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    file_info = metadata.get("file_info")
+    if not isinstance(file_info, dict):
+        file_info = {}
+    metadata["file_info"] = {**_default_file_info(name), **file_info}
+    return metadata
+
+
 def _enforce_window(chunk: str) -> List[str]:
     trimmed = chunk.strip()
     if not trimmed:
@@ -122,22 +134,22 @@ def _build_chunk_records(
     search_pos = 0
     strategy = segmentation if use_chunks else "single"
 
-    for idx, chunk_text in enumerate(texts):
+    for idx, chunk_body in enumerate(texts):
         chunk_id = f"{stem}_chunk{idx:02d}"
-        start_idx = text.find(chunk_text, search_pos)
+        start_idx = text.find(chunk_body, search_pos)
         if start_idx == -1:
             start_idx = search_pos
-        end_idx = start_idx + len(chunk_text)
+        end_idx = start_idx + len(chunk_body)
         search_pos = end_idx
         records.append(
             {
                 "id": chunk_id,
                 "order": idx,
                 "strategy": strategy,
-                "text": chunk_text,
+                "text": chunk_body,
                 "char_start": start_idx,
                 "char_end": end_idx,
-                "char_length": len(chunk_text),
+                "char_length": len(chunk_body),
             }
         )
 
@@ -222,7 +234,10 @@ def prepare_chunk_plan(
         stored_strategy = existing_records[0].get("strategy", expected_strategy)
         if stored_strategy == expected_strategy:
             stub, stub_path = _load_stub(name, paths)
-            stub.setdefault("file_info", stub.get("file_info", {}))
+            stub["file_info"] = {
+                **_default_file_info(name),
+                **stub.get("file_info", {}),
+            }
             stub["chunk_map"] = build_chunk_map(existing_records)
             _write_stub(stub_path, stub)
             return doc_type, existing_records
@@ -231,7 +246,7 @@ def prepare_chunk_plan(
     _write_chunk_metadata(name, records, paths)
 
     stub, stub_path = _load_stub(name, paths)
-    stub.setdefault("file_info", stub.get("file_info", {}))
+    stub["file_info"] = {**_default_file_info(name), **stub.get("file_info", {})}
     stub["chunk_map"] = build_chunk_map(records)
     _write_stub(stub_path, stub)
 
@@ -383,7 +398,10 @@ def classify(
             )
         else:
             stub, stub_path = _load_stub(name, paths)
-            stub.setdefault("file_info", stub.get("file_info", {}))
+            stub["file_info"] = {
+                **_default_file_info(name),
+                **stub.get("file_info", {}),
+            }
             stub["chunk_map"] = build_chunk_map(chunk_records)
             _write_stub(stub_path, stub)
             chunk_path = _chunk_metadata_path(name, paths)
@@ -394,6 +412,7 @@ def classify(
     metadata["chunk_map"] = build_chunk_map(chunk_records)
     metadata["chunks"] = _combine_chunk_results(chunk_records, block_results)
     metadata = merge_stubs(name, metadata, paths)
+    metadata = _ensure_file_info(name, metadata)
     return persist(name, metadata, paths)
 
 

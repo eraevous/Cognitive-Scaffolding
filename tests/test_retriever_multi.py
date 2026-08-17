@@ -36,3 +36,26 @@ def test_query_multi_aggregate(tmp_path, monkeypatch):
     assert results[0][0] == "docA"
     assert "A00" in results[0][2] and "A01" in results[0][2]
     assert results[1][0] == "docB"
+
+
+def test_query_multi_aggregate_preserves_underscore_doc_ids(tmp_path, monkeypatch):
+    r = retriever_mod.Retriever.__new__(retriever_mod.Retriever)
+    r.store = DummyStore()
+    r.model = "dummy"
+    r.id_map = {
+        10: "uuid_with_underscores_chunk00",
+        20: "uuid_with_underscores_chunk01",
+        30: "other_doc_chunk00",
+    }
+    r.chunk_dir = tmp_path
+
+    (tmp_path / "uuid_with_underscores_chunk00.txt").write_text("A00")
+    (tmp_path / "uuid_with_underscores_chunk01.txt").write_text("A01")
+    (tmp_path / "other_doc_chunk00.txt").write_text("B00")
+
+    monkeypatch.setattr(retriever_mod, "embed_text", lambda text, model="dummy": [0.0])
+
+    results = r.query_multi(["foo"], k=2, return_text=True, aggregate=True)
+
+    assert results[0][0] == "uuid_with_underscores"
+    assert "A00" in results[0][2] and "A01" in results[0][2]

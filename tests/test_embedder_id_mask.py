@@ -85,3 +85,33 @@ def test_generate_embeddings_with_segments(tmp_path, monkeypatch):
     data = json.loads(chunk_file.read_text())
     assert data["text"] == "hello world"
     assert "embedding" in data
+
+
+def test_embed_text_batch_splits_large_batches(monkeypatch):
+    calls = []
+
+    class DummyEncoding:
+        def encode(self, text, disallowed_special=()):
+            return [0] * int(text)
+
+    class DummyEmbeddings:
+        def create(self, input, model):
+            calls.append(list(input))
+
+            class Response:
+                data = [type("Embedding", (), {"embedding": [1.0]})() for _ in input]
+
+            return Response()
+
+    class DummyClient:
+        embeddings = DummyEmbeddings()
+
+    monkeypatch.setattr(embedder, "_get_encoding", lambda model: DummyEncoding())
+    monkeypatch.setattr(embedder, "_get_client", lambda: DummyClient())
+    monkeypatch.setattr(embedder, "get_budget_tracker", lambda: None)
+    monkeypatch.setattr(embedder, "MAX_EMBED_BATCH_TOKENS", 10)
+
+    vectors = embedder.embed_text_batch(["6", "6", "3"], model="text-embedding-3-small")
+
+    assert len(vectors) == 3
+    assert calls == [["6"], ["6", "3"]]

@@ -45,7 +45,7 @@ class _DummyClient:
 dummy_openai.OpenAI = _DummyClient
 sys.modules.setdefault("openai", dummy_openai)
 
-from core.llm import invoke
+from core.llm import invoke  # noqa: E402
 
 
 @pytest.fixture
@@ -60,7 +60,7 @@ def test_summarize_text_standard(monkeypatch, fake_config):
 
     def fake_run_openai_completion(*, prompt, model, temperature, api_key):
         assert prompt == "Summarize: example"
-        assert model == "gpt-4"
+        assert model == "gpt-5-nano"
         assert temperature == 0.4
         assert api_key == "test-key"
         return json.dumps({"summary": "ok", "topics": ["ai", "skills"]})
@@ -80,7 +80,7 @@ def test_summarize_text_chatlog(monkeypatch, fake_config):
 
     def fake_run_openai_completion(*, prompt, model, temperature, api_key):
         assert prompt.startswith("Chatlog: User: I'm feeling stuck")
-        assert model == "gpt-4"
+        assert model == "gpt-5-nano"
         assert temperature == 0.4
         assert api_key == "test-key"
         return json.dumps({"summary": "chat summary", "category": "chatlog"})

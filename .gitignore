@@ -49,6 +49,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+.tmp/
 cover/
 
 # Translations
@@ -184,6 +185,7 @@ config.py
 *.pdf
 *.json
 !tests/fixtures/*.json
+!src/core/llm/prompts/*.txt
 *.xlsx
 *.trace.*
 *.db
