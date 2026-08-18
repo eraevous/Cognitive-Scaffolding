@@ -5,8 +5,8 @@ from core.retrieval.retriever import Retriever
 
 
 CHARS_PER_TOKEN_ESTIMATE = 4
-SYNTHESIS_OVERHEAD_TOKENS = 600
-MIN_SOURCE_TOKENS = 120
+SYNTHESIS_OVERHEAD_TOKENS = 1000
+MIN_SOURCE_TOKENS = 240
 
 
 def summarize_documents(doc_ids: Iterable[str], retriever: Retriever) -> str:
@@ -35,7 +35,7 @@ def synthesize_query(
     retriever: Retriever,
     k: int = 8,
     *,
-    max_input_tokens: int = 12000,
+    max_input_tokens: int = 50000,
 ) -> str:
     """Search for relevant chunks and synthesize a cited throughline summary."""
 

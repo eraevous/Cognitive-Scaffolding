@@ -43,7 +43,7 @@ def query_synthesis(
     k: int = typer.Option(8, help="Number of retrieved documents/chunks to use"),
     root: Path | None = typer.Option(None, help="Corpus root to search"),
     max_input_tokens: int = typer.Option(
-        12000, help="Approximate token budget for retrieved source text"
+        50000, help="Approximate token budget for retrieved source text"
     ),
     out: Path | None = typer.Option(None, help="Write synthesis to a file or directory"),
 ):

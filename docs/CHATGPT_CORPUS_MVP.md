@@ -85,7 +85,7 @@ kairos chatgpt repair-embeddings --root "C:\Users\Admin\Documents\Kairos\chatgpt
 For synthesis over semantic hits, use:
 
 ```powershell
-kairos synthesize query "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --k 8 --max-input-tokens 12000
+kairos synthesize query "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --k 8 --max-input-tokens 50000
 ```
 
 This sends only the selected, token-budgeted search-hit excerpts to the configured chat model and asks for cited synthesis using source labels like `[S1]`.
@@ -93,7 +93,7 @@ This sends only the selected, token-budgeted search-hit excerpts to the configur
 Save semantic synthesis:
 
 ```powershell
-kairos synthesize query "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --k 8 --max-input-tokens 12000 --out "C:\Users\Admin\Documents\Kairos\chatgpt_corpus\output\semantic-synthesis"
+kairos synthesize query "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --k 8 --max-input-tokens 50000 --out "C:\Users\Admin\Documents\Kairos\chatgpt_corpus\output\semantic-synthesis"
 ```
 
 When `--out` points to a directory, Kairos creates a timestamped Markdown file. When `--out` includes a filename extension, Kairos writes exactly to that file.

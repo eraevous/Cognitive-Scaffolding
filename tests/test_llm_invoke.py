@@ -116,5 +116,5 @@ def test_run_openai_completion_retries_empty_gpt5_response(monkeypatch):
 
     assert result == '{"summary": "ok"}'
     assert len(calls) == 2
-    assert calls[0]["max_completion_tokens"] == 1200
-    assert calls[1]["max_completion_tokens"] == 2400
+    assert calls[0]["max_completion_tokens"] == 2400
+    assert calls[1]["max_completion_tokens"] == 4800

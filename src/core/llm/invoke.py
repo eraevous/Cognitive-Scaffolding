@@ -71,12 +71,12 @@ PROMPT_DIR = Path(__file__).parent / "prompts"
 LLM_PROMPT_COST_PER_1K = {
     "gpt-4": 0.03,
     "gpt-4o": 0.005,
-    "gpt-5-nano": 0.0005,
+    "gpt-5-nano": 0.00005,
 }
 LLM_COMPLETION_COST_PER_1K = {
     "gpt-4": 0.06,
     "gpt-4o": 0.015,
-    "gpt-5-nano": 0.004,
+    "gpt-5-nano": 0.0004,
 }
 
 
@@ -98,7 +98,7 @@ def run_openai_completion(
     prompt: str,
     model: str = "gpt-5-nano",
     temperature: float = 0.4,
-    max_tokens: int = 1200,
+    max_tokens: int = 2400,
     api_key: Optional[str] = None,
 ) -> str:
     client = OpenAI(api_key=api_key or RemoteConfig.from_file().openai_api_key)
