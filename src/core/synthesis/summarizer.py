@@ -5,6 +5,8 @@ from core.retrieval.retriever import Retriever
 
 
 CHARS_PER_TOKEN_ESTIMATE = 4
+SYNTHESIS_OVERHEAD_TOKENS = 600
+MIN_SOURCE_TOKENS = 120
 
 
 def summarize_documents(doc_ids: Iterable[str], retriever: Retriever) -> str:
@@ -39,8 +41,10 @@ def synthesize_query(
 
     hits = retriever.query_rich(query, k=k, return_text=True, aggregate=True)
     texts: List[str] = []
-    per_source_tokens = max(max_input_tokens // max(len(hits), 1), 500)
-    for idx, hit in enumerate(hits, start=1):
+    source_budget = max(max_input_tokens - SYNTHESIS_OVERHEAD_TOKENS, MIN_SOURCE_TOKENS)
+    source_limit = max(1, min(len(hits), source_budget // MIN_SOURCE_TOKENS))
+    per_source_tokens = max(MIN_SOURCE_TOKENS, source_budget // source_limit)
+    for idx, hit in enumerate(hits[:source_limit], start=1):
         text = str(hit.get("text", "")).strip()
         if not text:
             continue

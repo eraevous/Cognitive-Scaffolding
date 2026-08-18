@@ -83,6 +83,10 @@ LLM_COMPLETION_COST_PER_1K = {
 logger = get_logger(__name__)
 
 
+def _completion_content(response) -> str:
+    return (response.choices[0].message.content or "").strip()
+
+
 def load_prompt(prompt_name: str) -> str:
     path = PROMPT_DIR / f"{prompt_name}.txt"
     if not path.exists():
@@ -120,11 +124,24 @@ def run_openai_completion(
     if model.startswith("gpt-5"):
         completion_kwargs["reasoning_effort"] = "minimal"
 
+    def create_completion():
+        return client.chat.completions.create(**completion_kwargs)
+
+    response = retry_with_exponential_backoff(create_completion, logger=logger)
+    content = _completion_content(response)
+    if content or not model.startswith("gpt-5"):
+        return content
+
+    logger.warning(
+        "OpenAI returned empty content for %s; retrying with larger completion budget.",
+        model,
+    )
+    retry_kwargs = {**completion_kwargs, token_param: max_tokens * 2}
     response = retry_with_exponential_backoff(
-        lambda: client.chat.completions.create(**completion_kwargs),
+        lambda: client.chat.completions.create(**retry_kwargs),
         logger=logger,
     )
-    return response.choices[0].message.content.strip()
+    return _completion_content(response)
 
 
 def summarize_text(

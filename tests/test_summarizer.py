@@ -68,3 +68,32 @@ def test_synthesize_query_uses_retrieved_text(monkeypatch):
     monkeypatch.setattr("core.synthesis.summarizer.summarize_text", fake_summarize)
 
     assert synthesize_query("semantic drift", r) == "synthesized throughline"
+
+
+def test_synthesize_query_caps_sources_to_budget(monkeypatch):
+    r = retriever_mod.Retriever.__new__(retriever_mod.Retriever)
+
+    def fake_query_rich(text, k=120, return_text=False, aggregate=False):
+        return [
+            {
+                "doc_id": f"conv_{idx}",
+                "title": f"Conversation {idx}",
+                "score": 1.0,
+                "text": "long source text " * 200,
+            }
+            for idx in range(120)
+        ]
+
+    captured = {}
+
+    def fake_summarize(text, doc_type="standard", prompt_override=None):
+        captured["text"] = text
+        return {"summary": "budgeted"}
+
+    monkeypatch.setattr(r, "query_rich", fake_query_rich)
+    monkeypatch.setattr("core.synthesis.summarizer.summarize_text", fake_summarize)
+
+    assert synthesize_query("familiar", r, k=120, max_input_tokens=6400) == "budgeted"
+    assert "[S1]" in captured["text"]
+    assert "[S49]" not in captured["text"]
+    assert len(captured["text"]) <= 6400 * 4

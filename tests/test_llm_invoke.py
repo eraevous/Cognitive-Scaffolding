@@ -92,3 +92,29 @@ def test_summarize_text_chatlog(monkeypatch, fake_config):
     result = invoke.summarize_text(chat_text, doc_type="chatlog", config=fake_config)
 
     assert result == {"summary": "chat summary", "category": "chatlog"}
+
+
+def test_run_openai_completion_retries_empty_gpt5_response(monkeypatch):
+    calls = []
+
+    class FakeCompletions:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            content = "" if len(calls) == 1 else '{"summary": "ok"}'
+            return _DummyCompletionResponse(content)
+
+    class FakeClient:
+        def __init__(self, *args, **kwargs):
+            self.chat = SimpleNamespace(completions=FakeCompletions())
+
+    monkeypatch.setattr(invoke, "OpenAI", FakeClient)
+    monkeypatch.setattr(invoke, "get_budget_tracker", lambda: None)
+
+    result = invoke.run_openai_completion(
+        "Summarize this", model="gpt-5-nano", api_key="test-key"
+    )
+
+    assert result == '{"summary": "ok"}'
+    assert len(calls) == 2
+    assert calls[0]["max_completion_tokens"] == 1200
+    assert calls[1]["max_completion_tokens"] == 2400
