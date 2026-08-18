@@ -5,6 +5,8 @@ from typer.testing import CliRunner
 
 from cli.search import app as search_app
 from cli import search as search_cli
+from cli import synthesize as synthesize_cli
+from cli.synthesize import app as synthesize_app
 from core.configuration.path_config import PathConfig
 from core.output.artifacts import resolve_artifact_path, slugify, write_artifact
 
@@ -140,3 +142,46 @@ def test_file_search_out_writes_rich_markdown(tmp_path, monkeypatch):
     assert "# Semantic File Search:" in content
     assert "Scaffold Notes" in content
     assert "Matched passage" in content
+
+
+def test_file_synthesis_out_writes_markdown(tmp_path, monkeypatch):
+    source = tmp_path / "source.md"
+    source.write_text("familiar hearth notes", encoding="utf-8")
+    out_dir = tmp_path / "saved"
+
+    class FakeRetriever:
+        def __init__(self, paths=None):
+            self.paths = paths
+
+    def fake_synthesize_file(file_path, retriever, k=8, max_input_tokens=50000):
+        assert Path(file_path) == source
+        assert isinstance(retriever, FakeRetriever)
+        assert k == 3
+        assert max_input_tokens == 9000
+        return "Synthesis from a source file."
+
+    monkeypatch.setattr(synthesize_cli, "Retriever", FakeRetriever)
+    monkeypatch.setattr(synthesize_cli, "synthesize_file", fake_synthesize_file)
+
+    result = runner.invoke(
+        synthesize_app,
+        [
+            "file",
+            str(source),
+            "--root",
+            str(tmp_path),
+            "--k",
+            "3",
+            "--max-input-tokens",
+            "9000",
+            "--out",
+            str(out_dir),
+        ],
+    )
+
+    assert result.exit_code == 0
+    saved = list(out_dir.glob("*__semantic-file-synthesis__source.md"))
+    assert len(saved) == 1
+    content = saved[0].read_text(encoding="utf-8")
+    assert "# Semantic File Synthesis: source" in content
+    assert "Synthesis from a source file." in content

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from core.retrieval import retriever as retriever_mod
 from core.synthesis import summarize_documents
-from core.synthesis.summarizer import synthesize_query
+from core.synthesis.summarizer import synthesize_file, synthesize_query
 
 
 class DummyIndex:
@@ -97,3 +97,33 @@ def test_synthesize_query_caps_sources_to_budget(monkeypatch):
     assert "[S1]" in captured["text"]
     assert "[S49]" not in captured["text"]
     assert len(captured["text"]) <= 6400 * 4
+
+
+def test_synthesize_file_uses_source_file_for_retrieval(tmp_path, monkeypatch):
+    source = tmp_path / "source.md"
+    source.write_text("familiar hearth notes", encoding="utf-8")
+    r = retriever_mod.Retriever.__new__(retriever_mod.Retriever)
+
+    def fake_query_file_rich(file_path, k=8, return_text=False, aggregate=False):
+        assert Path(file_path) == source
+        assert k == 4
+        assert return_text is True
+        assert aggregate is True
+        return [
+            {
+                "doc_id": "conv_1",
+                "title": "Familiar Notes",
+                "score": 0.8,
+                "text": "A relevant excerpt.",
+            }
+        ]
+
+    def fake_summarize(text, doc_type="standard", prompt_override=None):
+        assert "Source file: source.md" in text
+        assert "[S1] Familiar Notes" in text
+        return {"summary": "file synthesis"}
+
+    monkeypatch.setattr(r, "query_file_rich", fake_query_file_rich)
+    monkeypatch.setattr("core.synthesis.summarizer.summarize_text", fake_summarize)
+
+    assert synthesize_file(source, r, k=4) == "file synthesis"

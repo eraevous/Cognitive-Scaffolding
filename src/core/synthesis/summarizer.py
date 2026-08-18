@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Iterable, List
 
 from core.llm.invoke import summarize_text
@@ -30,16 +31,14 @@ def _trim_text(text: str, max_tokens: int) -> str:
     return text[:max_chars].rsplit(" ", 1)[0].strip()
 
 
-def synthesize_query(
-    query: str,
-    retriever: Retriever,
-    k: int = 8,
+def synthesize_hits(
+    query_label: str,
+    hits: List[dict],
     *,
     max_input_tokens: int = 50000,
 ) -> str:
-    """Search for relevant chunks and synthesize a cited throughline summary."""
+    """Synthesize a cited throughline from already-retrieved semantic hits."""
 
-    hits = retriever.query_rich(query, k=k, return_text=True, aggregate=True)
     texts: List[str] = []
     source_budget = max(max_input_tokens - SYNTHESIS_OVERHEAD_TOKENS, MIN_SOURCE_TOKENS)
     source_limit = max(1, min(len(hits), source_budget // MIN_SOURCE_TOKENS))
@@ -65,9 +64,42 @@ def synthesize_query(
         "questions in these retrieved conversation excerpts. Cite sources using "
         "the bracketed source labels such as [S1] when making claims. Return a "
         'JSON object with a single string field named "summary".\n\n'
-        f"User query: {query}\n\n"
+        f"Search basis: {query_label}\n\n"
         + "\n\n---\n\n".join(texts)
     )
     prompt = _trim_text(prompt, max_input_tokens)
     summary = summarize_text(prompt, doc_type="chatlog", prompt_override="{text}")
     return summary.get("summary", "")
+
+
+def synthesize_query(
+    query: str,
+    retriever: Retriever,
+    k: int = 8,
+    *,
+    max_input_tokens: int = 50000,
+) -> str:
+    """Search for relevant chunks and synthesize a cited throughline summary."""
+
+    hits = retriever.query_rich(query, k=k, return_text=True, aggregate=True)
+    return synthesize_hits(query, hits, max_input_tokens=max_input_tokens)
+
+
+def synthesize_file(
+    file: str | Path,
+    retriever: Retriever,
+    k: int = 8,
+    *,
+    max_input_tokens: int = 50000,
+) -> str:
+    """Use a source text file to find and synthesize relevant corpus material."""
+
+    source_path = Path(file)
+    hits = retriever.query_file_rich(
+        source_path, k=k, return_text=True, aggregate=True
+    )
+    return synthesize_hits(
+        f"Source file: {source_path.name}",
+        hits,
+        max_input_tokens=max_input_tokens,
+    )

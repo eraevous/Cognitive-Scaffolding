@@ -96,6 +96,14 @@ Save semantic synthesis:
 kairos synthesize query "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --k 8 --max-input-tokens 50000 --out "C:\Users\Admin\Documents\Kairos\chatgpt_corpus\output\semantic-synthesis"
 ```
 
+Use a source text or Markdown file as the synthesis basis:
+
+```powershell
+kairos synthesize file "C:\path\to\source.md" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --k 20 --max-input-tokens 50000 --out "C:\Users\Admin\Documents\Kairos\chatgpt_corpus\output\semantic-file-synthesis"
+```
+
+This embeds the source file, retrieves related corpus conversations, and synthesizes those retrieved hits.
+
 When `--out` points to a directory, Kairos creates a timestamped Markdown file. When `--out` includes a filename extension, Kairos writes exactly to that file.
 
 ## Next Execution Steps

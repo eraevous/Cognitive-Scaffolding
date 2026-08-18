@@ -6,7 +6,7 @@ from core.configuration.path_config import PathConfig
 from core.output.artifacts import write_artifact
 from core.synthesis.extractive import synthesize_lexical_query
 from core.retrieval.retriever import Retriever
-from core.synthesis.summarizer import synthesize_query
+from core.synthesis.summarizer import synthesize_file, synthesize_query
 
 app = typer.Typer(help="Synthesize across retrieved corpus material")
 
@@ -59,6 +59,33 @@ def query_synthesis(
         raise typer.Exit(1)
     _echo_safe(synthesis)
     _save_synthesis(out, paths, "semantic-synthesis", query, synthesis, k=k)
+
+
+@app.command("file")
+def file_synthesis(
+    file_path: typer.FileText,
+    k: int = typer.Option(8, help="Number of retrieved documents/chunks to use"),
+    root: Path | None = typer.Option(None, help="Corpus root to search"),
+    max_input_tokens: int = typer.Option(
+        50000, help="Approximate token budget for retrieved source text"
+    ),
+    out: Path | None = typer.Option(None, help="Write synthesis to a file or directory"),
+):
+    """Use a source text file to find and synthesize related corpus material."""
+
+    paths = PathConfig(root=root) if root else get_path_config()
+    retriever = Retriever(paths=paths)
+    source_path = Path(file_path.name)
+    synthesis = synthesize_file(
+        source_path, retriever, k=k, max_input_tokens=max_input_tokens
+    )
+    if not synthesis:
+        typer.echo("No retrievable text found for that source file.")
+        raise typer.Exit(1)
+    _echo_safe(synthesis)
+    _save_synthesis(
+        out, paths, "semantic-file-synthesis", source_path.stem, synthesis, k=k
+    )
 
 
 @app.command("lexical")
