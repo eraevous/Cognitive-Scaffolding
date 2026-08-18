@@ -70,31 +70,31 @@ Save semantic results:
 kairos search semantic "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --text --aggregate --k 10 --out "C:\Users\Admin\Documents\Kairos\chatgpt_corpus\output\semantic-search"
 ```
 
-## Semantic Chunking Experiment
+## Semantic Chunking Default
 
-The default index uses regular size/window text chunks. To build a separate semantic topic-boundary index without overwriting the default index, run:
-
-```powershell
-kairos chatgpt repair-embeddings --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --semantic-chunking --index-name semantic
-```
-
-This creates a named index profile under:
-
-```text
-C:\Users\Admin\Documents\Kairos\chatgpt_corpus\vector\semantic
-```
-
-Search or synthesize against that profile with:
+New ChatGPT corpus embedding builds use semantic topic-boundary chunking by default. To rebuild the default index from already parsed transcripts:
 
 ```powershell
-kairos search semantic "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --index-name semantic --text --aggregate --k 10
+kairos chatgpt rebuild-embeddings --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus"
+```
+
+To compare against regular size/window chunks without overwriting the default index, build a named regular profile:
+
+```powershell
+kairos chatgpt rebuild-embeddings --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --no-semantic-chunking --index-name regular
+```
+
+Search or synthesize against a named profile with:
+
+```powershell
+kairos search semantic "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --index-name regular --text --aggregate --k 10
 ```
 
 ```powershell
-kairos synthesize query "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --index-name semantic --k 20 --max-input-tokens 50000
+kairos synthesize query "cognitive scaffolding" --root "C:\Users\Admin\Documents\Kairos\chatgpt_corpus" --index-name regular --k 20 --max-input-tokens 50000
 ```
 
-Semantic chunking requires a fresh embedding pass for the named profile. For the 2026-05-04 export, expect roughly another `$0.90` of `text-embedding-3-small` embedding cost.
+Semantic chunking changes retrieval behavior: results should align better to topic boundaries and synthesis should receive cleaner excerpts, but long conversations may produce fewer, larger chunks and some exact local context can shift. A rebuild requires a fresh embedding pass. For the 2026-05-04 export, expect roughly another `$0.90` of `text-embedding-3-small` embedding cost.
 
 If an embedding run fails on one or more files, the failed items are written to:
 

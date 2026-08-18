@@ -13,6 +13,7 @@ from core.parsing.openai_export import _extract_messages, _load_conversations
 
 
 MANIFEST_NAME = "chatgpt_manifest.json"
+DEFAULT_SEMANTIC_CHUNKING = True
 
 
 @dataclass
@@ -71,7 +72,9 @@ def _write_json(path: Path, payload: Dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _build_paths(root: Path, *, semantic_chunking: bool = False) -> PathConfig:
+def _build_paths(
+    root: Path, *, semantic_chunking: bool = DEFAULT_SEMANTIC_CHUNKING
+) -> PathConfig:
     return PathConfig(
         root=root,
         raw=root / "raw",
@@ -90,7 +93,7 @@ def ingest_chatgpt_export(
     overwrite: bool = False,
     embed: bool = True,
     model: str = "text-embedding-3-small",
-    semantic_chunking: bool = False,
+    semantic_chunking: bool = DEFAULT_SEMANTIC_CHUNKING,
     index_name: str = "default",
 ) -> ChatGPTIngestResult:
     """Parse a ChatGPT export into a searchable local corpus.
@@ -212,7 +215,7 @@ def repair_chatgpt_embeddings(
     root: Path,
     *,
     model: str = "text-embedding-3-small",
-    semantic_chunking: bool = False,
+    semantic_chunking: bool = DEFAULT_SEMANTIC_CHUNKING,
     index_name: str = "default",
 ) -> Path:
     """Append embeddings for parsed transcripts missing from the existing index."""
@@ -234,6 +237,37 @@ def repair_chatgpt_embeddings(
         chunk_dir=vector_dir / "chunks",
         paths=paths,
         reset_index=False,
+        vector_name=index_name,
+    )
+    return vector_dir / "embedding_failures.json"
+
+
+def rebuild_chatgpt_embeddings(
+    root: Path,
+    *,
+    model: str = "text-embedding-3-small",
+    semantic_chunking: bool = DEFAULT_SEMANTIC_CHUNKING,
+    index_name: str = "default",
+) -> Path:
+    """Rebuild a corpus vector profile from parsed transcripts."""
+
+    root = Path(root).expanduser().resolve()
+    paths = _build_paths(root, semantic_chunking=semantic_chunking)
+    parsed_dir = paths.parsed / "chatgpt"
+    vector_dir = paths.vector if index_name == "default" else paths.vector / index_name
+    generate_embeddings(
+        source_dir=parsed_dir,
+        method="parsed",
+        out_path=(
+            root / "rich_doc_embeddings.json"
+            if index_name == "default"
+            else vector_dir / "rich_doc_embeddings.json"
+        ),
+        model=model,
+        segment_mode=semantic_chunking,
+        chunk_dir=vector_dir / "chunks",
+        paths=paths,
+        reset_index=True,
         vector_name=index_name,
     )
     return vector_dir / "embedding_failures.json"

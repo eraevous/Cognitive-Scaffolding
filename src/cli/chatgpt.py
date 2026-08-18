@@ -5,6 +5,7 @@ import typer
 from core.parsing.openai_export import parse_chatgpt_export
 from core.workflows.chatgpt_corpus import (
     ingest_chatgpt_export,
+    rebuild_chatgpt_embeddings,
     repair_chatgpt_embeddings,
 )
 
@@ -44,7 +45,7 @@ def ingest_export(
         "text-embedding-3-small", help="OpenAI embedding model to use"
     ),
     semantic_chunking: bool = typer.Option(
-        False, help="Use semantic topic-boundary chunking when rebuilding embeddings"
+        True, help="Use semantic topic-boundary chunking when rebuilding embeddings"
     ),
     index_name: str = typer.Option(
         "default", help="Vector index profile name; e.g. 'semantic'"
@@ -78,7 +79,7 @@ def repair_embeddings(
         "text-embedding-3-small", help="OpenAI embedding model to use"
     ),
     semantic_chunking: bool = typer.Option(
-        False, help="Use semantic topic-boundary chunking for missing embeddings"
+        True, help="Use semantic topic-boundary chunking for missing embeddings"
     ),
     index_name: str = typer.Option(
         "default", help="Vector index profile name; e.g. 'semantic'"
@@ -93,6 +94,34 @@ def repair_embeddings(
         index_name=index_name,
     )
     typer.echo(f"Repaired embeddings for corpus: {root}")
+    if failure_path.exists():
+        typer.echo(f"Failures remain: {failure_path}")
+    else:
+        typer.echo("No embedding failures remain.")
+
+
+@app.command("rebuild-embeddings")
+def rebuild_embeddings(
+    root: Path = typer.Option(..., help="Corpus root with parsed ChatGPT transcripts"),
+    model: str = typer.Option(
+        "text-embedding-3-small", help="OpenAI embedding model to use"
+    ),
+    semantic_chunking: bool = typer.Option(
+        True, help="Use semantic topic-boundary chunking for rebuilt embeddings"
+    ),
+    index_name: str = typer.Option(
+        "default", help="Vector index profile name; e.g. 'semantic'"
+    ),
+):
+    """Rebuild transcript embeddings for a corpus vector profile."""
+
+    failure_path = rebuild_chatgpt_embeddings(
+        root,
+        model=model,
+        semantic_chunking=semantic_chunking,
+        index_name=index_name,
+    )
+    typer.echo(f"Rebuilt embeddings for corpus: {root}")
     if failure_path.exists():
         typer.echo(f"Failures remain: {failure_path}")
     else:

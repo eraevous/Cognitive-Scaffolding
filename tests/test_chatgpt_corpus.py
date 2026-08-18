@@ -66,7 +66,7 @@ def test_ingest_chatgpt_export_manifest_and_skip(tmp_path, monkeypatch):
     assert first.skipped == 0
     assert first.embedded is True
     assert calls[0]["source_dir"] == root / "parsed" / "chatgpt"
-    assert calls[0]["segment_mode"] is False
+    assert calls[0]["segment_mode"] is True
     assert calls[0]["vector_name"] == "default"
 
     manifest = json.loads(first.manifest_path.read_text(encoding="utf-8"))
@@ -117,6 +117,7 @@ def test_repair_chatgpt_embeddings_appends_missing_vectors(tmp_path, monkeypatch
     assert failure_path == tmp_path / "vector" / "embedding_failures.json"
     assert calls[0]["source_dir"] == tmp_path / "parsed" / "chatgpt"
     assert calls[0]["reset_index"] is False
+    assert calls[0]["segment_mode"] is True
 
 
 def test_semantic_chunking_uses_named_vector_profile(tmp_path, monkeypatch):
@@ -142,4 +143,29 @@ def test_semantic_chunking_uses_named_vector_profile(tmp_path, monkeypatch):
     assert calls[0]["segment_mode"] is True
     assert calls[0]["vector_name"] == "semantic"
     assert calls[0]["chunk_dir"] == root / "vector" / "semantic" / "chunks"
-    assert calls[0]["out_path"] == root / "vector" / "semantic" / "rich_doc_embeddings.json"
+    assert calls[0]["out_path"] == (
+        root / "vector" / "semantic" / "rich_doc_embeddings.json"
+    )
+
+
+def test_rebuild_chatgpt_embeddings_resets_index(tmp_path, monkeypatch):
+    calls = []
+
+    def fake_generate_embeddings(**kwargs):
+        calls.append(kwargs)
+
+    monkeypatch.setattr(
+        chatgpt_corpus, "generate_embeddings", fake_generate_embeddings
+    )
+
+    failure_path = chatgpt_corpus.rebuild_chatgpt_embeddings(
+        tmp_path,
+        semantic_chunking=False,
+        index_name="regular",
+    )
+
+    assert failure_path == tmp_path / "vector" / "regular" / "embedding_failures.json"
+    assert calls[0]["source_dir"] == tmp_path / "parsed" / "chatgpt"
+    assert calls[0]["reset_index"] is True
+    assert calls[0]["segment_mode"] is False
+    assert calls[0]["vector_name"] == "regular"
