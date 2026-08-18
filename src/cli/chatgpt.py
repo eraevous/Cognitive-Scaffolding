@@ -43,6 +43,12 @@ def ingest_export(
     model: str = typer.Option(
         "text-embedding-3-small", help="OpenAI embedding model to use"
     ),
+    semantic_chunking: bool = typer.Option(
+        False, help="Use semantic topic-boundary chunking when rebuilding embeddings"
+    ),
+    index_name: str = typer.Option(
+        "default", help="Vector index profile name; e.g. 'semantic'"
+    ),
 ):
     """Build or refresh a searchable ChatGPT conversation corpus."""
 
@@ -52,6 +58,8 @@ def ingest_export(
         overwrite=overwrite,
         embed=embed,
         model=model,
+        semantic_chunking=semantic_chunking,
+        index_name=index_name,
     )
     typer.echo(f"Corpus root: {result.root}")
     typer.echo(f"Parsed conversations: {result.parsed_dir}")
@@ -69,10 +77,21 @@ def repair_embeddings(
     model: str = typer.Option(
         "text-embedding-3-small", help="OpenAI embedding model to use"
     ),
+    semantic_chunking: bool = typer.Option(
+        False, help="Use semantic topic-boundary chunking for missing embeddings"
+    ),
+    index_name: str = typer.Option(
+        "default", help="Vector index profile name; e.g. 'semantic'"
+    ),
 ):
     """Append missing transcript embeddings to an existing corpus index."""
 
-    failure_path = repair_chatgpt_embeddings(root, model=model)
+    failure_path = repair_chatgpt_embeddings(
+        root,
+        model=model,
+        semantic_chunking=semantic_chunking,
+        index_name=index_name,
+    )
     typer.echo(f"Repaired embeddings for corpus: {root}")
     if failure_path.exists():
         typer.echo(f"Failures remain: {failure_path}")

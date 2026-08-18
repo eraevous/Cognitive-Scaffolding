@@ -71,7 +71,7 @@ def _write_json(path: Path, payload: Dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _build_paths(root: Path) -> PathConfig:
+def _build_paths(root: Path, *, semantic_chunking: bool = False) -> PathConfig:
     return PathConfig(
         root=root,
         raw=root / "raw",
@@ -79,7 +79,7 @@ def _build_paths(root: Path) -> PathConfig:
         metadata=root / "metadata",
         output=root / "output",
         vector=root / "vector",
-        semantic_chunking=False,
+        semantic_chunking=semantic_chunking,
     )
 
 
@@ -90,6 +90,8 @@ def ingest_chatgpt_export(
     overwrite: bool = False,
     embed: bool = True,
     model: str = "text-embedding-3-small",
+    semantic_chunking: bool = False,
+    index_name: str = "default",
 ) -> ChatGPTIngestResult:
     """Parse a ChatGPT export into a searchable local corpus.
 
@@ -99,7 +101,7 @@ def ingest_chatgpt_export(
 
     export_path = Path(export_path)
     root = Path(root).expanduser().resolve()
-    paths = _build_paths(root)
+    paths = _build_paths(root, semantic_chunking=semantic_chunking)
     parsed_dir = paths.parsed / "chatgpt"
     metadata_dir = paths.metadata / "chatgpt"
     manifest_path = metadata_dir / MANIFEST_NAME
@@ -175,17 +177,23 @@ def ingest_chatgpt_export(
     }
     _write_json(manifest_path, manifest)
 
-    index_path = paths.vector / "mosaic.index"
+    vector_dir = paths.vector if index_name == "default" else paths.vector / index_name
+    index_path = vector_dir / "mosaic.index"
     should_embed = embed and (written > 0 or overwrite or not index_path.exists())
     if should_embed:
         generate_embeddings(
             source_dir=parsed_dir,
             method="parsed",
-            out_path=root / "rich_doc_embeddings.json",
+            out_path=(
+                root / "rich_doc_embeddings.json"
+                if index_name == "default"
+                else vector_dir / "rich_doc_embeddings.json"
+            ),
             model=model,
-            segment_mode=False,
-            chunk_dir=paths.vector / "chunks",
+            segment_mode=semantic_chunking,
+            chunk_dir=vector_dir / "chunks",
             paths=paths,
+            vector_name=index_name,
         )
 
     return ChatGPTIngestResult(
@@ -204,20 +212,28 @@ def repair_chatgpt_embeddings(
     root: Path,
     *,
     model: str = "text-embedding-3-small",
+    semantic_chunking: bool = False,
+    index_name: str = "default",
 ) -> Path:
     """Append embeddings for parsed transcripts missing from the existing index."""
 
     root = Path(root).expanduser().resolve()
-    paths = _build_paths(root)
+    paths = _build_paths(root, semantic_chunking=semantic_chunking)
     parsed_dir = paths.parsed / "chatgpt"
+    vector_dir = paths.vector if index_name == "default" else paths.vector / index_name
     generate_embeddings(
         source_dir=parsed_dir,
         method="parsed",
-        out_path=root / "rich_doc_embeddings.json",
+        out_path=(
+            root / "rich_doc_embeddings.json"
+            if index_name == "default"
+            else vector_dir / "rich_doc_embeddings.json"
+        ),
         model=model,
-        segment_mode=False,
-        chunk_dir=paths.vector / "chunks",
+        segment_mode=semantic_chunking,
+        chunk_dir=vector_dir / "chunks",
         paths=paths,
         reset_index=False,
+        vector_name=index_name,
     )
-    return paths.vector / "embedding_failures.json"
+    return vector_dir / "embedding_failures.json"

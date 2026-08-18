@@ -66,6 +66,8 @@ def test_ingest_chatgpt_export_manifest_and_skip(tmp_path, monkeypatch):
     assert first.skipped == 0
     assert first.embedded is True
     assert calls[0]["source_dir"] == root / "parsed" / "chatgpt"
+    assert calls[0]["segment_mode"] is False
+    assert calls[0]["vector_name"] == "default"
 
     manifest = json.loads(first.manifest_path.read_text(encoding="utf-8"))
     record = manifest["records"]["conv_1"]
@@ -115,3 +117,29 @@ def test_repair_chatgpt_embeddings_appends_missing_vectors(tmp_path, monkeypatch
     assert failure_path == tmp_path / "vector" / "embedding_failures.json"
     assert calls[0]["source_dir"] == tmp_path / "parsed" / "chatgpt"
     assert calls[0]["reset_index"] is False
+
+
+def test_semantic_chunking_uses_named_vector_profile(tmp_path, monkeypatch):
+    calls = []
+
+    def fake_generate_embeddings(**kwargs):
+        calls.append(kwargs)
+
+    monkeypatch.setattr(
+        chatgpt_corpus, "generate_embeddings", fake_generate_embeddings
+    )
+
+    export_path = _write_export(tmp_path / "export.zip")
+    root = tmp_path / "corpus"
+
+    chatgpt_corpus.ingest_chatgpt_export(
+        export_path,
+        root,
+        semantic_chunking=True,
+        index_name="semantic",
+    )
+
+    assert calls[0]["segment_mode"] is True
+    assert calls[0]["vector_name"] == "semantic"
+    assert calls[0]["chunk_dir"] == root / "vector" / "semantic" / "chunks"
+    assert calls[0]["out_path"] == root / "vector" / "semantic" / "rich_doc_embeddings.json"

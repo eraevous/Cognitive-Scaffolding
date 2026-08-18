@@ -97,8 +97,9 @@ def test_file_search_out_writes_rich_markdown(tmp_path, monkeypatch):
     out_dir = tmp_path / "saved"
 
     class FakeRetriever:
-        def __init__(self, paths=None):
+        def __init__(self, paths=None, vector_name="default"):
             self.paths = paths
+            self.vector_name = vector_name
 
         def query_file_rich(
             self, file_path, k=5, return_text=False, aggregate=False
@@ -150,8 +151,9 @@ def test_file_synthesis_out_writes_markdown(tmp_path, monkeypatch):
     out_dir = tmp_path / "saved"
 
     class FakeRetriever:
-        def __init__(self, paths=None):
+        def __init__(self, paths=None, vector_name="default"):
             self.paths = paths
+            self.vector_name = vector_name
 
     def fake_synthesize_file(file_path, retriever, k=8, max_input_tokens=50000):
         assert Path(file_path) == source

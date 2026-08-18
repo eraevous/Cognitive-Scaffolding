@@ -31,10 +31,11 @@ def semantic(
     text: bool = typer.Option(False, help="Include retrieved chunk text"),
     aggregate: bool = typer.Option(False, help="Group chunks by source document"),
     out: Path | None = typer.Option(None, help="Write results to a file or directory"),
+    index_name: str = typer.Option("default", help="Vector index profile to search"),
 ):
     """Return top-k document IDs matching the query."""
     paths = PathConfig(root=root) if root else get_path_config()
-    retriever = Retriever(paths=paths)
+    retriever = Retriever(paths=paths, vector_name=index_name)
     logger.info("Running semantic search for: %s", query)
     hits = retriever.query_rich(query, k=k, return_text=text, aggregate=aggregate)
     lines = [
@@ -74,10 +75,11 @@ def semantic_file(
     text: bool = typer.Option(False, help="Include retrieved chunk text"),
     aggregate: bool = typer.Option(False, help="Group chunks by source document"),
     out: Path | None = typer.Option(None, help="Write results to a file or directory"),
+    index_name: str = typer.Option("default", help="Vector index profile to search"),
 ):
     """Return top-k IDs similar to the text contained in ``file_path``."""
     paths = PathConfig(root=root) if root else get_path_config()
-    retriever = Retriever(paths=paths)
+    retriever = Retriever(paths=paths, vector_name=index_name)
     logger.info("Running semantic search for file: %s", file_path)
     hits = retriever.query_file_rich(
         file_path, k=k, return_text=text, aggregate=aggregate

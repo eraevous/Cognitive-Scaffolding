@@ -24,7 +24,7 @@ def test_summarize_documents(monkeypatch):
     monkeypatch.setattr(
         retriever_mod.Retriever,
         "__init__",
-        lambda self, store=None, model=None, chunk_dir=None: None,
+        lambda self, store=None, model=None, chunk_dir=None, paths=None, vector_name="default": None,
     )
     r = retriever_mod.Retriever()
 

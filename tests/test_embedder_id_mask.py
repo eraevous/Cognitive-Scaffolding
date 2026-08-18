@@ -87,6 +87,34 @@ def test_generate_embeddings_with_segments(tmp_path, monkeypatch):
     assert "embedding" in data
 
 
+def test_generate_embeddings_named_vector_profile(tmp_path, monkeypatch):
+    paths = PathConfig(root=tmp_path)
+    paths.parsed = tmp_path / "parsed"
+    paths.vector = tmp_path / "vector"
+    paths.parsed.mkdir()
+    paths.vector.mkdir()
+    (paths.parsed / "example.txt").write_text("hello world", encoding="utf-8")
+
+    monkeypatch.setattr(embedder, "get_path_config", lambda force_reload=False: paths)
+    monkeypatch.setattr(
+        embedder,
+        "embed_text_batch",
+        lambda texts, model="text-embedding-3-small", **kwargs: [
+            [0.0] * embedder.MODEL_DIMS[model] for _ in texts
+        ],
+    )
+
+    embedder.generate_embeddings(
+        model="text-embedding-3-small",
+        vector_name="semantic",
+        out_path=None,
+    )
+
+    assert (paths.vector / "semantic" / "mosaic.index").exists()
+    assert (paths.vector / "semantic" / "id_map.json").exists()
+    assert (paths.vector / "semantic" / "rich_doc_embeddings.json").exists()
+
+
 def test_embed_text_batch_splits_large_batches(monkeypatch):
     calls = []
 

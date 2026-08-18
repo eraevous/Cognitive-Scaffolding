@@ -26,15 +26,19 @@ class Retriever:
         model: str | None = None,
         chunk_dir: Path | None = None,
         paths: PathConfig | None = None,
+        vector_name: str = "default",
     ):
         self.logger = get_logger(__name__)
         paths = paths or get_path_config()
         self.paths = paths
         default_model = model or "text-embedding-3-small"
         dim = MODEL_DIMS.get(default_model, 1536)
-        self.store = store or FaissStore(dim=dim, path=paths.vector / "mosaic.index")
+        self.vector_name = vector_name
+        vector_dir = paths.vector if vector_name == "default" else paths.vector / vector_name
+        self.vector_dir = vector_dir
+        self.store = store or FaissStore(dim=dim, path=vector_dir / "mosaic.index")
         self.dim = self.store.index.d
-        id_map_path = paths.vector / "id_map.json"
+        id_map_path = vector_dir / "id_map.json"
         if id_map_path.exists():
             self.id_map = {
                 int(k): v for k, v in json.loads(id_map_path.read_text()).items()
@@ -42,7 +46,7 @@ class Retriever:
         else:
             self.id_map = {}
         self.chunk_dir = chunk_dir or (
-            paths.vector / "chunks" if (paths.vector / "chunks").exists() else None
+            vector_dir / "chunks" if (vector_dir / "chunks").exists() else None
         )
         if model is None and self.dim != dim:
             inferred = get_model_for_dim(self.dim)

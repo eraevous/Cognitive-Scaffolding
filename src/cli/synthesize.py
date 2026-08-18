@@ -46,11 +46,12 @@ def query_synthesis(
         50000, help="Approximate token budget for retrieved source text"
     ),
     out: Path | None = typer.Option(None, help="Write synthesis to a file or directory"),
+    index_name: str = typer.Option("default", help="Vector index profile to search"),
 ):
     """Search the corpus and summarize the conceptual throughline."""
 
     paths = PathConfig(root=root) if root else get_path_config()
-    retriever = Retriever(paths=paths)
+    retriever = Retriever(paths=paths, vector_name=index_name)
     synthesis = synthesize_query(
         query, retriever, k=k, max_input_tokens=max_input_tokens
     )
@@ -70,11 +71,12 @@ def file_synthesis(
         50000, help="Approximate token budget for retrieved source text"
     ),
     out: Path | None = typer.Option(None, help="Write synthesis to a file or directory"),
+    index_name: str = typer.Option("default", help="Vector index profile to search"),
 ):
     """Use a source text file to find and synthesize related corpus material."""
 
     paths = PathConfig(root=root) if root else get_path_config()
-    retriever = Retriever(paths=paths)
+    retriever = Retriever(paths=paths, vector_name=index_name)
     synthesis = synthesize_file(file_path, retriever, k=k, max_input_tokens=max_input_tokens)
     if not synthesis:
         typer.echo("No retrievable text found for that source file.")

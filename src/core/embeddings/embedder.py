@@ -171,12 +171,13 @@ def embed_text_batch(
 def generate_embeddings(
     source_dir: Path = None,
     method: Literal["parsed", "summary", "raw", "meta"] = "parsed",
-    out_path: Path = Path("rich_doc_embeddings.json"),
+    out_path: Path | None = Path("rich_doc_embeddings.json"),
     model: str = "text-embedding-3-large",
     segment_mode: bool | None = None,
     chunk_dir: Path | None = None,
     paths=None,
     reset_index: bool = True,
+    vector_name: str = "default",
 ) -> None:
     """Generate embeddings for documents or topic segments.
 
@@ -188,13 +189,14 @@ def generate_embeddings(
     paths = paths or get_path_config()
     segment_mode = paths.semantic_chunking if segment_mode is None else segment_mode
     source_dir = source_dir or paths.parsed
-    out_path = out_path or paths.vector / "rich_doc_embeddings.json"
+    vector_dir = paths.vector if vector_name == "default" else paths.vector / vector_name
+    out_path = out_path or vector_dir / "rich_doc_embeddings.json"
     embeddings: Dict[str, List[float]] = {}
     id_map: Dict[str, str] = {}
     failures: List[Dict[str, Any]] = []
     index_dim = MODEL_DIMS.get(model, 1536)
-    index_path = paths.vector / "mosaic.index"
-    id_map_path = paths.vector / "id_map.json"
+    index_path = vector_dir / "mosaic.index"
+    id_map_path = vector_dir / "id_map.json"
     if index_path.exists() and reset_index:
         logger.info("Reinitializing FAISS index at %s", index_path)
         index_path.unlink()
@@ -211,7 +213,7 @@ def generate_embeddings(
                 id_map = {}
     store = FaissStore(dim=index_dim, path=index_path)
 
-    chunk_dir = chunk_dir or (paths.vector / "chunks")
+    chunk_dir = chunk_dir or (vector_dir / "chunks")
 
     pattern = "*.meta.json" if method in {"summary", "meta"} else "*.txt"
     for file in sorted(source_dir.glob(pattern)):
@@ -299,7 +301,7 @@ def generate_embeddings(
     out_path.write_text(json.dumps(embeddings, indent=2))
     store.persist()
     id_map_path.write_text(json.dumps(id_map, indent=2))
-    failure_path = paths.vector / "embedding_failures.json"
+    failure_path = vector_dir / "embedding_failures.json"
     if failures:
         failure_path.write_text(json.dumps(failures, indent=2), encoding="utf-8")
         logger.warning("Saved %d embedding failure(s) to %s", len(failures), failure_path)
