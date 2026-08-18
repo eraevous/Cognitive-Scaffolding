@@ -45,3 +45,25 @@ def test_query_file_rich_uses_file_text(tmp_path, monkeypatch):
     assert r.query_file_rich(
         file_path, k=3, return_text=True, aggregate=True
     ) == [{"doc_id": "docA", "title": "Doc A", "score": 0.9}]
+
+
+def test_query_file_rich_uses_document_extractor(tmp_path, monkeypatch):
+    file_path = tmp_path / "sample.docx"
+    file_path.write_bytes(b"not utf-8 document bytes")
+
+    r = retriever_mod.Retriever.__new__(retriever_mod.Retriever)
+
+    def fake_extract(path):
+        assert Path(path) == file_path
+        return "extracted docx text"
+
+    def fake_query_rich(text, k=5, return_text=False, aggregate=False):
+        assert text == "extracted docx text"
+        return [{"doc_id": "docA", "title": "Doc A", "score": 0.9}]
+
+    monkeypatch.setattr(retriever_mod, "extract_text", fake_extract)
+    monkeypatch.setattr(r, "query_rich", fake_query_rich)
+
+    assert r.query_file_rich(file_path) == [
+        {"doc_id": "docA", "title": "Doc A", "score": 0.9}
+    ]

@@ -63,7 +63,7 @@ def query_synthesis(
 
 @app.command("file")
 def file_synthesis(
-    file_path: typer.FileText,
+    file_path: Path,
     k: int = typer.Option(8, help="Number of retrieved documents/chunks to use"),
     root: Path | None = typer.Option(None, help="Corpus root to search"),
     max_input_tokens: int = typer.Option(
@@ -75,16 +75,13 @@ def file_synthesis(
 
     paths = PathConfig(root=root) if root else get_path_config()
     retriever = Retriever(paths=paths)
-    source_path = Path(file_path.name)
-    synthesis = synthesize_file(
-        source_path, retriever, k=k, max_input_tokens=max_input_tokens
-    )
+    synthesis = synthesize_file(file_path, retriever, k=k, max_input_tokens=max_input_tokens)
     if not synthesis:
         typer.echo("No retrievable text found for that source file.")
         raise typer.Exit(1)
     _echo_safe(synthesis)
     _save_synthesis(
-        out, paths, "semantic-file-synthesis", source_path.stem, synthesis, k=k
+        out, paths, "semantic-file-synthesis", file_path.stem, synthesis, k=k
     )
 
 

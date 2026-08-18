@@ -8,6 +8,7 @@ from core.configuration.config_registry import get_path_config
 from core.configuration.path_config import PathConfig
 from core.embeddings.embedder import MODEL_DIMS, embed_text, get_model_for_dim
 from core.logger import get_logger
+from core.parsing.extract_text import extract_text
 from core.retrieval.metadata import enrich_result, source_id
 from core.vectorstore.faiss_store import FaissStore
 
@@ -58,7 +59,7 @@ class Retriever:
 
     def query_file(self, file: str | Path, k: int = 5, return_text: bool = False):
         """Return top ``k`` results using the contents of ``file`` as the query."""
-        text = Path(file).read_text("utf-8")
+        text = extract_text(str(file))
         return self.query(text, k=k, return_text=return_text)
 
     def query_file_rich(
@@ -71,7 +72,7 @@ class Retriever:
     ) -> List[Dict[str, object]]:
         """Return metadata-enriched results using a file as the query."""
 
-        text = Path(file).read_text("utf-8")
+        text = extract_text(str(file))
         return self.query_rich(
             text, k=k, return_text=return_text, aggregate=aggregate
         )

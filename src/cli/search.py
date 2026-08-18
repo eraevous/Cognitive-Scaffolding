@@ -68,7 +68,7 @@ def semantic(
 
 @app.command("file")
 def semantic_file(
-    file_path: typer.FileText,
+    file_path: Path,
     k: int = 5,
     root: Path | None = typer.Option(None, help="Corpus root to search"),
     text: bool = typer.Option(False, help="Include retrieved chunk text"),
@@ -78,12 +78,12 @@ def semantic_file(
     """Return top-k IDs similar to the text contained in ``file_path``."""
     paths = PathConfig(root=root) if root else get_path_config()
     retriever = Retriever(paths=paths)
-    logger.info("Running semantic search for file: %s", file_path.name)
+    logger.info("Running semantic search for file: %s", file_path)
     hits = retriever.query_file_rich(
-        Path(file_path.name), k=k, return_text=text, aggregate=aggregate
+        file_path, k=k, return_text=text, aggregate=aggregate
     )
     lines = [
-        f"# Semantic File Search: {file_path.name}",
+        f"# Semantic File Search: {file_path}",
         "",
         f"- k: {k}",
         f"- aggregate: {aggregate}",
@@ -108,7 +108,7 @@ def semantic_file(
         )
     if out:
         path = write_artifact(
-            out, paths, "semantic-file-search", Path(file_path.name).stem, lines
+            out, paths, "semantic-file-search", file_path.stem, lines
         )
         _echo_safe(f"Saved output to {path}")
 
