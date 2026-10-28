@@ -1,47 +1,61 @@
-# Contributor License Agreement (CLA)
+# Contributor License Agreement
 
-Thank you for contributing to Cognitive-Scaffolding / Kairos! 🎉  
-This Contributor License Agreement (“CLA”) clarifies how contributions are licensed and how they may be used.
+Thank you for contributing. This agreement says how your contribution may be used. It
+applies to this repository only, and you agree to it by checking the box in the pull
+request template (or by adding the sign-off line below to your commit or pull request).
+
+## 1. Your contribution is licensed like the project
+
+Everything you contribute is licensed to everyone under this repository's license (see
+[LICENSE](LICENSE)), the same terms the project itself is under.
+
+## 2. You keep your copyright
+
+You keep the copyright in your contribution and may use it anywhere else, under any
+terms you like. Nothing here transfers ownership.
+
+## 3. Additional grant to the maintainer
+
+You also grant Zachary Rhodes, and any person or company that later takes over
+maintaining this project from him or that he controls, a perpetual, worldwide,
+non-exclusive, royalty-free, irrevocable license to use, copy, modify, distribute and
+sublicense your contribution under any terms, including proprietary or dual-licensed
+versions. This is what lets the project offer commercial licenses alongside the open
+one. It is non-exclusive: you keep every right you had.
+
+## 4. Patents
+
+If your contribution is covered by a patent you can license, you grant everyone who
+receives the project under its license, and the maintainer under section 3, a
+perpetual, worldwide, royalty-free, irrevocable patent license to make, use, sell and
+distribute it as part of the project. If you sue anyone claiming the project infringes
+your patent, the patent licenses you received from this project end.
+
+## 5. What you confirm
+
+- The contribution is your own work, or you have the right to submit it under these terms.
+- If your employer or anyone else has rights to work you create, they have allowed this
+  contribution, or the contribution isn't covered by those rights.
+- You will mark clearly anything in the contribution that comes from someone else, with
+  its source and license.
+
+## 6. No warranty, no obligation
+
+Your contribution is provided "as is", without warranty. The maintainer doesn't have to
+accept or use it.
+
+## In short
+
+- **You:** your code stays open under the project license, and still yours.
+- **The maintainer:** may also include it in a commercial version.
+- **Don't agree?** Don't contribute. You can still use the project under its license.
+
+## Sign-off line
+
+    I agree to the Contributor License Agreement in CLA.md.
 
 ---
 
-## 1. Open Source License
-All contributions you submit to this project are licensed under the project’s open source license, found in [LICENSE](LICENSE) (MIT/Apache-2.0).  
-This ensures that the project remains free and open for everyone to use, extend, and share.
-
----
-
-## 2. Contributor Rights
-- You **retain copyright** to your contributions.  
-- You may reuse your contributions anywhere else under any license you choose.  
-- You do not assign your rights away by contributing.
-
----
-
-## 3. Grant to Maintainer (Zachary Rhodes)
-To support the sustainability of this project, you grant Zachary Rhodes:
-- The right to **relicense contributions for commercial use**, including creating proprietary or dual-licensed versions of the software.
-- This right is **non-exclusive** (you still own your work) and **royalty-free**.
-- It only applies to contributions you make to this repository.
-
----
-
-## 4. No Warranty
-Contributions are provided “as-is” and without warranty. You are not liable for downstream use.
-
----
-
-## 5. How This Affects You
-- **If you are an individual contributor:** your code remains open-source under MIT/Apache, but the maintainer may also bundle it in a commercial product.  
-- **If you are a company using the project:** you can freely build on the open-source version, but proprietary improvements you make will only remain yours if you don’t upstream them. Contributed patches follow this CLA.  
-- **If you want to opt out:** simply don’t submit contributions — you can still use the project under MIT/Apache.
-
----
-
-By submitting a pull request, issue, or patch, you confirm that:
-1. You have the rights to contribute the code/content.  
-2. You agree to the terms above.  
-
----
-
-_This CLA is adapted from common community agreements (e.g., Apache, CNCF) with an additional commercial carve-out for the project maintainer._
+*Adapted from common community agreements (the Apache ICLA and similar) with an added
+commercial grant to the maintainer. This is not legal advice; for anything with money
+riding on it, have a lawyer review it.*
