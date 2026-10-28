@@ -6,8 +6,8 @@
 - @ai-intent: "Upload local files to S3 with parsed versions and register metadata stubs for classification."
 
 🔍 Module Summary:
-This module consolidates file upload logic into S3 workflows. It handles uploading raw and parsed documents, 
-generates `.stub.json` metadata mappings, and uploads those stubs for downstream classification. 
+This module consolidates file upload logic into S3 workflows. It handles uploading raw and parsed documents,
+generates `.stub.json` metadata mappings, and uploads those stubs for downstream classification.
 Resilient against parse errors and supports configurable local/remote paths.
 
 🗂️ Contents:
@@ -39,7 +39,6 @@ Resilient against parse errors and supports configurable local/remote paths.
     - Change Caution: If stub uploads fail but document uploads succeed, system integrity may degrade silently.
     - Future Hints: Extend stub format to include upload timestamps, original size, or content hash for better validation.
 """
-
 
 import json
 from pathlib import Path

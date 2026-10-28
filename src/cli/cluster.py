@@ -6,8 +6,8 @@
 - @ai-intent: "Expose the full clustering pipeline via a Typer CLI interface."
 
 🔍 Module Summary:
-This module provides a Typer CLI command to trigger the document clustering pipeline. It orchestrates 
-dimensionality reduction (UMAP), clustering (HDBSCAN and Spectral), GPT-driven cluster labeling, and saves 
+This module provides a Typer CLI command to trigger the document clustering pipeline. It orchestrates
+dimensionality reduction (UMAP), clustering (HDBSCAN and Spectral), GPT-driven cluster labeling, and saves
 visualizations and metadata. Paths can be optionally configured via a JSON config file.
 
 🗂️ Contents:

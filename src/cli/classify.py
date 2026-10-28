@@ -6,8 +6,8 @@
 - @ai-intent: "Expose classification and summarization routines as Typer CLI commands."
 
 🔍 Module Summary:
-This module provides Typer CLI commands to classify documents via Lambda-based Claude summarization. 
-It supports both individual document classification and automated chunked classification for larger inputs. 
+This module provides Typer CLI commands to classify documents via Lambda-based Claude summarization.
+It supports both individual document classification and automated chunked classification for larger inputs.
 It is intended for fast integration into scalable document processing pipelines.
 
 🗂️ Contents:
@@ -39,7 +39,6 @@ It is intended for fast integration into scalable document processing pipelines.
     - Change Caution: Large document classification is chunk-based; be aware of chunking limits and recombination logic.
     - Future Hints: Allow manual override of chunk size or prompt template via CLI options.
 """
-
 
 import typer
 

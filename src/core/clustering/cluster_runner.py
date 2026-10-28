@@ -1,10 +1,10 @@
 """
-Module: core_lib.clustering.cluster_runner 
-- @ai-path: core_lib.clustering.cluster_runner 
-- @ai-source-file: combined_clustering.py 
-- @ai-module: cluster_runner 
-- @ai-role: clustering_engine 
-- @ai-entrypoint: cluster_embeddings() 
+Module: core_lib.clustering.cluster_runner
+- @ai-path: core_lib.clustering.cluster_runner
+- @ai-source-file: combined_clustering.py
+- @ai-module: cluster_runner
+- @ai-role: clustering_engine
+- @ai-entrypoint: cluster_embeddings()
 - @ai-intent: "Run dimensionality reduction and clustering over document embeddings."
 
 🔍 Summary:
@@ -32,17 +32,17 @@ This function runs dimensionality reduction (UMAP) on a set of document embeddin
 - @ai-uses: X, umap_config, n_spectral_clusters
 - @ai-tags: clustering, embeddings, umap, hdbscan, spectral
 
-⚙️ Meta: 
-- @ai-version: 0.3.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.3.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add UMAP + dual clustering over embeddings 
-- @change-summary: Define embedding-to-labels transformation for clustering pipeline 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add UMAP + dual clustering over embeddings
+- @change-summary: Define embedding-to-labels transformation for clustering pipeline
+- @notes:
 """
 
 from typing import Tuple

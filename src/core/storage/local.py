@@ -6,8 +6,8 @@
 - @ai-intent: "Read and write local JSON files to support metadata storage and configuration."
 
 🔍 Module Summary:
-This module provides simple helper functions for saving and loading dictionaries to and from JSON files on disk, 
-using UTF-8 encoding. Intended for use cases like metadata caching, configuration persistence, and 
+This module provides simple helper functions for saving and loading dictionaries to and from JSON files on disk,
+using UTF-8 encoding. Intended for use cases like metadata caching, configuration persistence, and
 intermediate storage in local environments.
 
 🗂️ Contents:
@@ -39,7 +39,6 @@ intermediate storage in local environments.
     - Change Caution: Paths should be validated externally to avoid writing over critical files.
     - Future Hints: Add atomic save operations or backup file support for better resilience.
 """
-
 
 import json
 from pathlib import Path

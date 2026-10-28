@@ -6,9 +6,9 @@
 - @ai-intent: "Convert files (.txt, .md, .pdf, .docx) into raw text strings for LLM input or downstream processing."
 
 🔍 Module Summary:
-This module provides a flexible file extraction utility that reads multiple supported document types and 
-returns their raw text content. It supports plain text files (`.txt`), Markdown files (`.md`), PDFs (`.pdf`) 
-via PyMuPDF (`fitz`), and Word documents (`.docx`) via `python-docx`. Files with unsupported extensions 
+This module provides a flexible file extraction utility that reads multiple supported document types and
+returns their raw text content. It supports plain text files (`.txt`), Markdown files (`.md`), PDFs (`.pdf`)
+via PyMuPDF (`fitz`), and Word documents (`.docx`) via `python-docx`. Files with unsupported extensions
 trigger a clear error.
 
 🗂️ Contents:
@@ -39,7 +39,6 @@ trigger a clear error.
     - Change Caution: Ensure required third-party libraries (`python-docx`, `fitz`, `markdown`) are installed; otherwise functionality may fail silently.
     - Future Hints: Add support for additional formats (e.g., `.epub`, `.html`) or remote file retrieval.
 """
-
 
 import os
 

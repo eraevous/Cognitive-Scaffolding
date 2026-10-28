@@ -1,10 +1,10 @@
 """
-Module: core_lib.embeddings.loader 
-- @ai-path: core_lib.embeddings.loader 
-- @ai-source-file: embedding.py 
-- @ai-module: embeddings_loader 
-- @ai-role: data_loader 
-- @ai-entrypoint: load_embeddings() 
+Module: core_lib.embeddings.loader
+- @ai-path: core_lib.embeddings.loader
+- @ai-source-file: embedding.py
+- @ai-module: embeddings_loader
+- @ai-role: data_loader
+- @ai-entrypoint: load_embeddings()
 - @ai-intent: "Load document embeddings from a JSON file into a doc ID list and NumPy matrix for clustering."
 
 🔍 Summary:
@@ -28,15 +28,15 @@ This function loads precomputed document embeddings stored in JSON format. It pa
 - @ai-uses: embedding_path, data
 - @ai-tags: embeddings, data-loading, numpy, document-ids
 
-⚙️ Meta: 
-- @ai-version: 0.1.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.1.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Load embedding JSON as doc ID list and embedding matrix @change-summary: Add JSON-to-NumPy embedding loader for clustering input 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Load embedding JSON as doc ID list and embedding matrix @change-summary: Add JSON-to-NumPy embedding loader for clustering input
 - @notes:
 
 🚧 Future Enhancements:
@@ -44,7 +44,6 @@ This function loads precomputed document embeddings stored in JSON format. It pa
 - [ ] Add schema validation to ensure embeddings are well-formed
 - [ ] Add support for lazy-loading or memory-mapped embeddings
 """
-
 
 import json
 from pathlib import Path

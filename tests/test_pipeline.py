@@ -4,7 +4,7 @@ import sys
 import tempfile
 from pathlib import Path
 from types import ModuleType
-from unittest.mock import ANY, patch
+from unittest.mock import patch
 
 import pytest
 

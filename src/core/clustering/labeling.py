@@ -1,10 +1,10 @@
 """
-Module: core_lib.clustering.labeling 
-- @ai-path: core_lib.clustering.labeling 
-- @ai-source-file: labeling.py 
-- @ai-module: cluster_labeling 
-- @ai-role: gpt_labeler 
-- @ai-entrypoint: label_clusters_with_gpt() 
+Module: core_lib.clustering.labeling
+- @ai-path: core_lib.clustering.labeling
+- @ai-source-file: labeling.py
+- @ai-module: cluster_labeling
+- @ai-role: gpt_labeler
+- @ai-entrypoint: label_clusters_with_gpt()
 - @ai-intent: "Use a GPT model to generate short semantic labels for document clusters."
 
 🔍 Summary:
@@ -28,16 +28,16 @@ This function sends each document cluster to a GPT model and requests a short se
 - @ai-uses: clusters, cluster_id, doc list
 - @ai-tags: gpt, labeling, clustering, summarization, openai
 
-⚙️ Meta: 
-- @ai-version: 0.2.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.2.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Generate GPT-based cluster labels from document groupings 
-- @change-summary: Smart label generation for cluster visualization and reporting 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Generate GPT-based cluster labels from document groupings
+- @change-summary: Smart label generation for cluster visualization and reporting
 - @notes:
 
 🚧 Future Enhancements:

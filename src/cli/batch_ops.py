@@ -1,11 +1,11 @@
 """
-Module: cli/batch_ops.py 
+Module: cli/batch_ops.py
 
-- @ai-path: cli.batch_ops 
-- @ai-source-file: combined_cli.py 
-- @ai-module: batch_cli 
-- @ai-role: cli_batch_controller 
-- @ai-entrypoint: classify_all(), recover_failed(), clean_corrupt_meta(), upload_all(), clear_s3(), organize_all() 
+- @ai-path: cli.batch_ops
+- @ai-source-file: combined_cli.py
+- @ai-module: batch_cli
+- @ai-role: cli_batch_controller
+- @ai-entrypoint: classify_all(), recover_failed(), clean_corrupt_meta(), upload_all(), clear_s3(), organize_all()
 - @ai-intent: "Provide CLI commands for classification recovery, file uploads, metadata validation, and S3 cleanup."
 
 🔍 Summary:
@@ -35,17 +35,17 @@ This section defines higher-level CLI commands for batch workflows and admin tas
 - @ai-uses: PathConfig, cluster_map, stub_dir
 - @ai-tags: cli, batch, recovery, organization, metadata, upload, S3
 
-⚙️ Meta: 
-- @ai-version: 0.4.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.4.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Add batch classify/upload/recover/reset commands to CLI 
-- @change-summary: Add fault-tolerant CLI workflow support for metadata classification 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Add batch classify/upload/recover/reset commands to CLI
+- @change-summary: Add fault-tolerant CLI workflow support for metadata classification
+- @notes:
 """
 
 from pathlib import Path
