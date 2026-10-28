@@ -97,9 +97,7 @@ def _batched_embeddings(
         vectors: List[List[float]] = []
         for start in range(0, len(texts), batch_size):
             batch = texts[start : start + batch_size]
-            vectors.extend(
-                embed_text_batch(batch, model=model, embedder=embed_text)
-            )
+            vectors.extend(embed_text_batch(batch, model=model, embedder=embed_text))
         return vectors
 
     return embed_text_batch(texts, model=model, embedder=embed_text)
@@ -197,7 +195,9 @@ def _segment_windows(
     return segments, boundaries
 
 
-def _merge_two_segments(left: _Segment, boundary: _Boundary, right: _Segment) -> _Segment:
+def _merge_two_segments(
+    left: _Segment, boundary: _Boundary, right: _Segment
+) -> _Segment:
     return _Segment(
         start=left.start,
         end=right.end,
@@ -239,7 +239,9 @@ def _merge_small_segments(
             idx = max(idx - 1, 0)
             merged = True
         elif idx < len(segments) - 1 and boundaries[idx].reason != "change":
-            segments[idx] = _merge_two_segments(segment, boundaries[idx], segments[idx + 1])
+            segments[idx] = _merge_two_segments(
+                segment, boundaries[idx], segments[idx + 1]
+            )
             del segments[idx + 1]
             del boundaries[idx]
             merged = True
@@ -341,7 +343,7 @@ def _assign_clusters(
 def semantic_chunk(
     text: str,
     model: str = "text-embedding-3-small",
-    window_tokens: int = 512, 
+    window_tokens: int = 512,
     step_tokens: int = 256,
     *,
     mode: str = "coarse",
@@ -452,9 +454,11 @@ def semantic_chunk(
         ]
 
     chunk_texts = [
-        tokenizer.decode(tokens[segment.start : segment.end])
-        if segment.start < segment.end
-        else ""
+        (
+            tokenizer.decode(tokens[segment.start : segment.end])
+            if segment.start < segment.end
+            else ""
+        )
         for segment in segments
     ]
 

@@ -6,9 +6,9 @@
 - @ai-intent: "Provide save/load operations for document metadata with JSON validation and schema enforcement."
 
 🔍 Module Summary:
-This module defines two core I/O functions: `save_metadata`, which saves a dictionary of document metadata 
-to a `.meta.json` file (after validating it against a schema), and `load_metadata`, which reads metadata back 
-from disk and ensures it's still valid. It uses `Path`-based file management and schema-driven validation to 
+This module defines two core I/O functions: `save_metadata`, which saves a dictionary of document metadata
+to a `.meta.json` file (after validating it against a schema), and `load_metadata`, which reads metadata back
+from disk and ensures it's still valid. It uses `Path`-based file management and schema-driven validation to
 ensure reliable storage and retrieval of metadata objects.
 
 🗂️ Contents:

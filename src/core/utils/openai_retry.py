@@ -8,6 +8,7 @@ from typing import Callable, Iterable, TypeVar
 try:  # pragma: no cover - import depends on optional openai install
     from openai import APIStatusError, RateLimitError
 except ImportError:  # pragma: no cover - fallback for test environments
+
     class RateLimitError(Exception):
         """Fallback RateLimitError when OpenAI SDK is unavailable."""
 
@@ -17,6 +18,7 @@ except ImportError:  # pragma: no cover - fallback for test environments
         def __init__(self, *args, status_code: int | None = None, **kwargs):
             super().__init__(*args)
             self.status_code = status_code
+
 
 from core.logger import get_logger
 

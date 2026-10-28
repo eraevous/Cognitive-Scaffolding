@@ -6,8 +6,8 @@
 - @ai-intent: "Return parsed document content by resolving from local file, stub + raw reparsing, or S3 fallback."
 
 🔍 Module Summary:
-This module provides a fault-tolerant system for retrieving parsed document text. It first checks for local 
-parsed files, then tries regenerating from raw sources if metadata stubs exist, and finally attempts S3 
+This module provides a fault-tolerant system for retrieving parsed document text. It first checks for local
+parsed files, then tries regenerating from raw sources if metadata stubs exist, and finally attempts S3
 downloads if necessary. This ensures robust handling of missing or incomplete parsed data during preprocessing.
 
 🗂️ Contents:

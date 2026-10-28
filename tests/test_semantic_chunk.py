@@ -25,7 +25,8 @@ sys.modules.setdefault(
 )
 
 
-from core.parsing import semantic_chunk as sc
+# Imported after the stub modules above, on purpose.
+from core.parsing import semantic_chunk as sc  # noqa: E402
 
 
 def _patch_tokenizer(monkeypatch):
@@ -34,7 +35,9 @@ def _patch_tokenizer(monkeypatch):
 
 def _patch_embeddings(monkeypatch, fn):
     monkeypatch.setattr(sc, "embed_text_batch", fn)
-    monkeypatch.setattr(sc, "embed_text", lambda text, model="": fn([text], model=model)[0])
+    monkeypatch.setattr(
+        sc, "embed_text", lambda text, model="": fn([text], model=model)[0]
+    )
 
 
 def test_short_doc_single_chunk(monkeypatch):
@@ -137,9 +140,13 @@ def test_adaptive_mode_assigns_clusters(monkeypatch):
         def fit_predict(self, X):
             return np.asarray([-1, 1, 1, 2])
 
-    monkeypatch.setattr(sc, "umap", type("UmapNS", (), {"UMAP": lambda *a, **k: DummyUMAP()})())
+    monkeypatch.setattr(
+        sc, "umap", type("UmapNS", (), {"UMAP": lambda *a, **k: DummyUMAP()})()
+    )
     monkeypatch.setattr(sc, "SpectralClustering", DummySpectral)
-    monkeypatch.setattr(sc, "hdbscan", type("HDB", (), {"HDBSCAN": lambda *a, **k: DummyHDBSCAN()})())
+    monkeypatch.setattr(
+        sc, "hdbscan", type("HDB", (), {"HDBSCAN": lambda *a, **k: DummyHDBSCAN()})()
+    )
 
     text = " ".join(f"t{i}" for i in range(16))
     base_kwargs = dict(

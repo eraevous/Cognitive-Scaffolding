@@ -1,14 +1,14 @@
-""" Module: core.llm.invoke 
+"""Module: core.llm.invoke
 - @ai-path: core.llm.invoke
-- @ai-source-file: core/llm/invoke.py     
-- @ai-module: invoke     
-- @ai-role: summarizer     
-- @ai-entrypoint: false     
+- @ai-source-file: core/llm/invoke.py
+- @ai-module: invoke
+- @ai-role: summarizer
+- @ai-entrypoint: false
 - @ai-intent: "Summarizes input text using a GPT model, formatted by standard or chatlog-style prompts."
 
-🔍 Summary: 
-This utility function generates a summary for a given `text` input using an OpenAI model, applying either a default or custom prompt template. 
-It supports special formatting for chatlog-style documents and dynamically loads the appropriate prompt template from disk. 
+🔍 Summary:
+This utility function generates a summary for a given `text` input using an OpenAI model, applying either a default or custom prompt template.
+It supports special formatting for chatlog-style documents and dynamically loads the appropriate prompt template from disk.
 The function sends the prompt to the OpenAI API and parses the result as a JSON object. If parsing fails, it raises a descriptive error.
 
 📦 Inputs:
@@ -37,17 +37,17 @@ The function sends the prompt to the OpenAI API and parses the result as a JSON 
 - @ai-uses: config.openai_api_key, json.JSONDecodeError
 - @ai-tags: summarization, LLM, prompt, OpenAI, completion
 
-⚙️ Meta:     
-- @ai-version: 0.2.0     
-- @ai-generated: true     
+⚙️ Meta:
+- @ai-version: 0.2.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration:     
-- @human-reviewed: false     
-- @human-edited: false     
-- @last-commit:     
-- @change-summary: Initial AI-generated docstring with static + semantic alignment     
-- @notes: """
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit:
+- @change-summary: Initial AI-generated docstring with static + semantic alignment
+- @notes:"""
 
 import json
 from pathlib import Path

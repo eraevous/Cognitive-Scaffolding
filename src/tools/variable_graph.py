@@ -33,9 +33,9 @@ Provides tools to create and visualize directed graphs based on shared variable 
 📝 Human Collaboration:
 @human-reviewed: false
 @human-edited: false
-@last-commit: 
+@last-commit:
 @change-summary: Initial extraction of graph generation logic
-@notes: 
+@notes:
 """
 
 import matplotlib.pyplot as plt

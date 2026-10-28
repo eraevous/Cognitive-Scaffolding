@@ -108,9 +108,9 @@ def _run_chunk_stage(
             doc_type, records = prepare_chunk_plan(
                 name,
                 chunked=chunked,
-                segmentation="semantic"
-                if segmentation_mode == "semantic"
-                else "paragraph",
+                segmentation=(
+                    "semantic" if segmentation_mode == "semantic" else "paragraph"
+                ),
                 paths=paths,
             )
             chunk_cache[name] = records
@@ -135,7 +135,9 @@ def _load_chunk_cache(paths: PathConfig) -> Dict[str, List[Dict[str, object]]]:
         if records:
             cache[name] = records
         else:
-            logger.warning("Chunk metadata missing for %s; will regenerate on demand", name)
+            logger.warning(
+                "Chunk metadata missing for %s; will regenerate on demand", name
+            )
     return cache
 
 
@@ -165,9 +167,9 @@ def _run_classification_stage(
             classify(
                 name,
                 chunked=chunked,
-                segmentation="semantic"
-                if segmentation_mode == "semantic"
-                else "paragraph",
+                segmentation=(
+                    "semantic" if segmentation_mode == "semantic" else "paragraph"
+                ),
                 paths=paths,
                 chunk_records=records,
             )
@@ -239,10 +241,16 @@ def _run_cluster_stage(
         return
 
     try:
-        label_map = label_clusters(doc_ids, label_list, paths.metadata, model=label_model, preview=False)
+        label_map = label_clusters(
+            doc_ids, label_list, paths.metadata, model=label_model, preview=False
+        )
     except Exception as exc:  # pragma: no cover - defensive logging
         logger.error("Cluster labeling failed: %s", exc, exc_info=True)
-        label_map = {f"cluster_{label}": f"cluster_{label}" for label in set(label_list) if label != -1}
+        label_map = {
+            f"cluster_{label}": f"cluster_{label}"
+            for label in set(label_list)
+            if label != -1
+        }
 
     try:
         export_cluster_data(
@@ -256,7 +264,9 @@ def _run_cluster_stage(
     except Exception as exc:  # pragma: no cover - defensive logging
         logger.error("Failed to export clustering artefacts: %s", exc, exc_info=True)
 
-    _update_metadata_with_clusters(doc_ids, label_list, label_map, paths, cluster_method)
+    _update_metadata_with_clusters(
+        doc_ids, label_list, label_map, paths, cluster_method
+    )
     logger.info("Clustering stage complete (%d document(s))", len(doc_ids))
 
 
@@ -275,7 +285,9 @@ def _update_metadata_with_clusters(
         try:
             metadata = json.loads(meta_path.read_text("utf-8"))
         except Exception:  # pragma: no cover - defensive logging
-            logger.warning("Unable to load metadata for %s to attach cluster info", doc_id)
+            logger.warning(
+                "Unable to load metadata for %s to attach cluster info", doc_id
+            )
             continue
 
         if label == -1:
@@ -292,7 +304,9 @@ def _update_metadata_with_clusters(
         try:
             validate_metadata(metadata)
         except Exception as exc:  # pragma: no cover - defensive logging
-            logger.warning("Cluster update for %s failed schema validation: %s", doc_id, exc)
+            logger.warning(
+                "Cluster update for %s failed schema validation: %s", doc_id, exc
+            )
         meta_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
 

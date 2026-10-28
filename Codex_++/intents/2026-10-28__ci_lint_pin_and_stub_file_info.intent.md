@@ -1,0 +1,7 @@
+@ai-intent: Make CI pass and stay stable, and fix stub merging so classified metadata validates.
+
+- CI ran unpinned `ruff` and `black`; newer Ruff releases select far more rules by default (439 findings with Ruff 0.16 vs 4 under the classic set), so CI failed on every PR regardless of the change. Pinned `ruff==0.13.1` (the version in uv.lock) and `black==26.5.1`, and made the Ruff rule set explicit (`E4, E7, E9, F`).
+- Fixed the 4 real findings: renamed a loop variable in `_build_chunk_records` that shadowed the imported `chunk_text` (harmless here, but a trap); marked two deliberate post-stub imports in tests with `# noqa: E402`; removed an unused import. Applied Black (formatting only, 30 files).
+- `merge_stubs` created an empty `file_info`, which the schema rejects (`source_file` is required whenever `file_info` exists). S3 upload stubs keep `source_file`/`parsed_file`/`source_ext` at the top level, so classifying an S3-uploaded document would fail validation. Now those fields are carried into `file_info`, and an empty `file_info` is left out. Tests in `tests/test_merge_stubs.py`.
+- `test_llm_invoke` pinned `gpt-4` while `summarize_text` defaults to `gpt-5-nano`; the tests now read the default from the function signature.
+- Open question (Drift): should upload stubs write `file_info` directly, so both upload paths produce the same stub shape? Left as is; the merge handles both.
