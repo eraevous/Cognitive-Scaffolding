@@ -88,8 +88,9 @@ Pull requests and collaboration ideas welcome! This scaffold is designed for per
 
 ---
 
-## 🧠 License & Licensing
+## License
 
-This project is licensed under [MIT/Apache-2.0](LICENSE).
-
-All contributions are subject to our [Contributor License Agreement](CLA.md), which ensures the project remains open-source while allowing the maintainer to sustain development through optional commercial licensing.
+Licensed under the [MIT License](LICENSE). Contributions are welcome under the
+[Contributor License Agreement](CLA.md), which keeps them open under the same license
+while letting the maintainer also offer commercial versions. See
+[CONTRIBUTING.md](CONTRIBUTING.md).
