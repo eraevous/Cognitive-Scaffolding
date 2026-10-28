@@ -1,10 +1,10 @@
 """
-Module: core_lib.clustering.exporter 
-- @ai-path: core_lib.clustering.exporter 
-- @ai-source-file: export.py 
-- @ai-module: clustering_export 
-- @ai-role: result_exporter 
-- @ai-entrypoint: export_clusters_and_summary() 
+Module: core_lib.clustering.exporter
+- @ai-path: core_lib.clustering.exporter
+- @ai-source-file: export.py
+- @ai-module: clustering_export
+- @ai-role: result_exporter
+- @ai-entrypoint: export_clusters_and_summary()
 - @ai-intent: "Save clustered document assignments and metadata summaries to disk for analysis and downstream processing."
 
 🔍 Summary:
@@ -33,16 +33,16 @@ This function saves the results of clustering to disk. It serializes cluster map
 - @ai-uses: cluster_maps, assignments, umap_df
 - @ai-tags: export, clustering, metadata, csv-generation, json-saving
 
-⚙️ Meta: 
-- @ai-version: 0.2.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.2.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Save clustering outputs and build metadata summary CSV 
-- @change-summary: Persist clustered outputs for downstream use and exploration 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Save clustering outputs and build metadata summary CSV
+- @change-summary: Persist clustered outputs for downstream use and exploration
 - @notes:
 
 🚧 Future Enhancements:

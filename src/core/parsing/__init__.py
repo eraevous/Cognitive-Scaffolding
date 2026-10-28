@@ -1,4 +1,5 @@
 """Lightweight wrappers to avoid heavy imports at module load."""
+
 from __future__ import annotations
 
 

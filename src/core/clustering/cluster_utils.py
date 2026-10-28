@@ -1,10 +1,10 @@
 """
-Module: core_lib.clustering.cluster_utils 
-- @ai-path: core_lib.clustering.cluster_utils 
-- @ai-source-file: combined_clustering.py 
-- @ai-module: cluster_utils 
-- @ai-role: mapping_normalizer 
-- @ai-entrypoint: flatten_cluster_map() 
+Module: core_lib.clustering.cluster_utils
+- @ai-path: core_lib.clustering.cluster_utils
+- @ai-source-file: combined_clustering.py
+- @ai-module: cluster_utils
+- @ai-role: mapping_normalizer
+- @ai-entrypoint: flatten_cluster_map()
 - @ai-intent: "Convert clustered document groupings into a flat doc_id → label dictionary."
 
 🔍 Summary:
@@ -27,15 +27,15 @@ This function transforms a hierarchical cluster mapping (cluster ID → list of 
 - @ai-uses: cluster_map, label_map
 - @ai-tags: flattening, mapping, cluster-to-label, document-indexing
 
-⚙️ Meta: 
-- @ai-version: 0.1.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.1.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Flatten cluster-to-doc mappings after labeling @change-summary: Create simple document lookup for downstream uses 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Flatten cluster-to-doc mappings after labeling @change-summary: Create simple document lookup for downstream uses
 - @notes:
 """
 

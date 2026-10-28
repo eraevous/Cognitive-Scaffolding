@@ -1,4 +1,4 @@
-""" 
+"""
 Module: core_lib.metadata.organize
 - @ai-path: core_lib.metadata.organize
 - @ai-source-file: core_lib/metadata/organize.py
@@ -42,11 +42,10 @@ Organizes files into categorized folders based on metadata or provided clusterin
 📝 Human Collaboration:
 - @human-reviewed: false
 - @human-edited: false
-- @last-commit: 
+- @last-commit:
 - @change-summary: Initial structured documentation
-- @notes: 
+- @notes:
 """
-
 
 import shutil
 from pathlib import Path

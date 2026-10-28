@@ -6,7 +6,7 @@
 - @ai-intent: "Ensure metadata files follow a shared JSON schema structure."
 
 🔍 Module Summary:
-This module defines schema enforcement for document metadata structures. It loads the unified schema from 
+This module defines schema enforcement for document metadata structures. It loads the unified schema from
 disk and validates metadata dictionaries against it using `jsonschema`, raising clear errors when violations occur.
 
 🗂️ Contents:

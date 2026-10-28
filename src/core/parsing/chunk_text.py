@@ -6,8 +6,8 @@
 - @ai-intent: "Divide long input text into paragraph-preserving segments for model input size limits."
 
 🔍 Module Summary:
-This module provides a utility to divide a long text into manageable chunks, respecting paragraph boundaries 
-whenever possible. It ensures that no chunk exceeds a specified maximum character limit, preparing text 
+This module provides a utility to divide a long text into manageable chunks, respecting paragraph boundaries
+whenever possible. It ensures that no chunk exceeds a specified maximum character limit, preparing text
 for downstream LLM summarization, classification, or ingestion workflows.
 
 🗂️ Contents:
@@ -38,7 +38,6 @@ for downstream LLM summarization, classification, or ingestion workflows.
     - Change Caution: Very large paragraphs will still be split arbitrarily; consider preprocessing for those cases.
     - Future Hints: Extend to support sentence-level chunking fallback if paragraph-level split fails.
 """
-
 
 from typing import List
 

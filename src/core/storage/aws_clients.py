@@ -6,8 +6,8 @@
 - @ai-intent: "Provide reusable, profile-aware boto3 clients for AWS service access."
 
 🔍 Module Summary:
-This module defines simple factory functions to initialize `boto3` clients for AWS services like S3 and Lambda. 
-Clients can be configured with optional AWS profiles (e.g., for local dev) and target regions (default "us-east-1"), 
+This module defines simple factory functions to initialize `boto3` clients for AWS services like S3 and Lambda.
+Clients can be configured with optional AWS profiles (e.g., for local dev) and target regions (default "us-east-1"),
 supporting flexibility across deployment environments.
 
 🗂️ Contents:
@@ -39,7 +39,6 @@ supporting flexibility across deployment environments.
     - Change Caution: Ensure AWS credentials and profile configurations are managed securely.
     - Future Hints: Extend to support additional AWS services if needed (e.g., DynamoDB, SNS).
 """
-
 
 from typing import Optional
 

@@ -43,7 +43,6 @@ This module provides a CLI tool for recursively scanning Python files under a sp
 @notes: Ideal for bundling source files into reviewable or AI-trainable scripts.
 """
 
-
 import csv
 import os
 from pathlib import Path

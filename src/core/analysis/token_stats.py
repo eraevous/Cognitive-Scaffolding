@@ -15,6 +15,7 @@ Usage (from code):
 
 The same logic powers the `mosaic tokens` CLI command.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -50,7 +51,7 @@ TOKENIZERS: Dict[str, Callable[[str], Callable[[str], int]]] = {
     # key format:  "<family>:<model>"
     "tiktoken:gpt-4o-mini": _tiktoken_loader,
     "tiktoken:gpt-3-small": _tiktoken_loader,
-    "huggingface:roberta-base": _hf_loader
+    "huggingface:roberta-base": _hf_loader,
     # register more like:
     # "huggingface:bert-base-uncased": lambda _: hf_loader("bert-base-uncased")
 }

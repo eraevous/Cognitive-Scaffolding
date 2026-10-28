@@ -6,8 +6,8 @@
 - @ai-intent: "Combine segmented metadata chunks into one unified dict and resolve filename identity from stubs."
 
 🔍 Module Summary:
-This module supports post-classification workflows by merging multiple metadata dictionaries into a single 
-consolidated result and resolving parsed filenames via inspection of metadata stubs. It uses aggregation, 
+This module supports post-classification workflows by merging multiple metadata dictionaries into a single
+consolidated result and resolving parsed filenames via inspection of metadata stubs. It uses aggregation,
 majority voting, and flattening strategies to unify partial outputs.
 
 🗂️ Contents:
@@ -39,7 +39,6 @@ majority voting, and flattening strategies to unify partial outputs.
     - Change Caution: Assumes consistent key presence across partial outputs; schema changes may impact logic.
     - Future Hints: Add support for weight-based merging or user-overridable merge strategies.
 """
-
 
 import json
 from collections import Counter
