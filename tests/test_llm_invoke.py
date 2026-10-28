@@ -1,3 +1,4 @@
+import inspect
 import json
 import sys
 import types
@@ -45,7 +46,12 @@ class _DummyClient:
 dummy_openai.OpenAI = _DummyClient
 sys.modules.setdefault("openai", dummy_openai)
 
-from core.llm import invoke
+# Imported after the stub modules above, on purpose.
+from core.llm import invoke  # noqa: E402
+
+# The model summarize_text uses when none is given; read from the code so this test
+# follows a deliberate change of default instead of pinning an old one.
+DEFAULT_MODEL = inspect.signature(invoke.summarize_text).parameters["model"].default
 
 
 @pytest.fixture
@@ -60,7 +66,7 @@ def test_summarize_text_standard(monkeypatch, fake_config):
 
     def fake_run_openai_completion(*, prompt, model, temperature, api_key):
         assert prompt == "Summarize: example"
-        assert model == "gpt-4"
+        assert model == DEFAULT_MODEL
         assert temperature == 0.4
         assert api_key == "test-key"
         return json.dumps({"summary": "ok", "topics": ["ai", "skills"]})
@@ -80,7 +86,7 @@ def test_summarize_text_chatlog(monkeypatch, fake_config):
 
     def fake_run_openai_completion(*, prompt, model, temperature, api_key):
         assert prompt.startswith("Chatlog: User: I'm feeling stuck")
-        assert model == "gpt-4"
+        assert model == DEFAULT_MODEL
         assert temperature == 0.4
         assert api_key == "test-key"
         return json.dumps({"summary": "chat summary", "category": "chatlog"})

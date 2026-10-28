@@ -1,10 +1,10 @@
 """
-Module: core_lib.workflows.main_commands 
-- @ai-path: core_lib.workflows.main_commands 
-- @ai-source-file: main_commands.py 
-- @ai-module: main_commands 
-- @ai-role: classifier 
-- @ai-entrypoint: classify(), classify_large() 
+Module: core_lib.workflows.main_commands
+- @ai-path: core_lib.workflows.main_commands
+- @ai-source-file: main_commands.py
+- @ai-module: main_commands
+- @ai-role: classifier
+- @ai-entrypoint: classify(), classify_large()
 - @ai-intent: "Classify parsed documents (or chunks of documents) using LLM-based Lambda summarization."
 
 🔍 Summary:
@@ -31,17 +31,17 @@ This module contains two core functions to classify documents. `classify()` supp
 - @ai-uses: PathConfig, RemoteConfig, stub_path
 - @ai-tags: summarization, metadata, classification, S3, chunking, schema-validation
 
-⚙️ Meta: 
-- @ai-version: 0.3.0 
-- @ai-generated: true 
+⚙️ Meta:
+- @ai-version: 0.3.0
+- @ai-generated: true
 - @ai-verified: false
 
-📝 Human Collaboration: 
-- @human-reviewed: false 
-- @human-edited: false 
-- @last-commit: Move classify/classify_large logic from CLI into shared main_commands module 
-- @change-summary: Refactor classification into reusable backend for CLI + batch 
-- @notes: 
+📝 Human Collaboration:
+- @human-reviewed: false
+- @human-edited: false
+- @last-commit: Move classify/classify_large logic from CLI into shared main_commands module
+- @change-summary: Refactor classification into reusable backend for CLI + batch
+- @notes:
 """
 
 import json
@@ -122,22 +122,22 @@ def _build_chunk_records(
     search_pos = 0
     strategy = segmentation if use_chunks else "single"
 
-    for idx, chunk_text in enumerate(texts):
+    for idx, chunk_str in enumerate(texts):
         chunk_id = f"{stem}_chunk{idx:02d}"
-        start_idx = text.find(chunk_text, search_pos)
+        start_idx = text.find(chunk_str, search_pos)
         if start_idx == -1:
             start_idx = search_pos
-        end_idx = start_idx + len(chunk_text)
+        end_idx = start_idx + len(chunk_str)
         search_pos = end_idx
         records.append(
             {
                 "id": chunk_id,
                 "order": idx,
                 "strategy": strategy,
-                "text": chunk_text,
+                "text": chunk_str,
                 "char_start": start_idx,
                 "char_end": end_idx,
-                "char_length": len(chunk_text),
+                "char_length": len(chunk_str),
             }
         )
 
@@ -300,7 +300,13 @@ def merge_stubs(name: str, metadata: dict, paths: PathConfig) -> dict:
     file_info = stub.get("file_info")
     if isinstance(file_info, dict):
         merged_info = {**file_info, **metadata.get("file_info", {})}
-        metadata["file_info"] = merged_info
+        # Upload stubs (S3 path) keep these at the top level; the schema expects them
+        # in file_info, and requires source_file whenever file_info is present.
+        for key in ("source_file", "parsed_file", "source_ext"):
+            if key not in merged_info and isinstance(stub.get(key), str):
+                merged_info[key] = stub[key]
+        if merged_info:
+            metadata["file_info"] = merged_info
 
     if "chunk_map" in stub and "chunk_map" not in metadata:
         metadata["chunk_map"] = stub["chunk_map"]
