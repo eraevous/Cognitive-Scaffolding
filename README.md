@@ -82,6 +82,15 @@ Install with `pip install -e .` and run `kairos --help` to explore all options.
 
 ---
 
+## Library
+
+[`library/`](library/README.md) is a persistent home for foundation artifacts: framework notes,
+syntheses, interpretations and captured threads, each with a provenance header. Start at
+[library/README.md](library/README.md) for the contract and [library/INDEX.md](library/INDEX.md)
+for the list.
+
+---
+
 ## 🤝 Contributing
 
 Pull requests and collaboration ideas welcome! This scaffold is designed for personal knowledgebases, research pipelines, and semantic search assistants.
