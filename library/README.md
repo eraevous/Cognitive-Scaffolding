@@ -96,7 +96,7 @@ holds…".
    `INDEX.md` row.
 2. **An authorized agent opens a PR.** The agent commits on a branch with the header filled,
    the redactions listed in `edits`, and the `INDEX.md` row added. It opens a PR and does not
-   merge it; the owner reviews and merges. *Agent write path: authorization pending (DEC-019).*
+   merge it; the owner reviews and merges. *Agent write path: authorization pending under the owner's rule that information crosses freely between agents but authority never crosses implicitly.*
    Until that is settled, each agent PR needs the owner's explicit request.
 
 Before any item is published, someone must read all of it. Do not publish what nobody has read.
