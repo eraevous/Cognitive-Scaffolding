@@ -202,3 +202,5 @@ Combined_Scripts/
 !remote_config_example.json
 
 .DS_Store
+# Telosmith: the Claude Code hook is configuration, not data
+!.claude/settings.json
