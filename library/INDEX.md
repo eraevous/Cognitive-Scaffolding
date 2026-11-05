@@ -17,7 +17,6 @@ unless marked `owner_position: true`.
 | [Governance Triangle](foundations/governance-triangle.md) | interpretation | model:chatgpt | vault: Governance Triangle.md | unknown | A model review of AGENTS / CHARTER / Codex instructions, with suggestions on enforcement detail. |
 | [HONT audit of Codex++ traces](foundations/hont-audit.md) | interpretation | model:chatgpt | vault: HONT Audit.md | unknown | Five hallucination failure modes found in agent traces (ghost tools, reflexive fabrication, …). |
 | [The Epistemic Engine](foundations/epistemic-engine.md) | interpretation | model:chatgpt | vault: Epistemic Engine.md | unknown | An effusive meta-synthesis of the Kairos idea; useful as lineage, not as mechanism. |
-| [Everything-and-Nothing Synthesis](foundations/everything-and-nothing-synthesis.md) | interpretation | model:chatgpt | vault: Everything-and-Nothing Synthesis.md | unknown | A dialectical inversion: what if the scaffolding causes the overload it is meant to relieve? |
 
 ## Syntheses
 

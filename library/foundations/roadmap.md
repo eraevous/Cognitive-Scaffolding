@@ -5,7 +5,7 @@ captured: "unknown (content refers to 2025 benchmarks)"
 author: "mixed"
 evidence_class: "model-synthesis"
 edited_by: "model:claude (library builder, 2026-11-05)"
-edits: "added header; removed an empty vault-properties block; redacted three personal details (health and a billing anecdote); fenced three code blocks that had lost their fences"
+edits: "added header; removed an empty vault-properties block; removed three personal details; fenced three code blocks that had lost their fences"
 status: synthesis
 owner_position: false
 note: "The two 'You said' turns are the owner's; everything else is the model's. The opening table is clipped in the original and is left as captured."
@@ -146,7 +146,7 @@ Thought for 14 seconds
 Below is a “second-pass” review that goes beyond the basic FAISS swap-out and multi-agent layer. I’m wearing three hats at once:
 
 - **Architect-on-call** – sanity-check against best practice.    
-- **Personalization lens** – folding in what I know about your Run-Drift cadence, [personal detail removed for publication], low-cost bias, and privacy leanings.    
+- **Personalization lens** – folding in what I know about your Run-Drift cadence, low-cost bias, and privacy leanings.    
 - **Blue-sky R&D scout** – tossing in slick, forward-looking ideas that keep the system fresh through-2026.    
 
 I end with a short **“decide / clarify”** list so you can steer where guessing would be risky.
@@ -160,7 +160,7 @@ I end with a short **“decide / clarify”** list so you can steer where guessi
 |**Vector DB abstraction**|Wrap `FaissStore` behind a **strategy interface** (`VectorStoreProtocol`) and add drop-in drivers for **Qdrant** and **Milvus**.|Keeps a local-first, no-dependency path (FAISS) **and** gives you a one-liner to scale or go hosted the day your corpus explodes. Qdrant & Milvus lead most open-source benchmarks in 2025 for >10 M vectors [lakefs.io](https://lakefs.io/blog/12-vector-databases-2023/?utm_source=chatgpt.com)[instaclustr.com](https://www.instaclustr.com/education/vector-database/top-10-open-source-vector-databases/?utm_source=chatgpt.com)|
 |**Incremental indexing**|Log every successful `add()` to a lightweight **write-ahead WAL** (just newline-delimited msgpack). Rebuild the FAISS index by replay when crashes occur.|Low-cost durability without running Postgres or S3 versioning; aligns with your “avoid needless infra” stance.|
 |**Chunk audit tool**|A Typer sub-command that prints **gaps / overlaps / orphaned chunks** and checks that every embedding ID appears once in the vector store.|Gives you an at-a-glance integrity check before deep dives—perfect for “Run” spurts when you want instant correctness feedback.|
-|**Retrieval evaluation set**|Store <question, expected-docs> JSON fixtures in `tests/retrieval/`. CI runs `Recall@k` and flags regressions when you tweak chunking, embeddings, or index hyper-params.|[personal detail removed for publication] This prevents silent quality regressions during late-night experimentation.|
+|**Retrieval evaluation set**|Store <question, expected-docs> JSON fixtures in `tests/retrieval/`. CI runs `Recall@k` and flags regressions when you tweak chunking, embeddings, or index hyper-params.|This prevents silent quality regressions during late-night experimentation.|
 
 ---
 
@@ -179,7 +179,7 @@ I end with a short **“decide / clarify”** list so you can steer where guessi
 
 1. **Breadcrumb Logger** – On every Typer run, append a timestamped natural-language summary of _what you just did_ to `~/.mosaic_history.log`. During a “Drift” phase you can RAG over those breadcrumbs to reconstruct context.    
 2. **Run-Drift Scheduler** – Tiny `--rhythm` flag that adds `time.monotonic()` bookkeeping: nudge you after N minutes of Run to commit and pause. Could even fire a desktop notification (“Freeze the riverbed → commit index now”).    
-3. **Cost-Guard Breaker** – Global `BudgetTracker(max_dollars=X)` that raises an exception rather than surprise you with [personal detail removed for publication].    
+3. **Cost-Guard Breaker** – Global `BudgetTracker(max_dollars=X)` that raises an exception rather than surprise you with an unexpected bill.    
 
 ---
 

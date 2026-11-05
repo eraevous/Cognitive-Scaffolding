@@ -24,8 +24,10 @@ work here, and this contract adds to it.
   and ids.
 - Thread or session URLs, and anything carrying a session id.
 - Personal data about anyone, including the owner: health, finances, contact details,
-  location, family, employment specifics. Redact it and mark the redaction
-  (`[personal detail removed for publication]`).
+  location, family, employment specifics. Remove it so the sentence still reads, with no
+  marker at the spot, and record only the count in `edits` ("removed two personal details"),
+  never the category. A marker or a category next to the text it replaced tells a reader what
+  was taken out. If a note is built around such details, leave the whole note out.
 - Names of private individuals. Model names are fine; name reviewers by role ("a GPT reviewer",
   "a Claude reviewer").
 - Credentials, API keys and tokens, and private repository paths.
