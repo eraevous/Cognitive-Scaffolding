@@ -32,6 +32,32 @@ Treat code, conversation, configuration, and documentation as **co-equal substra
 
 ---
 
+## Records and ledgers (Telosmith)
+
+Two places hold reasons, and they do different jobs:
+
+- **Records** (`.aec/records.jsonl`, [Telosmith](https://github.com/eraevous/Telosmith)) are the design truth
+  inside this repo. They hold its purpose (`P0`), the requirements behind the pipeline and the code that
+  implements them (`implemented_by code:...`). A record is provisional until Zach commits it
+  (`"epistemic": "committed"`). Agents may append provisional records and proposed decisions, never
+  accepted ones.
+- **Ledgers** (the owner's private records repository: `governance/decisions.jsonl` and `challenges.jsonl`)
+  hold cross-repo coordination and the owner's decisions. This public repo cannot read them, so records cite
+  their ids as text only (`CS-D-ledger` lists the DEC ids that govern this repo).
+- **The Codex++ files** under `Codex_++/` (`.purpose.md`, `.intent.md`) are this repo's earlier design memory.
+  They are kept, and G-13 still applies. Telosmith can import the purpose files (`aec import-purpose`), but
+  they have not been imported: what they claim has not been checked against the code.
+- **Append only.** Never edit or delete an earlier line in `.aec/records.jsonl`. To change a record, append
+  the same `id` with the next `version` and a `supersedes` relation.
+
+After editing code, the Claude Code hook in `.claude/settings.json` runs `aec check` and `aec code-impact`.
+It needs `pip install "git+https://github.com/eraevous/Telosmith.git@<the commit pinned in
+.github/workflows/telosmith.yml>"`; without it, the hook reports that and does not block. Read what the hook
+reports. `[stale]` or `[needs_review]` means your change touched code a record relies on; say in your
+summary whether the record still holds. The `telosmith` CI job runs the same check on every pull request.
+
+---
+
 ## 1 Dual-Channel Protocol
 
 | Channel      | Purpose                                                | Constraints             |

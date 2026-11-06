@@ -1,0 +1,33 @@
+# Telosmith records check and code-impact report (installed from `aec init`'s snippet, DEC-091).
+# Pinned to the Telosmith commit that generated it (f961902b2dbe); change the ref only to a release
+# >= v0.5.0 or a commit you have reviewed.
+name: telosmith
+on: [push, pull_request]
+jobs:
+  telosmith:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install "git+https://github.com/eraevous/Telosmith.git@f961902b2dbe3abaf380e94b5d15861c254df0e0"
+      - name: Structural snapshot (regenerated, never trusted from the branch)
+        run: python3 -m aec edges . -o .aec/edges.jsonl
+      - name: Records check (fails on errors, including dangling code references)
+        run: python3 -m aec check .aec/records.jsonl --edges .aec/edges.jsonl
+      - name: Code impact against the base (report-only; see the job summary)
+        env:
+          AEC_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          base=$(git merge-base "$AEC_BASE" HEAD 2>/dev/null) || base=""
+          if [ -z "$base" ]; then
+            echo "code-impact skipped: no base revision for this event" | tee -a "$GITHUB_STEP_SUMMARY"; exit 0
+          fi
+          python3 -m aec snapshot . --rev "$base" -o .aec/before.jsonl || {
+            echo "code-impact skipped: could not snapshot $base" | tee -a "$GITHUB_STEP_SUMMARY"; exit 0; }
+          report=$(python3 -m aec code-impact .aec/records.jsonl .aec/before.jsonl .aec/edges.jsonl 2>&1) || true
+          printf '%s\n' "$report"
+          { echo "## Telosmith code-impact (structural, report-only) vs $base"; echo '```'
+            printf '%s\n' "$report"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit 0

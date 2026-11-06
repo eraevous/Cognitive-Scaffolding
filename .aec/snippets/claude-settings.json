@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" || exit 0; python3 -m aec code-impact --help 2>/dev/null | grep -q -- --exit-code || { echo 'Telosmith hook: the installed aec has no code-impact --exit-code; install a release >= v0.5.0 or the commit your CI job pins' >&2; exit 1; }; python3 -m aec edges . -o .aec/edges.jsonl 2>/dev/null; python3 -m aec check .aec/records.jsonl --edges .aec/edges.jsonl >/dev/null || { python3 -m aec check .aec/records.jsonl --edges .aec/edges.jsonl 1>&2; exit 2; }; python3 -m aec snapshot . --rev HEAD -o .aec/hook-before.jsonl 2>/dev/null || exit 0; out=$(python3 -m aec code-impact .aec/records.jsonl .aec/hook-before.jsonl .aec/edges.jsonl --exit-code 2>&1) || { printf '%s\\n' \"$out\" '(Telosmith: stale/needs_review lines are status changes; structural pointer lines are candidates for attention and change no status.)' >&2; exit 2; }",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
